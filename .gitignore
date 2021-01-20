@@ -26,3 +26,7 @@ buildNumber.properties
 .factorypath
 .project
 .vscode/
+
+# Project Specific
+
+data/
