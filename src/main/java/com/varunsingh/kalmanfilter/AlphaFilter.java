@@ -1,24 +1,9 @@
 package com.varunsingh.kalmanfilter;
 
-public class AlphaFilter implements EstimationFilter {
-    private double currentMeasurement;
-    private double currentState;
-    private int iteration = 0;
+public class AlphaFilter extends MeasureUpdatePredictFilter implements EstimationFilter {
 
     public AlphaFilter(int initialStateGuess) {
-        currentState = initialStateGuess;
-    }
-
-    public int getIteration() {
-        return iteration;
-    }
-
-    public double getCurrentMeasurement() {
-        return currentMeasurement;
-    }
-
-    public double getCurrentState() {
-        return currentState;
+        super(initialStateGuess);
     }
     
     public void measure(double measurement) {

@@ -1,28 +1,13 @@
 package com.varunsingh.kalmanfilter;
 
-public class PositionalKalmanFilter implements KalmanFilter {
-    private double currentMeasurement;
-    private double currentState;
+public class PositionalKalmanFilter extends MeasureUpdatePredictFilter implements KalmanFilter {
     private double currentEstimateUncertainty;
-    private int iteration = 0;
 
     public final int MEASUREMENT_ERROR = 2;
 
     public PositionalKalmanFilter(int initialStateGuess, double initialEstimateUncertainty) {
-        currentState = initialStateGuess;
+        super(initialStateGuess);
         currentEstimateUncertainty = initialEstimateUncertainty;
-    }
-
-    public int getIteration() {
-        return iteration;
-    }
-
-    public double getCurrentMeasurement() {
-        return currentMeasurement;
-    }
-
-    public double getCurrentState() {
-        return currentState;
     }
     
     public void measure(double measurement) {
