@@ -1,6 +1,6 @@
 package com.varunsingh.kalmanfilter;
 
-abstract class MeasureUpdatePredictFilter {
+abstract class MeasureUpdatePredictFilter implements EstimationFilter {
     protected double currentMeasurement;
     protected double currentState;
     protected int iteration = 0;
@@ -19,5 +19,9 @@ abstract class MeasureUpdatePredictFilter {
     
     public int getIteration() {
         return iteration;
+    }
+
+    public void measure(double measurement) {
+        iteration++;
     }
 }

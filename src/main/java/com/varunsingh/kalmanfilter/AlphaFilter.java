@@ -1,13 +1,14 @@
 package com.varunsingh.kalmanfilter;
 
-public class AlphaFilter extends MeasureUpdatePredictFilter implements EstimationFilter {
+public class AlphaFilter extends MeasureUpdatePredictFilter {
 
     public AlphaFilter(int initialStateGuess) {
         super(initialStateGuess);
     }
     
+    @Override
     public void measure(double measurement) {
-        iteration++;
+        super.measure(measurement);
         currentMeasurement = measurement;
         currentState = calculateCurrentStateEstimate();
     }
