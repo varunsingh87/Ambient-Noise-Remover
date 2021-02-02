@@ -23,5 +23,6 @@ abstract class MeasureUpdatePredictFilter implements EstimationFilter {
 
     public void measure(double measurement) {
         iteration++;
+        currentMeasurement = measurement;
     }
 }

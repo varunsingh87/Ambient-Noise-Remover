@@ -33,24 +33,38 @@ To run the tests, enter `mvn test` in the command line.
 
 ### Break down into end to end tests
 
-The AmbientNoiseRemoverTest tests the AmbientNoiseRemover class and is important for identifying the file and its initial sound data
+The WaveFormTest class tests the WaveForm class and is important for making sure the methods that manipulate the waveform function correctly
 
 ```
 @Test
-public void getSound_isCorrect() {
-    FileInputStream sample1Stream;
-    try {
-        sample1Stream = new FileInputStream(new File("/data/sample1.mp3"));
-        assertEquals(new AmbientNoiseRemover(sample1Stream).getSound().getClass(), Clip.class);
-    } catch (FileNotFoundException e) {
-        e.printStackTrace();
-    }
+public void testInvert() {
+    byte[] firstByteArr = { 1, 0, -86, 124 };
+
+    byte[] actualInversion = new WaveForm(firstByteArr).invert().getAudioData();
+
+    assertArrayEquals(new byte[] { -1, 0, 86, -124 }, actualInversion);
+}
+```
+
+The kalmanfilter test package tests all estimation algorithms from the kalmanfilter package. These are important in making sure the predicted positions and byte data that will be removed is correct.
+
+```
+@Test
+public void testVelocityStateUpdateEquation() {
+    double result = KalmanFilterEquations.useVelocityStateUpdateEquation(
+        previousStateEstimate,
+        previousVelocityEstimate, 
+        BETA_FILTER, 
+        measurement, 
+        5
+    );
+    assertEquals(expectedVelocityEstimate, result, 0.1);
 }
 ```
 
 ### Coding Style Tests
 
-Explain what these tests test and why
+The Coding Style tests will test to make sure the right method bracket style is used.
 
 ```
 Give an example
@@ -76,7 +90,7 @@ I use [SemVer](http://semver.org/) for versioning. For the versions available, s
 
 ## Author
 
-I, Varun Singh, did the research, wrote the software. 
+I, Varun Singh, did the research and wrote the software. 
 
 ## License
 

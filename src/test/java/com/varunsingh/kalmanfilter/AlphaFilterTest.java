@@ -14,21 +14,7 @@ public class AlphaFilterTest {
     }
 
     @Test
-    public void testIterationIncrement() {
-        // Act
-        alphaFilter.measure(60);
-        int iterationAfter1Measurement = alphaFilter.getIteration();
-
-        alphaFilter.measure(67);
-        int iterationAfter2Measurements = alphaFilter.getIteration();
-
-        // Assert
-        assertEquals(1, iterationAfter1Measurement);
-        assertEquals(2, iterationAfter2Measurements);
-    }
-
-    @Test
-    public void testKalmanGainEquation() {
+    public void testCalculateAlphaFilter() {
         alphaFilter.measure(45.5);
         double kalmanGainAfter1Iteration = alphaFilter.calculateAlphaFilter();
         
@@ -44,7 +30,7 @@ public class AlphaFilterTest {
     }
 
     @Test
-    public void testStateUpdateEquation() {
+    public void testCalculateCurrentState() {
         // Arrange
         int firstMeasurement = 1030;
         int secondMeasurement = 989;
@@ -67,7 +53,7 @@ public class AlphaFilterTest {
     }
     
     @Test
-    public void testStateExtrapolationEquation() {
+    public void testCalculatePrediction() {
         assertEquals(1000, alphaFilter.calculatePrediction(), 0.1);
     }
 }
