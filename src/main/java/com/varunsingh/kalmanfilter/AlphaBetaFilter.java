@@ -22,7 +22,7 @@ public class AlphaBetaFilter extends MeasureUpdatePredictFilter {
     public AlphaBetaFilter(int initialStateGuess, int initialVelocityGuess, double alpha, double beta) {
         super(initialStateGuess);
         currentVelocity = initialVelocityGuess;
-        currentPrediction = calculatePrediction();
+        currentPrediction = calculateStatePrediction();
         setAlphaFilter(alpha);
         setBetaFilter(beta);
     }
@@ -71,7 +71,7 @@ public class AlphaBetaFilter extends MeasureUpdatePredictFilter {
     }
 
     @Override
-    public double calculatePrediction() {
+    public double calculateStatePrediction() {
         return KalmanFilterEquations.usePositionalStateExtrapolationEquation(
             currentState, 
             TIME_INTERVAL, 
@@ -84,7 +84,7 @@ public class AlphaBetaFilter extends MeasureUpdatePredictFilter {
         super.measure(measurement);
         currentVelocity = calculateCurrentVelocity();
         currentState = calculateCurrentStateEstimate();
-        currentPrediction = calculatePrediction();
+        currentPrediction = calculateStatePrediction();
     }
     
 }

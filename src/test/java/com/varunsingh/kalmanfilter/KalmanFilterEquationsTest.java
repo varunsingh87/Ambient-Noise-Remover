@@ -71,4 +71,10 @@ public class KalmanFilterEquationsTest {
         double result = KalmanFilterEquations.usePositionalStateExtrapolationEquation(expectedStateEstimate, 5, expectedVelocityEstimate);
         assertEquals(expectedStatePrediction, result, 0.9);
     }
+
+    @Test
+    public void test_PositionalStateExtrapolationEquation_With_Velocity_And_Acceleration() {
+        double result = KalmanFilterEquations.usePositionalStateExtrapolationEquation(31038.8, 5, 67.2, 1.8);
+        assertEquals(31_397.1, result, 0.9);
+    }
 }

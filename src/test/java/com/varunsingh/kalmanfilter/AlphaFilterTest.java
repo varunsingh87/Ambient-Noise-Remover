@@ -54,6 +54,6 @@ public class AlphaFilterTest {
     
     @Test
     public void testCalculatePrediction() {
-        assertEquals(1000, alphaFilter.calculatePrediction(), 0.1);
+        assertEquals(1000, alphaFilter.calculateStatePrediction(), 0.1);
     }
 }

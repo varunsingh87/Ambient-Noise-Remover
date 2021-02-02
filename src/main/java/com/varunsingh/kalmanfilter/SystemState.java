@@ -8,19 +8,23 @@ import java.util.Objects;
 public class SystemState {
     private double measurement;
     private double stateEstimate;
-    private double stateVelocity = 0;
-    private double stateAcceleration = 0;
+    private double stateVelocity;
+    private double stateAcceleration;
     private double statePrediction;
-    private double velocityPrediction = 0;
+    private double velocityPrediction;
+
+    public SystemState() {
+        
+    }
 
     public SystemState(double m) {
         measurement = m;
     }
 
-    public SystemState(double m, double stateEst, double statePred) {
-        measurement = m;
+    public SystemState(double stateEst, double stateVel, double stateAcc) {
         stateEstimate = stateEst;
-        statePrediction = statePred;
+        stateVelocity = stateVel;
+        stateAcceleration = stateAcc;
     }
 
     public SystemState(double m, double stateEst, double stateVel, double stateAcc, double statePred, double velPred) {
@@ -36,7 +40,7 @@ public class SystemState {
         return measurement;
     }
 
-    public void setMeasurement(double measurement) {
+    void setMeasurement(double measurement) {
         this.measurement = measurement;
     }
 
@@ -44,7 +48,7 @@ public class SystemState {
         return stateEstimate;
     }
 
-    public void setStateEstimate(double stateEstimate) {
+    void setStateEstimate(double stateEstimate) {
         this.stateEstimate = stateEstimate;
     }
 
@@ -52,7 +56,7 @@ public class SystemState {
         return stateVelocity;
     }
 
-    public void setStateVelocity(double stateVelocity) {
+    void setStateVelocity(double stateVelocity) {
         this.stateVelocity = stateVelocity;
     }
 
@@ -60,7 +64,7 @@ public class SystemState {
         return stateAcceleration;
     }
 
-    public void setStateAcceleration(double stateAcceleration) {
+    void setStateAcceleration(double stateAcceleration) {
         this.stateAcceleration = stateAcceleration;
     }
 
@@ -68,7 +72,7 @@ public class SystemState {
         return statePrediction;
     }
 
-    public void setStatePrediction(double statePrediction) {
+    void setStatePrediction(double statePrediction) {
         this.statePrediction = statePrediction;
     }
 
@@ -76,27 +80,34 @@ public class SystemState {
         return velocityPrediction;
     }
 
-    public void setVelocityPrediction(double velocityPrediction) {
+    void setVelocityPrediction(double velocityPrediction) {
         this.velocityPrediction = velocityPrediction;
     }
 
     @Override
     public String toString() {
         String str = "\t ------System State------ \n";
-        str += toStringProperty("Measurement", measurement);
         
-        if (!Objects.isNull(stateEstimate)) str += toStringProperty("State Estimate", stateEstimate);
-
-        if (!Objects.isNull(stateVelocity)) str += toStringProperty("State Velocity", stateVelocity);
+        str += conditionalIncludeStr("Measurement", measurement);
+        str += conditionalIncludeStr("State Estimate", stateEstimate);
+        str += conditionalIncludeStr("State Velocity", stateVelocity);
+        str += conditionalIncludeStr("State Acceleration", stateAcceleration);
+        str += conditionalIncludeStr("State Prediction", statePrediction);
+        str += conditionalIncludeStr("Velocity Prediction", velocityPrediction);
 
         return str;
+    }
+
+    private String conditionalIncludeStr(String propName, double propValue) {
+        if (Objects.isNull(propValue) || propValue == 0) return "";
+        else return toStringProperty(propName, propValue);
     }
 
     private String toStringProperty(String propName, double propValue) {
         final String ANSI_RESET = "\u001B[0m";
         final String ANSI_YELLOW = "\u001B[33m";
 
-        return ANSI_YELLOW + propName + " " + ANSI_RESET + propValue + "\n";
+        return String.format("%s%s %s%s\n", ANSI_YELLOW, propName, ANSI_RESET, propValue);
     }
 
 }

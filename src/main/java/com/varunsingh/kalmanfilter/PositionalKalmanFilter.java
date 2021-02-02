@@ -24,11 +24,11 @@ public class PositionalKalmanFilter extends MeasureUpdatePredictFilter implement
 
     @Override
     public double calculateCurrentStateEstimate() {
-        return calculatePrediction() + calculateKalmanGain() * (currentMeasurement - currentState);
+        return calculateStatePrediction() + calculateKalmanGain() * (currentMeasurement - currentState);
     }
 
     @Override
-    public double calculatePrediction() {
+    public double calculateStatePrediction() {
         return currentState;
     }
 

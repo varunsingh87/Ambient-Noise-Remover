@@ -27,7 +27,7 @@ public class AlphaFilter extends MeasureUpdatePredictFilter {
     }
 
     @Override
-    public double calculatePrediction() {
+    public double calculateStatePrediction() {
         return currentState;
     }
 }
