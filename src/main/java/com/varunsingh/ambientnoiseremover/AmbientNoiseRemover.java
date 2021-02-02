@@ -33,6 +33,10 @@ public class AmbientNoiseRemover {
     }
 
     public static void main(String[] args) {
+        removeAmbientNoise();
+    }
+
+    protected static void removeAmbientNoise() {
         try {
             for (int i = 1; i <= 5; i++) {
                 String fileName = "sample" + i + ".wav";
