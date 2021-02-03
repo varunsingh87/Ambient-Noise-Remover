@@ -15,7 +15,7 @@ public class MeasureUpdatePredictFilterTest {
             public double calculateCurrentStateEstimate() { return 0; }
 
             @Override
-            public double calculateStatePrediction() { return 0; }
+            public double calculateStateExtrapolation() { return 0; }
         };
     }
 

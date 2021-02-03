@@ -12,9 +12,11 @@ public class SystemState {
     private double stateAcceleration;
     private double statePrediction;
     private double velocityPrediction;
+    private double estimateUncertainty;
+    private double measurementUncertainty;
+    private double estimateUncertaintyPrediction;
 
     public SystemState() {
-        
     }
 
     public SystemState(double m) {
@@ -82,6 +84,30 @@ public class SystemState {
 
     void setVelocityPrediction(double velocityPrediction) {
         this.velocityPrediction = velocityPrediction;
+    }
+
+    public double getMeasurementUncertainty() {
+        return measurementUncertainty;
+    }
+
+    void setMeasurementUncertainty(double measurementUncertainty) {
+        this.measurementUncertainty = measurementUncertainty;
+    }
+
+    public double getEstimateUncertainty() {
+        return estimateUncertainty;
+    }
+
+    void setEstimateUncertainty(double estimateUncertainty) {
+        this.estimateUncertainty = estimateUncertainty;
+    }
+
+    public double getEstimateUncertaintyPrediction() {
+        return estimateUncertaintyPrediction;
+    }
+
+    public void setEstimateUncertaintyPrediction(double estimateUncertaintyPrediction) {
+        this.estimateUncertaintyPrediction = estimateUncertaintyPrediction;
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.varunsingh.kalmanfilter;
 public interface EstimationFilter {
     double calculateCurrentStateEstimate();
 
-    double calculateStatePrediction();
+    double calculateStateExtrapolation();
 
     void measure(double measurement);
 }

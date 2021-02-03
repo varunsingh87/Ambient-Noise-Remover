@@ -14,7 +14,7 @@ public class AlphaBetaGammaFilter extends MeasureUpdatePredictFilter {
         alphaFilter = a;
         betaFilter = b;
         gammaFilter = g;
-        systemState.setStatePrediction(calculateStatePrediction());
+        systemState.setStatePrediction(calculateStateExtrapolation());
         systemState.setVelocityPrediction(calculateVelocityPrediction());
     }
 
@@ -80,7 +80,7 @@ public class AlphaBetaGammaFilter extends MeasureUpdatePredictFilter {
     }
 
     @Override
-    public double calculateStatePrediction() {
+    public double calculateStateExtrapolation() {
         return KalmanFilterEquations.usePositionalStateExtrapolationEquation(
             systemState.getStateEstimate(), 
             TIME_INTERVAL, 
@@ -104,6 +104,6 @@ public class AlphaBetaGammaFilter extends MeasureUpdatePredictFilter {
         systemState.setStateEstimate(calculateCurrentStateEstimate());
         systemState.setStateAcceleration(calculateCurrentAcceleration());
         systemState.setVelocityPrediction(calculateVelocityPrediction());
-        systemState.setStatePrediction(calculateStatePrediction());
+        systemState.setStatePrediction(calculateStateExtrapolation());
     }
 }
