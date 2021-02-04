@@ -11,11 +11,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.text.Position;
 
-import com.varunsingh.kalmanfilter.AlphaBetaGammaFilter;
 import com.varunsingh.kalmanfilter.KalmanFilter;
-import com.varunsingh.kalmanfilter.PositionalKalmanFilter;
+import com.varunsingh.kalmanfilter.OneDimensionalKalmanFilter;
 import com.varunsingh.kalmanfilter.SystemState;
 
 /**
@@ -39,9 +37,7 @@ public class AmbientNoiseRemover {
     }
 
     public static void main(String[] args) {
-        KalmanFilter s = new PositionalKalmanFilter(60, 5, 15);
-        s.measure(48.54);
-        //removeAmbientNoise();
+        removeAmbientNoise();
     }
 
     protected static void removeAmbientNoise() {

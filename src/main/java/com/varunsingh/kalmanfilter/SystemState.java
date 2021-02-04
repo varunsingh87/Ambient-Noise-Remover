@@ -38,6 +38,18 @@ public class SystemState {
         velocityPrediction = velPred;
     }
 
+    public SystemState(SystemState s) {
+        measurement = s.getMeasurement();
+        stateEstimate = s.getStateEstimate();
+        stateVelocity = s.getStateVelocity();
+        stateAcceleration = s.getStateAcceleration();
+        statePrediction = s.getStatePrediction();
+        velocityPrediction = s.getVelocityPrediction();
+        estimateUncertainty = s.getEstimateUncertainty();
+        measurementUncertainty = s.getMeasurementUncertainty();
+        estimateUncertaintyPrediction = s.getEstimateUncertaintyPrediction();
+    }
+
     public double getMeasurement() {
         return measurement;
     }
@@ -50,7 +62,7 @@ public class SystemState {
         return stateEstimate;
     }
 
-    void setStateEstimate(double stateEstimate) {
+    public void setStateEstimate(double stateEstimate) {
         this.stateEstimate = stateEstimate;
     }
 
@@ -90,7 +102,7 @@ public class SystemState {
         return measurementUncertainty;
     }
 
-    void setMeasurementUncertainty(double measurementUncertainty) {
+    public void setMeasurementUncertainty(double measurementUncertainty) {
         this.measurementUncertainty = measurementUncertainty;
     }
 
@@ -98,7 +110,7 @@ public class SystemState {
         return estimateUncertainty;
     }
 
-    void setEstimateUncertainty(double estimateUncertainty) {
+    public void setEstimateUncertainty(double estimateUncertainty) {
         this.estimateUncertainty = estimateUncertainty;
     }
 

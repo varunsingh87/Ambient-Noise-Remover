@@ -5,7 +5,12 @@ abstract class MeasureUpdatePredictFilter implements EstimationFilter {
     protected double currentState;
     protected int iteration = 0;
 
+    MeasureUpdatePredictFilter() {
+        
+    }
+
     MeasureUpdatePredictFilter(double initialStateGuess) {
+        // TODO Remove
         currentState = initialStateGuess;
     }
 

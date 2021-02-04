@@ -1,22 +1,39 @@
 package com.varunsingh.kalmanfilter;
 
-public class PositionalKalmanFilter extends MeasureUpdatePredictFilter implements KalmanFilter {
+public class OneDimensionalKalmanFilter extends MeasureUpdatePredictFilter implements KalmanFilter {
     private double currentKalmanGain;
+    private double processNoise = 0;
     private SystemState systemState;
 
-    public PositionalKalmanFilter(int initialStateGuess, double measurementError, double estimateError) {
-        super(initialStateGuess);
+    public OneDimensionalKalmanFilter(int initialStateGuess, double measurementError, double estimateError) {
+        super();
 
         systemState = new SystemState(initialStateGuess);
         systemState.setMeasurementUncertainty(Math.pow(measurementError, 2));
         systemState.setEstimateUncertainty(Math.pow(estimateError, 2));
-        
+
         systemState.setStatePrediction(initialStateGuess);
+        currentKalmanGain = calculateKalmanGain();
+    }
+
+    public OneDimensionalKalmanFilter(SystemState sysData, double pn) {
+        super();
+
+        systemState = sysData;
+        setProcessNoise(pn);
         currentKalmanGain = calculateKalmanGain();
     }
 
     public SystemState getSystemState() {
         return systemState;
+    }
+
+    public double getProcessNoise() {
+        return processNoise;
+    }
+
+    public void setProcessNoise(double processNoise) {
+        this.processNoise = processNoise;
     }
     
     public void measure(double measurement) {
@@ -55,7 +72,7 @@ public class PositionalKalmanFilter extends MeasureUpdatePredictFilter implement
 
     @Override
     public double calculateExtrapolatedEstimateUncertainty() {
-        return systemState.getEstimateUncertainty();
+        return systemState.getEstimateUncertainty() + processNoise;
     }
     
 }
