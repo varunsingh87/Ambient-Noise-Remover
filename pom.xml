@@ -10,7 +10,7 @@
 
   <name>ambient-noise-remover</name>
   <!-- FIXME change it to the project's website -->
-  <url>http://www.ambientnoiseremover.com</url>
+  <url>https://varunsingh.dev/ambient-noise-remover</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
