@@ -1,30 +1,22 @@
 package com.varunsingh.linearalgebra;
 
-public class Vector {
-    private Matrix vectorElements;
-    
-    public Vector(double x, double y, double z) {
-        vectorElements = new Matrix();
-        vectorElements.setMatrixElements(new double[][] { {x, y, z } });
+public class Vector extends Matrix {
+     public Vector(double x, double y, double z) {
+        super(new double[][] { { x }, { y }, { z } });
     }
 
     public Vector(double x, double y, double z, double xVel, double yVel, double zVel) {
-        vectorElements = new Matrix();
-        vectorElements.setMatrixElements(new double[][] { {x, y, z, xVel, yVel, zVel } });
-    }
-
-    public Matrix getMatrix() {
-        return vectorElements;
+        super(new double[][] { { x }, { y }, { z }, { xVel }, { yVel }, { zVel } });
     }
 
     public double[] getVectorElements() {
-        return getMatrix().getMatrixElements()[0];
+        return getMatrixElements()[0];
     }
 
-    public void setVectorElement(int index, double newValue) {
-        double[][] temp = vectorElements.getMatrixElements();
-        temp[0][index] = newValue;
-        vectorElements.setMatrixElements(temp);
+    public void setVectorElement(int rowIndex, double newValue) {
+        double[][] temp = getMatrixElements();
+        temp[rowIndex][0] = newValue;
+        setMatrixElements(temp);
     }
 
     public double getX() {
@@ -73,13 +65,5 @@ public class Vector {
 
     public void setzVelocity(double zVelocity) {
         setVectorElement(5, zVelocity);
-    }
-    
-    public int getRows() {
-        return getVectorElements().length;
-    }
-
-    public int getColumns() {
-        return 1;
     }
 }
