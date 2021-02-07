@@ -47,14 +47,19 @@ public class Matrix {
 
         Matrix toReturn = new Matrix(new double[getRows()][m.getColumns()]);
 
-        for (int i = 0; i < m.getRows(); i++) {
-            double sum = 0;
+        for (int i = 0; i < getRows(); i++) {
+            
+            for (int j = 0; j < m.getColumns(); j++) {
+                double sum = 0;
+                for (int k = 0; k < getColumns(); k++) {
+                    double firstFactor = matrixElements[i][k];
+                    double secondFactor = m.getMatrixElements()[k][j];
 
-            for (int j = 0; j < getColumns(); j++) {
-                sum += matrixElements[i][j] * m.getMatrixElements()[i][j];
+                    sum += firstFactor * secondFactor;
+                }
+                toReturn.setMatrixElement(i, j, sum);
             }
 
-            toReturn.setMatrixElement(i, 0, sum);
         }
 
         return toReturn;

@@ -1,7 +1,7 @@
 package com.varunsingh.linearalgebra;
 
 public class Vector extends Matrix {
-     public Vector(double x, double y, double z) {
+    public Vector(double x, double y, double z) {
         super(new double[][] { { x }, { y }, { z } });
     }
 
@@ -10,7 +10,13 @@ public class Vector extends Matrix {
     }
 
     public double[] getVectorElements() {
-        return getMatrixElements()[0];
+        double[] toReturn = new double[getRows()];
+        
+        for (int i = 0; i < getRows(); i++) {
+            toReturn[i] = getMatrixElements()[i][0];
+        }
+        
+        return toReturn;
     }
 
     public void setVectorElement(int rowIndex, double newValue) {
