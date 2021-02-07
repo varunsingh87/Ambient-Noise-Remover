@@ -7,6 +7,11 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import javax.naming.OperationNotSupportedException;
+
+import com.varunsingh.kalmanfilter.KalmanFilterMatrices;
+import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
+
 import org.junit.Test;
 
 public class MatrixTest {
@@ -37,7 +42,8 @@ public class MatrixTest {
 
         assertEquals(3, result.getRows());
         assertEquals(3, result.getColumns());
-        assertEquals(new Matrix(new double[][] { { 25.0, 25.0, 25.0 }, { 25.0, 25.0, 25.0 }, { 25.0, 25.0, 25.0 } }), result);
+        assertEquals(new Matrix(new double[][] { { 25.0, 25.0, 25.0 }, { 25.0, 25.0, 25.0 }, { 25.0, 25.0, 25.0 } }),
+                result);
     }
 
     @Test
@@ -98,5 +104,26 @@ public class MatrixTest {
         Matrix transposedMatrix = origMatrix.transpose();
         double[][] expectedElements = new double[][] { { 1, 3, 1 }, { 2, 4, 2 } };
         assertArrayEquals(expectedElements, transposedMatrix.getMatrixElements());
+    }
+
+    @Test
+    public void testInverse() {
+        Matrix origMatrix = new Matrix(new double[][] { 
+            { 10, 16, 23, 19, 4 }, 
+            { 8, 12, 32, 1, 4 },
+            { 3, -7, -6, -2, 3 }, 
+            { 0, 5, 7, 2, -9 }, 
+            { 1, 10, 56, 65, 27 } 
+        });
+
+        try {
+            Matrix invertedMatrix = origMatrix.invert();
+            assertEquals(origMatrix.times(invertedMatrix), KalmanFilterMatrices.getIdentityMatrix(5));
+        } catch (MatrixNotInvertibleException e) {
+            e.printStackTrace();
+            fail();
+        } catch (OperationNotSupportedException e) {
+            fail();
+        }
     }
 }

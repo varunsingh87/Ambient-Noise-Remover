@@ -2,8 +2,18 @@ package com.varunsingh.linearalgebra;
 
 import java.util.Arrays;
 
+import javax.naming.OperationNotSupportedException;
+
 public class Matrix {
     protected double[][] matrixElements;
+
+    public final static class MatrixNotInvertibleException extends Exception {
+        private static final long serialVersionUID = -5031211581058588672L;
+
+        MatrixNotInvertibleException() {
+            super("The matrix must be square to calculate the inverse");
+        }
+    }
 
     public Matrix() {
     }
@@ -120,15 +130,28 @@ public class Matrix {
         return toReturn;
     }
 
-    public Matrix getExpectedValue() {
-        return null;
+    public Matrix invert() throws MatrixNotInvertibleException, OperationNotSupportedException {
+        if (!isSquare()) throw new MatrixNotInvertibleException();
+
+        // TODO: Implement Matrix inverse operation
+        throw new OperationNotSupportedException();
+    }
+
+    Matrix convertToReducedRowEchelonForm() throws OperationNotSupportedException {
+        // TODO: Implement Matrix rref() operation
+        throw new OperationNotSupportedException();
+    }
+
+    public Matrix getExpectedValue() throws OperationNotSupportedException {
+        // TODO: Implement Matrix expected value operation
+        throw new OperationNotSupportedException();
 	}
 
-    boolean isSquare() {
+    public boolean isSquare() {
         return matrixElements.length == matrixElements[0].length;
     }
 
-    boolean isIdentityMatrix() {
+    public boolean isIdentityMatrix() {
         if (!isSquare())
             return false;
 
