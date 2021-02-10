@@ -7,8 +7,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import javax.naming.OperationNotSupportedException;
-
 import com.varunsingh.kalmanfilter.KalmanFilterMatrices;
 import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
 
@@ -107,22 +105,55 @@ public class MatrixTest {
     }
 
     @Test
-    public void testInverse() {
+    public void testInverseWith3x3() {
         Matrix origMatrix = new Matrix(new double[][] { 
-            { 10, 16, 23, 19, 4 }, 
-            { 8, 12, 32, 1, 4 },
-            { 3, -7, -6, -2, 3 }, 
-            { 0, 5, 7, 2, -9 }, 
-            { 1, 10, 56, 65, 27 } 
+            { 1, -1, 3 },
+            { 2, 1,  2 },
+            { -2, -2, 1 }
         });
 
         try {
             Matrix invertedMatrix = origMatrix.invert();
-            assertEquals(origMatrix.times(invertedMatrix), KalmanFilterMatrices.getIdentityMatrix(5));
+            assertArrayEquals(new double[][] {
+                { 1, -1, -1 },
+                { -6/5, 7/5, 4/5 },
+                { -2/5, 4/5, 3/5 }
+            }, invertedMatrix.getMatrixElements());
         } catch (MatrixNotInvertibleException e) {
             e.printStackTrace();
             fail();
-        } catch (OperationNotSupportedException e) {
+        }
+    }
+
+    @Test
+    public void testInverseWith5x5() {
+        Matrix origMatrix = new Matrix(new double[][] {
+            { 6, 13, 11, 7, 12  },
+            { 3, 2,  8,  14, 4  },
+            { 5, 15, 9,  10, 16 },
+            { 17, 18, 19, 20, 21 },
+            { 22, 23, 24, 25, 26 }
+        });
+        try {
+            origMatrix.invert();
+        } catch (MatrixNotInvertibleException e) {
+            e.printStackTrace();
+            fail("Incorrectly threw a MatrixNotInvertibleException");
+        }
+    }
+
+    @Test
+    public void testDeterminant() {
+        Matrix testMatrix = new Matrix(new double[][] { 
+            { 4, 7 },
+            { 2, 6 }
+        });
+
+        try {
+            double determinant = testMatrix.getDeterminant();
+            assertEquals(0.1, determinant, 0.0);
+        } catch (MatrixNotInvertibleException e) {
+            e.printStackTrace();
             fail();
         }
     }

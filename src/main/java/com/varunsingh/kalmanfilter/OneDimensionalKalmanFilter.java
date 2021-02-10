@@ -1,31 +1,31 @@
 package com.varunsingh.kalmanfilter;
 
-public class OneDimensionalKalmanFilter extends MeasureUpdatePredictFilter implements KalmanFilter {
+public class OneDimensionalKalmanFilter extends MeasureUpdatePredictFilter<Double> implements KalmanFilter<Double> {
     private double currentKalmanGain;
     private double processNoise = 0;
-    private SystemState systemState;
+    private SystemCycle currentCycleInfo;
 
     public OneDimensionalKalmanFilter(int initialStateGuess, double measurementError, double estimateError) {
         super();
 
-        systemState = new SystemState(initialStateGuess);
-        systemState.setMeasurementUncertainty(Math.pow(measurementError, 2));
-        systemState.setEstimateUncertainty(Math.pow(estimateError, 2));
+        currentCycleInfo = new SystemCycle(initialStateGuess);
+        currentCycleInfo.setMeasurementUncertainty(Math.pow(measurementError, 2));
+        currentCycleInfo.setEstimateUncertainty(Math.pow(estimateError, 2));
 
-        systemState.setStatePrediction(initialStateGuess);
+        currentCycleInfo.setStatePrediction(initialStateGuess);
         currentKalmanGain = calculateKalmanGain();
     }
 
-    public OneDimensionalKalmanFilter(SystemState sysData, double pn) {
+    public OneDimensionalKalmanFilter(SystemCycle sysData, double pn) {
         super();
 
-        systemState = sysData;
+        currentCycleInfo = sysData;
         setProcessNoise(pn);
         currentKalmanGain = calculateKalmanGain();
     }
 
-    public SystemState getSystemState() {
-        return systemState;
+    public SystemCycle getSystemState() {
+        return currentCycleInfo;
     }
 
     public double getProcessNoise() {
@@ -36,43 +36,43 @@ public class OneDimensionalKalmanFilter extends MeasureUpdatePredictFilter imple
         this.processNoise = processNoise;
     }
     
-    public void measure(double measurement) {
+    public void measure(Double measurement) {
         super.measure(measurement);
-        systemState.setMeasurement(measurement);
+        currentCycleInfo.setMeasurement(measurement);
         currentKalmanGain = calculateKalmanGain();
-        systemState.setStateEstimate(calculateCurrentStateEstimate());
-        systemState.setEstimateUncertainty(calculateCurrentEstimateUncertainty());
-        systemState.setStatePrediction(calculateStateExtrapolation());
-        systemState.setEstimateUncertaintyPrediction(calculateExtrapolatedEstimateUncertainty());
+        currentCycleInfo.setStateEstimate(calculateCurrentStateEstimate());
+        currentCycleInfo.setEstimateUncertainty(calculateCurrentEstimateUncertainty());
+        currentCycleInfo.setStatePrediction(calculateStateExtrapolation());
+        currentCycleInfo.setEstimateUncertaintyPrediction(calculateExtrapolatedEstimateUncertainty());
     }
 
     @Override
-    public double calculateKalmanGain() {
-        return systemState.getEstimateUncertainty() / (systemState.getEstimateUncertainty() + systemState.getMeasurementUncertainty());
+    public Double calculateKalmanGain() {
+        return currentCycleInfo.getEstimateUncertainty() / (currentCycleInfo.getEstimateUncertainty() + currentCycleInfo.getMeasurementUncertainty());
     }
 
     @Override
-    public double calculateCurrentStateEstimate() {
+    public Double calculateCurrentStateEstimate() {
         return KalmanFilterEquations.usePositionalStateUpdateEquation(
-            systemState.getStatePrediction(), 
+            currentCycleInfo.getStatePrediction(), 
             currentKalmanGain, 
-            systemState.getMeasurement()
+            currentCycleInfo.getMeasurement()
         );
     }
 
     @Override
-    public double calculateStateExtrapolation() {
-        return systemState.getStateEstimate();
+    public Double calculateStateExtrapolation() {
+        return currentCycleInfo.getStateEstimate();
     }
 
     @Override
-    public double calculateCurrentEstimateUncertainty() {
-        return (1 - currentKalmanGain) * systemState.getEstimateUncertainty();
+    public Double calculateCurrentEstimateUncertainty() {
+        return (1 - currentKalmanGain) * currentCycleInfo.getEstimateUncertainty();
     }
 
     @Override
-    public double calculateExtrapolatedEstimateUncertainty() {
-        return systemState.getEstimateUncertainty() + processNoise;
+    public Double calculateExtrapolatedEstimateUncertainty() {
+        return currentCycleInfo.getEstimateUncertainty() + processNoise;
     }
     
 }

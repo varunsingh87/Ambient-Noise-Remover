@@ -2,11 +2,13 @@ package com.varunsingh.linearalgebra;
 
 import java.util.Arrays;
 
-import javax.naming.OperationNotSupportedException;
-
 public class Matrix {
     protected double[][] matrixElements;
 
+    /**
+     * An exception that is thrown when a matrix is attempted to be inverted
+     * when it is not an invertible matrix
+     */
     public final static class MatrixNotInvertibleException extends Exception {
         private static final long serialVersionUID = -5031211581058588672L;
 
@@ -130,21 +132,74 @@ public class Matrix {
         return toReturn;
     }
 
-    public Matrix invert() throws MatrixNotInvertibleException, OperationNotSupportedException {
-        if (!isSquare()) throw new MatrixNotInvertibleException();
+    /**
+     * Inverts the matrix using Gauss-Jordan elimination
+     * @return The inverted matrix
+     * @throws MatrixNotInvertibleException
+     */
+    public Matrix invert() throws MatrixNotInvertibleException {
+        if (!isSquare())
+            throw new MatrixNotInvertibleException();
+            
+        double[][] matrixElsToInvert = new double[getRows()][getColumns()];
+        for (int i = 0; i < 3; i++) {
+            matrixElsToInvert[i] = Arrays.copyOf(matrixElements[i], matrixElsToInvert[i].length);
+        }
+        Matrix matrixToInvert = new Matrix(matrixElsToInvert);
 
-        // TODO: Implement Matrix inverse operation
-        throw new OperationNotSupportedException();
+        Matrix augmentedMatrix = getIdentityMatrix(getColumns());
+
+        for (int i = 0; i < getColumns(); i++) {
+            // Make first row start with 1
+            matrixToInvert.setMatrixElement(0, i, matrixToInvert.get(0, i) / matrixElements[0][0]);
+            augmentedMatrix.setMatrixElement(0, i, augmentedMatrix.get(0, i) / augmentedMatrix.get(0, 0));
+            
+            // Make second row start with 0
+            matrixToInvert.setMatrixElement(1, i, matrixToInvert.get(1, i) - matrixElements[1][0] * matrixToInvert.get(0, i));
+            augmentedMatrix.setMatrixElement(1, i, augmentedMatrix.get(1, i) - augmentedMatrix.get(1, 0) * matrixToInvert.get(0, i));
+            
+            // Make third row start with 0
+            matrixToInvert.setMatrixElement(2, i, matrixToInvert.get(2, i) - matrixElements[2][0] * matrixToInvert.get(0, i));
+            augmentedMatrix.setMatrixElement(2, i, augmentedMatrix.get(2, i) - augmentedMatrix.get(2, 0) * matrixToInvert.get(0, i));
+
+            // 
+        }
+        
+        return augmentedMatrix;
+    }
+    
+    private double get(int row, int col) {
+        return matrixElements[row][col];
     }
 
-    Matrix convertToReducedRowEchelonForm() throws OperationNotSupportedException {
-        // TODO: Implement Matrix rref() operation
-        throw new OperationNotSupportedException();
+    public static Matrix getIdentityMatrix(int numDimens) {
+        double[][] identityElements = new double[numDimens][numDimens];
+
+        for (int i = 0; i < numDimens; i++) {
+            for (int j = 0; j < numDimens; j++) {
+                identityElements[i][j] = i == j ? 1 : 0;
+            }
+        }
+        
+        return new Matrix(identityElements);
     }
 
-    public Matrix getExpectedValue() throws OperationNotSupportedException {
+    public double getDeterminant() throws MatrixNotInvertibleException {
+        if (!isSquare()) throw new Matrix.MatrixNotInvertibleException();
+
+        if (getRows() == 2) {
+            double firstTerm = matrixElements[0][0] * matrixElements[1][1];
+            double secondTerm = matrixElements[0][1] * matrixElements[1][0];
+
+            return 1.0 / (firstTerm - secondTerm);
+        } else {
+            return 0;
+        }
+    }
+
+    public Matrix getExpectedValue() {
         // TODO: Implement Matrix expected value operation
-        throw new OperationNotSupportedException();
+        throw new UnsupportedOperationException();
 	}
 
     public boolean isSquare() {
@@ -167,5 +222,9 @@ public class Matrix {
         }
 
         return true;
+    }
+
+    public boolean isInverse(Matrix inverse) {
+        return this.times(inverse).isIdentityMatrix() && inverse.times(this).isIdentityMatrix();
     }
 }

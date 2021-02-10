@@ -4,13 +4,13 @@ package com.varunsingh.kalmanfilter;
  * Filter using the Measure, Update, Predict algorithm that estimates position
  * and velocity
  */
-public class AlphaBetaFilter extends MeasureUpdatePredictFilter {
-    private double currentVelocity;
-    private double currentPrediction;
-    private double alphaFilter;
-    private double betaFilter;
+public class AlphaBetaFilter extends MeasureUpdatePredictFilter<Double> {
+    private Double currentVelocity;
+    private Double currentPrediction;
+    private Double alphaFilter;
+    private Double betaFilter;
 
-    private final double TIME_INTERVAL = 5;
+    private final int TIME_INTERVAL = 5;
 
     /**
      * Constructor for AlphaBetaFilter
@@ -19,7 +19,7 @@ public class AlphaBetaFilter extends MeasureUpdatePredictFilter {
      * @param alphaFilter       The factor weight for the estimate of the position
      * @param betaFilter        The factor weight for the estimate of the velocity
      */
-    public AlphaBetaFilter(int initialStateGuess, int initialVelocityGuess, double alpha, double beta) {
+    public AlphaBetaFilter(double initialStateGuess, double initialVelocityGuess, Double alpha, Double beta) {
         super(initialStateGuess);
         currentVelocity = initialVelocityGuess;
         currentPrediction = calculateStateExtrapolation();
@@ -27,32 +27,32 @@ public class AlphaBetaFilter extends MeasureUpdatePredictFilter {
         setBetaFilter(beta);
     }
 
-    public double getBetaFilter() {
+    public Double getBetaFilter() {
         return betaFilter;
     }
 
-    public void setBetaFilter(double betaFilter) {
+    public void setBetaFilter(Double betaFilter) {
         this.betaFilter = betaFilter;
     }
 
-    public double getAlphaFilter() {
+    public Double getAlphaFilter() {
         return alphaFilter;
     }
 
-    public void setAlphaFilter(double alphaFilter) {
+    public void setAlphaFilter(Double alphaFilter) {
         this.alphaFilter = alphaFilter;
     }
 
-    public double getCurrentVelocity() {
+    public Double getCurrentVelocity() {
         return currentVelocity;
     }
     
-    public double getCurrentPrediction() {
+    public Double getCurrentPrediction() {
         return currentPrediction;
     }
 
     @Override
-    public double calculateCurrentStateEstimate() {
+    public Double calculateCurrentStateEstimate() {
         return KalmanFilterEquations.usePositionalStateUpdateEquation(
             currentPrediction, 
             alphaFilter, 
@@ -60,7 +60,7 @@ public class AlphaBetaFilter extends MeasureUpdatePredictFilter {
         );
     }
 
-    public double calculateCurrentVelocity() {
+    public Double calculateCurrentVelocity() {
         return KalmanFilterEquations.useVelocityStateUpdateEquation(
             currentPrediction, 
             currentVelocity, 
@@ -71,7 +71,7 @@ public class AlphaBetaFilter extends MeasureUpdatePredictFilter {
     }
 
     @Override
-    public double calculateStateExtrapolation() {
+    public Double calculateStateExtrapolation() {
         return KalmanFilterEquations.usePositionalStateExtrapolationEquation(
             currentState, 
             TIME_INTERVAL, 
@@ -80,7 +80,7 @@ public class AlphaBetaFilter extends MeasureUpdatePredictFilter {
     }
 
     @Override
-    public void measure(double measurement) {
+    public void measure(Double measurement) {
         super.measure(measurement);
         currentVelocity = calculateCurrentVelocity();
         currentState = calculateCurrentStateEstimate();
