@@ -128,9 +128,9 @@ public class MatrixTest {
     @Test
     public void testInverseWith5x5() {
         Matrix origMatrix = new Matrix(new double[][] {
-            { 6, 13, 11, 7, 12  },
-            { 3, 2,  8,  14, 4  },
-            { 5, 15, 9,  10, 16 },
+            { 9, 6, 13, 7, 3  },
+            { 14, 2, 8, 4, 10  },
+            { 5, 11, 12, 15, 16 },
             { 17, 18, 19, 20, 21 },
             { 22, 23, 24, 25, 26 }
         });

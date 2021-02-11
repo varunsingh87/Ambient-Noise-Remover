@@ -6,8 +6,8 @@ public class Matrix {
     protected double[][] matrixElements;
 
     /**
-     * An exception that is thrown when a matrix is attempted to be inverted
-     * when it is not an invertible matrix
+     * An exception that is thrown when a matrix is attempted to be inverted when it
+     * is not an invertible matrix
      */
     public final static class MatrixNotInvertibleException extends Exception {
         private static final long serialVersionUID = -5031211581058588672L;
@@ -32,7 +32,7 @@ public class Matrix {
         this.matrixElements = matrixElements;
     }
 
-    public void setMatrixElement(int firstLvlIndex, int secondLvlIndex, double newValue) {
+    public void set(int firstLvlIndex, int secondLvlIndex, double newValue) {
         matrixElements[firstLvlIndex][secondLvlIndex] = newValue;
     }
 
@@ -60,7 +60,7 @@ public class Matrix {
         Matrix toReturn = new Matrix(new double[getRows()][m.getColumns()]);
 
         for (int i = 0; i < getRows(); i++) {
-            
+
             for (int j = 0; j < m.getColumns(); j++) {
                 double sum = 0;
                 for (int k = 0; k < getColumns(); k++) {
@@ -69,7 +69,7 @@ public class Matrix {
 
                     sum += firstFactor * secondFactor;
                 }
-                toReturn.setMatrixElement(i, j, sum);
+                toReturn.set(i, j, sum);
             }
 
         }
@@ -92,7 +92,7 @@ public class Matrix {
 
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getColumns(); j++) {
-                toReturn.setMatrixElement(i, j, matrixElements[i][j] + augend.getMatrixElements()[i][j]);
+                toReturn.set(i, j, matrixElements[i][j] + augend.getMatrixElements()[i][j]);
             }
         }
 
@@ -101,6 +101,7 @@ public class Matrix {
 
     /**
      * Convenience method for adding to scalar -1 times a matrix
+     * 
      * @param minuend The matrix being subtracted
      * @return The difference matrix
      */
@@ -113,19 +114,19 @@ public class Matrix {
 
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getColumns(); j++) {
-                toReturn.setMatrixElement(i, j, scalar * matrixElements[i][j]);        
+                toReturn.set(i, j, scalar * matrixElements[i][j]);
             }
         }
 
         return toReturn;
     }
-    
+
     public Matrix transpose() {
         Matrix toReturn = new Matrix(new double[getColumns()][getRows()]);
-        
+
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getColumns(); j++) {
-                toReturn.setMatrixElement(j, i, matrixElements[i][j]);
+                toReturn.set(j, i, matrixElements[i][j]);
             }
         }
 
@@ -134,40 +135,57 @@ public class Matrix {
 
     /**
      * Inverts the matrix using Gauss-Jordan elimination
+     * 
      * @return The inverted matrix
      * @throws MatrixNotInvertibleException
      */
     public Matrix invert() throws MatrixNotInvertibleException {
         if (!isSquare())
             throw new MatrixNotInvertibleException();
-            
+
+        int dimensions = getRows();
+
         double[][] matrixElsToInvert = new double[getRows()][getColumns()];
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < dimensions; i++) {
             matrixElsToInvert[i] = Arrays.copyOf(matrixElements[i], matrixElsToInvert[i].length);
         }
+
         Matrix matrixToInvert = new Matrix(matrixElsToInvert);
-
         Matrix augmentedMatrix = getIdentityMatrix(getColumns());
-
-        for (int i = 0; i < getColumns(); i++) {
-            // Make first row start with 1
-            matrixToInvert.setMatrixElement(0, i, matrixToInvert.get(0, i) / matrixElements[0][0]);
-            augmentedMatrix.setMatrixElement(0, i, augmentedMatrix.get(0, i) / augmentedMatrix.get(0, 0));
-            
-            // Make second row start with 0
-            matrixToInvert.setMatrixElement(1, i, matrixToInvert.get(1, i) - matrixElements[1][0] * matrixToInvert.get(0, i));
-            augmentedMatrix.setMatrixElement(1, i, augmentedMatrix.get(1, i) - augmentedMatrix.get(1, 0) * matrixToInvert.get(0, i));
-            
-            // Make third row start with 0
-            matrixToInvert.setMatrixElement(2, i, matrixToInvert.get(2, i) - matrixElements[2][0] * matrixToInvert.get(0, i));
-            augmentedMatrix.setMatrixElement(2, i, augmentedMatrix.get(2, i) - augmentedMatrix.get(2, 0) * matrixToInvert.get(0, i));
-
-            // 
-        }
         
+        for (int k = 0; k < dimensions; k++) {
+            
+            double cellValueBeforeOne = matrixToInvert.get(k, k);
+            for (int i = k; i < dimensions; i++) {
+                matrixToInvert.set(k, i, matrixToInvert.get(k, i) / cellValueBeforeOne);
+                augmentedMatrix.set(k, i, augmentedMatrix.get(k, i) / cellValueBeforeOne);
+            }
+
+            for (int i = 0; i < dimensions; i++) {
+                double firstZeroFactor = matrixToInvert.get(i, k);
+                if (i != k) {
+                    for (int j = 0; j < dimensions; j++) {                
+                        double firstRowValue = matrixToInvert.get(k, j);
+                        double valueToChange = matrixToInvert.get(i, j);
+
+                        System.out.println(valueToChange + " - " + firstZeroFactor + " * " + firstRowValue);       
+                        matrixToInvert.set(i, j, valueToChange - firstZeroFactor * firstRowValue);
+                        
+                        firstRowValue = augmentedMatrix.get(k, j);
+                        valueToChange = augmentedMatrix.get(i, j);
+
+                        augmentedMatrix.set(i, j, valueToChange - firstZeroFactor * firstRowValue);
+                    }
+                }
+            }
+
+            System.out.println(augmentedMatrix);        
+        }
+
+
         return augmentedMatrix;
     }
-    
+
     private double get(int row, int col) {
         return matrixElements[row][col];
     }
@@ -180,12 +198,13 @@ public class Matrix {
                 identityElements[i][j] = i == j ? 1 : 0;
             }
         }
-        
+
         return new Matrix(identityElements);
     }
 
     public double getDeterminant() throws MatrixNotInvertibleException {
-        if (!isSquare()) throw new Matrix.MatrixNotInvertibleException();
+        if (!isSquare())
+            throw new Matrix.MatrixNotInvertibleException();
 
         if (getRows() == 2) {
             double firstTerm = matrixElements[0][0] * matrixElements[1][1];
@@ -200,7 +219,7 @@ public class Matrix {
     public Matrix getExpectedValue() {
         // TODO: Implement Matrix expected value operation
         throw new UnsupportedOperationException();
-	}
+    }
 
     public boolean isSquare() {
         return matrixElements.length == matrixElements[0].length;
