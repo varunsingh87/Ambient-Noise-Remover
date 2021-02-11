@@ -135,7 +135,13 @@ public class MatrixTest {
             { 22, 23, 24, 25, 26 }
         });
         try {
-            origMatrix.invert();
+            assertArrayEquals(new double[][] {
+                { 0, -0.1429, 0.7143, 5.6, -4.0286 },
+                { -0.0909, 0.2208, 1.013, -10.418, 7.7169 },
+                { 0.0909, 0.2792, 0.987, -8.1818, 5.8831 },
+                { 0.0909, -0.6494, -2.1558, 20.018, -14.603 },
+                { -0.0909, 0.2922, 0.8701, -7.2182, 5.2312 }
+            }, origMatrix.invert().getMatrixElements());
         } catch (MatrixNotInvertibleException e) {
             e.printStackTrace();
             fail("Incorrectly threw a MatrixNotInvertibleException");

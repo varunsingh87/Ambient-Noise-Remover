@@ -156,10 +156,12 @@ public class Matrix {
         for (int k = 0; k < dimensions; k++) {
             
             double cellValueBeforeOne = matrixToInvert.get(k, k);
-            for (int i = k; i < dimensions; i++) {
+            for (int i = 0; i < dimensions; i++) {
                 matrixToInvert.set(k, i, matrixToInvert.get(k, i) / cellValueBeforeOne);
                 augmentedMatrix.set(k, i, augmentedMatrix.get(k, i) / cellValueBeforeOne);
             }
+
+            System.out.println(augmentedMatrix);
 
             for (int i = 0; i < dimensions; i++) {
                 double firstZeroFactor = matrixToInvert.get(i, k);
@@ -168,7 +170,6 @@ public class Matrix {
                         double firstRowValue = matrixToInvert.get(k, j);
                         double valueToChange = matrixToInvert.get(i, j);
 
-                        System.out.println(valueToChange + " - " + firstZeroFactor + " * " + firstRowValue);       
                         matrixToInvert.set(i, j, valueToChange - firstZeroFactor * firstRowValue);
                         
                         firstRowValue = augmentedMatrix.get(k, j);
