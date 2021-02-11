@@ -1,5 +1,7 @@
 package com.varunsingh.linearalgebra;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 
 public class Matrix {
@@ -161,8 +163,6 @@ public class Matrix {
                 augmentedMatrix.set(k, i, augmentedMatrix.get(k, i) / cellValueBeforeOne);
             }
 
-            System.out.println(augmentedMatrix);
-
             for (int i = 0; i < dimensions; i++) {
                 double firstZeroFactor = matrixToInvert.get(i, k);
                 if (i != k) {
@@ -179,12 +179,23 @@ public class Matrix {
                     }
                 }
             }
-
-            System.out.println(augmentedMatrix);        
+        }
+        
+        System.out.println(augmentedMatrix);
+        
+        for (int i = 0; i < dimensions; i++) {
+            for (int j = 0; j < dimensions; j++) {
+                augmentedMatrix.set(i, j, roundDouble(augmentedMatrix.get(i, j), 3));
+            }
         }
 
-
         return augmentedMatrix;
+    }
+
+    private static double roundDouble(double d, int places) {
+        BigDecimal bigDecimal = new BigDecimal(Double.toString(d));
+        bigDecimal = bigDecimal.setScale(places, RoundingMode.HALF_UP);
+        return bigDecimal.doubleValue();
     }
 
     private double get(int row, int col) {
