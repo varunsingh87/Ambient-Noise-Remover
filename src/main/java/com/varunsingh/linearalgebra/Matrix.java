@@ -198,7 +198,7 @@ public class Matrix {
         return bigDecimal.doubleValue();
     }
 
-    private double get(int row, int col) {
+    double get(int row, int col) {
         return matrixElements[row][col];
     }
 

@@ -116,8 +116,8 @@ public class MatrixTest {
             Matrix invertedMatrix = origMatrix.invert();
             assertArrayEquals(new double[][] {
                 { 1, -1, -1 },
-                { -6/5, 7/5, 4/5 },
-                { -2/5, 4/5, 3/5 }
+                { -1.2, 1.4, 0.8 },
+                { -0.4, 0.8, 0.6 }
             }, invertedMatrix.getMatrixElements());
         } catch (MatrixNotInvertibleException e) {
             e.printStackTrace();
