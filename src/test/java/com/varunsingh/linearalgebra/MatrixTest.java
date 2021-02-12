@@ -7,8 +7,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import javax.naming.OperationNotSupportedException;
-
 import com.varunsingh.kalmanfilter.KalmanFilterMatrices;
 import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
 
@@ -107,22 +105,61 @@ public class MatrixTest {
     }
 
     @Test
-    public void testInverse() {
+    public void testInverseWith3x3() {
         Matrix origMatrix = new Matrix(new double[][] { 
-            { 10, 16, 23, 19, 4 }, 
-            { 8, 12, 32, 1, 4 },
-            { 3, -7, -6, -2, 3 }, 
-            { 0, 5, 7, 2, -9 }, 
-            { 1, 10, 56, 65, 27 } 
+            { 1, -1, 3 },
+            { 2, 1,  2 },
+            { -2, -2, 1 }
         });
 
         try {
             Matrix invertedMatrix = origMatrix.invert();
-            assertEquals(origMatrix.times(invertedMatrix), KalmanFilterMatrices.getIdentityMatrix(5));
+            assertArrayEquals(new double[][] {
+                { 1, -1, -1 },
+                { -1.2, 1.4, 0.8 },
+                { -0.4, 0.8, 0.6 }
+            }, invertedMatrix.getMatrixElements());
         } catch (MatrixNotInvertibleException e) {
             e.printStackTrace();
             fail();
-        } catch (OperationNotSupportedException e) {
+        }
+    }
+
+    @Test
+    public void testInverseWith5x5() {
+        Matrix origMatrix = new Matrix(new double[][] {
+            { 9, 6, 13, 7, 3  },
+            { 14, 2, 8, 4, 10  },
+            { 5, 11, 12, 15, 16 },
+            { 17, 18, 19, 20, 21 },
+            { 22, 23, 24, 25, 26 }
+        });
+        try {
+            assertArrayEquals(new double[][] {
+                { 0, -0.143, -0.714, 5.6, -4.029 },
+                { -0.091, 0.221, 1.013, -10.418, 7.717 },
+                { 0.091, 0.279, 0.987, -8.182, 5.883 },
+                { 0.091, -0.649, -2.156, 20.018, -14.603 },
+                { -0.091, 0.292, 0.870, -7.218, 5.231 }
+            }, origMatrix.invert().getMatrixElements());
+        } catch (MatrixNotInvertibleException e) {
+            e.printStackTrace();
+            fail("Incorrectly threw a MatrixNotInvertibleException");
+        }
+    }
+
+    @Test
+    public void testDeterminant() {
+        Matrix testMatrix = new Matrix(new double[][] { 
+            { 4, 7 },
+            { 2, 6 }
+        });
+
+        try {
+            double determinant = testMatrix.getDeterminant();
+            assertEquals(0.1, determinant, 0.0);
+        } catch (MatrixNotInvertibleException e) {
+            e.printStackTrace();
             fail();
         }
     }

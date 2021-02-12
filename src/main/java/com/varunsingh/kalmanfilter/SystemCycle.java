@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * A model for the information in one cycle of a system
  */
-public class SystemState {
+public class SystemCycle {
     private double measurement;
     private double stateEstimate;
     private double stateVelocity;
@@ -16,20 +16,20 @@ public class SystemState {
     private double measurementUncertainty;
     private double estimateUncertaintyPrediction;
 
-    public SystemState() {
+    public SystemCycle() {
     }
 
-    public SystemState(double m) {
+    public SystemCycle(double m) {
         measurement = m;
     }
 
-    public SystemState(double stateEst, double stateVel, double stateAcc) {
+    public SystemCycle(double stateEst, double stateVel, double stateAcc) {
         stateEstimate = stateEst;
         stateVelocity = stateVel;
         stateAcceleration = stateAcc;
     }
 
-    public SystemState(double m, double stateEst, double stateVel, double stateAcc, double statePred, double velPred) {
+    public SystemCycle(double m, double stateEst, double stateVel, double stateAcc, double statePred, double velPred) {
         measurement = m;
         stateEstimate = stateEst;
         stateVelocity = stateVel;
@@ -38,7 +38,7 @@ public class SystemState {
         velocityPrediction = velPred;
     }
 
-    public SystemState(SystemState s) {
+    public SystemCycle(SystemCycle s) {
         measurement = s.getMeasurement();
         stateEstimate = s.getStateEstimate();
         stateVelocity = s.getStateVelocity();

@@ -1,29 +1,29 @@
 package com.varunsingh.kalmanfilter;
 
-public class AlphaBetaGammaFilter extends MeasureUpdatePredictFilter {
+public class AlphaBetaGammaFilter extends MeasureUpdatePredictFilter<Double> {
     private double alphaFilter;
     private double betaFilter;
     private double gammaFilter;
-    private SystemState systemState;
+    private SystemCycle currentCycleInfo;
 
     private static final double TIME_INTERVAL = 5;
 
-    public AlphaBetaGammaFilter(SystemState initialState, double a, double b, double g) {
+    public AlphaBetaGammaFilter(SystemCycle initialState, double a, double b, double g) {
         super(initialState.getStateEstimate());
         setSystemState(initialState);
         alphaFilter = a;
         betaFilter = b;
         gammaFilter = g;
-        systemState.setStatePrediction(calculateStateExtrapolation());
-        systemState.setVelocityPrediction(calculateVelocityPrediction());
+        currentCycleInfo.setStatePrediction(calculateStateExtrapolation());
+        currentCycleInfo.setVelocityPrediction(calculateVelocityPrediction());
     }
 
-    public SystemState getSystemState() {
-        return systemState;
+    public SystemCycle getSystemState() {
+        return currentCycleInfo;
     }
 
-    public void setSystemState(SystemState systemState) {
-        this.systemState = systemState;
+    public void setSystemState(SystemCycle systemState) {
+        this.currentCycleInfo = systemState;
     }
 
     public double getAlphaFilter() {
@@ -51,59 +51,59 @@ public class AlphaBetaGammaFilter extends MeasureUpdatePredictFilter {
     }
 
     @Override
-    public double calculateCurrentStateEstimate() {
+    public Double calculateCurrentStateEstimate() {
         return KalmanFilterEquations.usePositionalStateUpdateEquation(
-            systemState.getStatePrediction(),
+            currentCycleInfo.getStatePrediction(),
             alphaFilter,
-            systemState.getMeasurement()
+            currentCycleInfo.getMeasurement()
         );
     }
 
-    public double calculateCurrentVelocity() {
+    public Double calculateCurrentVelocity() {
         return KalmanFilterEquations.useVelocityStateUpdateEquation(
-            systemState.getStatePrediction(), 
-            systemState.getVelocityPrediction(), 
+            currentCycleInfo.getStatePrediction(), 
+            currentCycleInfo.getVelocityPrediction(), 
             betaFilter, 
-            systemState.getMeasurement(), 
+            currentCycleInfo.getMeasurement(), 
             TIME_INTERVAL
         );
     }
 
-    public double calculateCurrentAcceleration() {
+    public Double calculateCurrentAcceleration() {
         return KalmanFilterEquations.useAccelerationStateUpdateEquation(
-            systemState.getStatePrediction(),
-            systemState.getStateAcceleration(),
+            currentCycleInfo.getStatePrediction(),
+            currentCycleInfo.getStateAcceleration(),
             gammaFilter,
-            systemState.getMeasurement(),
+            currentCycleInfo.getMeasurement(),
             TIME_INTERVAL
         );
     }
 
     @Override
-    public double calculateStateExtrapolation() {
+    public Double calculateStateExtrapolation() {
         return KalmanFilterEquations.usePositionalStateExtrapolationEquation(
-            systemState.getStateEstimate(), 
+            currentCycleInfo.getStateEstimate(), 
             TIME_INTERVAL, 
-            systemState.getStateVelocity(), 
-            systemState.getStateAcceleration()
+            currentCycleInfo.getStateVelocity(), 
+            currentCycleInfo.getStateAcceleration()
         );
     }
 
-    public double calculateVelocityPrediction() {
+    public Double calculateVelocityPrediction() {
         return KalmanFilterEquations.useVelocityStateExtrapolationEquation(
-            systemState.getStateVelocity(),
-            systemState.getStateAcceleration(),
+            currentCycleInfo.getStateVelocity(),
+            currentCycleInfo.getStateAcceleration(),
             TIME_INTERVAL
         );
     }
 
-    public void measure(double measurement) {
+    public void measure(Double measurement) {
         iteration++;
-        systemState.setMeasurement(measurement);
-        systemState.setStateVelocity(calculateCurrentVelocity());
-        systemState.setStateEstimate(calculateCurrentStateEstimate());
-        systemState.setStateAcceleration(calculateCurrentAcceleration());
-        systemState.setVelocityPrediction(calculateVelocityPrediction());
-        systemState.setStatePrediction(calculateStateExtrapolation());
+        currentCycleInfo.setMeasurement(measurement);
+        currentCycleInfo.setStateVelocity(calculateCurrentVelocity());
+        currentCycleInfo.setStateEstimate(calculateCurrentStateEstimate());
+        currentCycleInfo.setStateAcceleration(calculateCurrentAcceleration());
+        currentCycleInfo.setVelocityPrediction(calculateVelocityPrediction());
+        currentCycleInfo.setStatePrediction(calculateStateExtrapolation());
     }
 }

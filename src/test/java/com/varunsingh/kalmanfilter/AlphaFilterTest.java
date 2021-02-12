@@ -32,9 +32,9 @@ public class AlphaFilterTest {
     @Test
     public void testCalculateCurrentState() {
         // Arrange
-        int firstMeasurement = 1030;
-        int secondMeasurement = 989;
-        int thirdMeasurement = 1017;
+        double firstMeasurement = 1030;
+        double secondMeasurement = 989;
+        double thirdMeasurement = 1017;
 
         // Act
         alphaFilter.measure(firstMeasurement);

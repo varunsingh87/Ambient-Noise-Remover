@@ -1,24 +1,26 @@
 package com.varunsingh.kalmanfilter;
 
-abstract class MeasureUpdatePredictFilter implements EstimationFilter {
-    protected double currentMeasurement;
-    protected double currentState;
+abstract class MeasureUpdatePredictFilter<T> implements EstimationFilter<T> {
+    protected T currentMeasurement; // TODO Remove
+    protected T currentState; // TODO Remove
+    
     protected int iteration = 0;
+    protected SystemCycle currentCycleInfo;
 
     MeasureUpdatePredictFilter() {
         
     }
 
-    MeasureUpdatePredictFilter(double initialStateGuess) {
+    MeasureUpdatePredictFilter(T initialStateGuess) {
         // TODO Remove
         currentState = initialStateGuess;
     }
 
-    public double getCurrentMeasurement() {
+    public T getCurrentMeasurement() {
         return currentMeasurement;
     }
     
-    public double getCurrentState() {
+    public T getCurrentState() {
         return currentState;
     }
     
@@ -26,7 +28,15 @@ abstract class MeasureUpdatePredictFilter implements EstimationFilter {
         return iteration;
     }
 
-    public void measure(double measurement) {
+    public SystemCycle getCurrentCycleInfo() {
+        return currentCycleInfo;
+    }
+
+    public void setCurrentCycleInfo(SystemCycle newCycleInfo) {
+        currentCycleInfo = newCycleInfo;
+    }
+
+    public void measure(T measurement) {
         iteration++;
         currentMeasurement = measurement;
     }

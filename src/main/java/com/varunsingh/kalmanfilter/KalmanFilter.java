@@ -1,9 +1,9 @@
 package com.varunsingh.kalmanfilter;
 
-public interface KalmanFilter extends EstimationFilter {
-    double calculateKalmanGain();
+public interface KalmanFilter<T> extends EstimationFilter<T> {
+    T calculateKalmanGain();
 
-    double calculateCurrentEstimateUncertainty();
+    T calculateCurrentEstimateUncertainty();
 
-    double calculateExtrapolatedEstimateUncertainty();
+    T calculateExtrapolatedEstimateUncertainty();
 }

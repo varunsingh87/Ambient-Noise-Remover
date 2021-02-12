@@ -1,24 +1,24 @@
 package com.varunsingh.kalmanfilter;
 
-public class AlphaFilter extends MeasureUpdatePredictFilter {
+public class AlphaFilter extends MeasureUpdatePredictFilter<Double> {
 
-    public AlphaFilter(int initialStateGuess) {
+    public AlphaFilter(double initialStateGuess) {
         super(initialStateGuess);
     }
     
     @Override
-    public void measure(double measurement) {
+    public void measure(Double measurement) {
         super.measure(measurement);
         currentMeasurement = measurement;
         currentState = calculateCurrentStateEstimate();
     }
 
-    public double calculateAlphaFilter() {
+    public Double calculateAlphaFilter() {
         return iteration != 0.0 ? 1.0 / iteration : 1.0;
     }
 
     @Override
-    public double calculateCurrentStateEstimate() {
+    public Double calculateCurrentStateEstimate() {
         return KalmanFilterEquations.usePositionalStateUpdateEquation(
             currentState, 
             calculateAlphaFilter(), 
@@ -27,7 +27,7 @@ public class AlphaFilter extends MeasureUpdatePredictFilter {
     }
 
     @Override
-    public double calculateStateExtrapolation() {
+    public Double calculateStateExtrapolation() {
         return currentState;
     }
 }

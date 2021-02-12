@@ -7,13 +7,13 @@ import org.junit.Test;
 
 public class OneDimensionalKalmanFilterTest {
     private OneDimensionalKalmanFilter filterWithoutProcessNoise;
-    private SystemState sampleUncertainState;
+    private SystemCycle sampleUncertainState;
 
     @Before
     public void setUp() {
         filterWithoutProcessNoise = new OneDimensionalKalmanFilter(60, 5, 15);  
         
-        sampleUncertainState = new SystemState();
+        sampleUncertainState = new SystemCycle();
         sampleUncertainState.setStateEstimate(10);
         sampleUncertainState.setEstimateUncertainty(Math.pow(100, 2));
         sampleUncertainState.setMeasurementUncertainty(Math.pow(0.1, 2));
@@ -64,7 +64,7 @@ public class OneDimensionalKalmanFilterTest {
 
     @Test
     public void testExtrapolatedEstimateUncertainty_withProcessNoise() {
-        OneDimensionalKalmanFilter k2 = new OneDimensionalKalmanFilter(new SystemState(sampleUncertainState), 0.0001);
+        OneDimensionalKalmanFilter k2 = new OneDimensionalKalmanFilter(new SystemCycle(sampleUncertainState), 0.0001);
 
         k2.measure(49.95);
 
