@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 
-public class Matrix {
+public class Matrix implements Expectable {
     protected double[][] matrixElements;
 
     /**
@@ -30,8 +30,26 @@ public class Matrix {
         return matrixElements;
     }
 
-    public void setMatrixElements(double[][] matrixElements) {
+    public void setMatrixElements(double[][] matrixElements) throws IllegalArgumentException {
+        if (!validateMatrix(matrixElements)) throw new IllegalArgumentException();
+
         this.matrixElements = matrixElements;
+    }
+
+    public static boolean validateMatrix(double[][] elsToValidate) {
+        if (elsToValidate.length < 1) return true;
+        
+        int columns = elsToValidate[0].length;
+        for (int i = 0; i < elsToValidate.length; i++) {
+            if (columns != elsToValidate[i].length)
+                return false;
+        }
+
+        return true;
+    }
+
+    public double get(int row, int col) {
+        return matrixElements[row][col];
     }
 
     public void set(int firstLvlIndex, int secondLvlIndex, double newValue) {
@@ -153,7 +171,7 @@ public class Matrix {
         }
 
         Matrix matrixToInvert = new Matrix(matrixElsToInvert);
-        Matrix augmentedMatrix = getIdentityMatrix(getColumns());
+        Matrix augmentedMatrix = createIdentityMatrix(getColumns());
         
         for (int k = 0; k < dimensions; k++) {
             
@@ -198,11 +216,7 @@ public class Matrix {
         return bigDecimal.doubleValue();
     }
 
-    double get(int row, int col) {
-        return matrixElements[row][col];
-    }
-
-    public static Matrix getIdentityMatrix(int numDimens) {
+    public static Matrix createIdentityMatrix(int numDimens) {
         double[][] identityElements = new double[numDimens][numDimens];
 
         for (int i = 0; i < numDimens; i++) {
@@ -212,6 +226,22 @@ public class Matrix {
         }
 
         return new Matrix(identityElements);
+    }
+
+    public static Matrix createDiagonalMatrix(int dimens, double value) {
+        double[][] toReturn = new double[dimens][dimens];
+
+        for (int i = 0; i < dimens; i++) {
+            
+            for (int j = 0; j < dimens; j++) {
+                if (i == j)
+                    toReturn[i][i] = value;
+                else
+                    toReturn[i][j] = 0;
+            }
+        }
+
+        return new Matrix(toReturn);
     }
 
     public double getDeterminant() throws MatrixNotInvertibleException {
@@ -228,9 +258,24 @@ public class Matrix {
         }
     }
 
-    public Matrix getExpectedValue() {
-        // TODO: Implement Matrix expected value operation
-        throw new UnsupportedOperationException();
+    public Matrix calcExpectedValue() {
+        Matrix expectedValueMatrix = new Matrix(new double[getRows()][getColumns()]);
+
+        // TODO: Calculate expected value
+
+        return expectedValueMatrix;
+    }
+
+    public Matrix calcInnerProduct() {
+        return this.times(transpose());
+    }
+
+    public Matrix calcInnerProduct(Matrix y) {
+        return this.transpose().times(y);
+    }
+
+    public Matrix calcOuterProduct(Matrix y) {
+        return this.times(y.transpose());
     }
 
     public boolean isSquare() {
@@ -252,6 +297,18 @@ public class Matrix {
 
         }
 
+        return true;
+    }
+
+    public boolean isDiagonal() throws IllegalArgumentException {
+        for (int i = 0; i < getRows(); i++) {
+            for (int j = 0; j < getColumns(); j++) {
+                if (i != j && matrixElements[i][j] != 0) {
+                    return false;
+                }
+            }
+        }
+        
         return true;
     }
 

@@ -33,7 +33,7 @@ public class MultiDimensionalKalmanFilterEquationFactory {
      * @return Rn The covariance matrix of the measurement
      */
     Matrix useMeasurementUncertaintyEquation(Vector measurementError) {
-        return measurementError.times(measurementError.transpose()).getExpectedValue();
+        return measurementError.calcInnerProduct().calcExpectedValue();
     }
 
     /**
@@ -43,17 +43,17 @@ public class MultiDimensionalKalmanFilterEquationFactory {
      * @return A covariance matrix of the process noise
      */
     Matrix useProcessNoiseUncertaintyEquation(Vector processNoise) {
-        return processNoise.times(processNoise.transpose()).getExpectedValue();
+        return processNoise.calcInnerProduct().calcExpectedValue();
     }
 
     Matrix useEstimateUncertaintyEquation(Vector estimationError) {
-        return estimationError.times(estimationError.transpose()).getExpectedValue();
+        return estimationError.calcInnerProduct().calcExpectedValue();
     }
 
     Matrix useEstimateUncertaintyEquation(Vector hiddenState, Vector estimatedState) {
         Matrix stateDifference = hiddenState.minus(estimatedState);
 
-        return stateDifference.times(stateDifference.transpose()).getExpectedValue();
+        return stateDifference.calcInnerProduct().calcExpectedValue();
     }
 
     Matrix useStateUpdateEquation(Vector previousState, Matrix kalmanGain, Vector measurement) {

@@ -19,14 +19,14 @@ public class MatrixInverseOperation {
         dimensions = m.getRows();
         matrixToInvert = m;
         leftMatrix = new Matrix(copyMatrixElements(m.getMatrixElements()));
-        augmentedMatrix = Matrix.getIdentityMatrix(dimensions);
+        augmentedMatrix = Matrix.createIdentityMatrix(dimensions);
     }
 
     MatrixInverseOperation(double[][] els) {
         dimensions = els.length;
         matrixToInvert = new Matrix(els);
         leftMatrix = new Matrix(copyMatrixElements(els));
-        augmentedMatrix = Matrix.getIdentityMatrix(dimensions);
+        augmentedMatrix = Matrix.createIdentityMatrix(dimensions);
     }
 
     private double[][] copyMatrixElements(double[][] elements) {

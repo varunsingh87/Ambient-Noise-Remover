@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.varunsingh.kalmanfilter.KalmanFilterMatrices;
 import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
 
 import org.junit.Test;
@@ -34,7 +33,7 @@ public class MatrixTest {
     @Test
     public void testMatrixByVectorMultiplication() {
         Matrix m = new Matrix(new double[][] { { 5.0, 5.0, 5.0 } });
-        Vector v = new Vector(5, 5, 5);
+        Vector v = new Vector(new double[] { 5, 5, 5 });
 
         Matrix result = v.times(m);
 
@@ -48,7 +47,7 @@ public class MatrixTest {
     public void testImpossibleMatrixMultiplication() {
         try {
             Matrix m = new Matrix(new double[][] { { 5, 10 }, { 10, 40 } });
-            Vector m2 = new Vector(10, 5, 7, 6, -8, 0);
+            Vector m2 = new Vector(new double[] { 10, 5, 7, 6, -8, 0 });
 
             m.times(m2);
             fail();
