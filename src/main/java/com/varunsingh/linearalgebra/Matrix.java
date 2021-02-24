@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 
-public class Matrix implements Expectable {
+public class Matrix {
     protected double[][] matrixElements;
 
     /**
@@ -20,6 +20,10 @@ public class Matrix implements Expectable {
     }
 
     public Matrix() {
+    }
+
+    public Matrix(double scalar) {
+        setMatrixElements(new double[][] { { scalar } });
     }
 
     public Matrix(double[][] m) {
@@ -257,15 +261,7 @@ public class Matrix implements Expectable {
             return 0;
         }
     }
-
-    public Matrix calcExpectedValue() {
-        Matrix expectedValueMatrix = new Matrix(new double[getRows()][getColumns()]);
-
-        // TODO: Calculate expected value
-
-        return expectedValueMatrix;
-    }
-
+    
     public Matrix calcInnerProduct() {
         return this.times(transpose());
     }
@@ -315,4 +311,8 @@ public class Matrix implements Expectable {
     public boolean isInverse(Matrix inverse) {
         return this.times(inverse).isIdentityMatrix() && inverse.times(this).isIdentityMatrix();
     }
+
+	public Matrix calcExpectedValue() {
+		return null;
+	}
 }

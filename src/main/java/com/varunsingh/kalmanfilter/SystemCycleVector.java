@@ -8,7 +8,7 @@ public class SystemCycleVector {
     private Vector stateEstimate;
     private Vector statePrediction;
     private Matrix measurementUncertainty;
-    private Vector estimateUncertainty;
+    private Matrix estimateUncertainty;
     private Vector estimateUncertaintyPrediction;
 
     SystemCycleVector(Vector initialGuess, Vector estimateUncertainty) {
@@ -54,7 +54,7 @@ public class SystemCycleVector {
         return estimateUncertainty;
     }
 
-    public void setEstimateUncertainty(Vector estimateUncertainty) {
+    public void setEstimateUncertainty(Matrix estimateUncertainty) {
         this.estimateUncertainty = estimateUncertainty;
     }
 

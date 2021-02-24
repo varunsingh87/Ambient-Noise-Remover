@@ -7,30 +7,25 @@ import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
 public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
     private SystemCycleVector currentCycleInfo;
     private MultiDimensionalKalmanFilterEquationFactory equationFactory;
-    private Matrix processNoise;
+    private Vector processNoise;
 
     private final static int TIME_INTERVAL = 5;
 
     public MultiDimensionalKalmanFilter(Vector initialEstimate, Vector initialEstUnc) {
         currentCycleInfo = new SystemCycleVector(initialEstimate, initialEstUnc);
         equationFactory = new MultiDimensionalKalmanFilterEquationFactory(TIME_INTERVAL);
-        
-        processNoise = Matrix.createDiagonalMatrix(initialEstimate.getRows(), 0.006);
     }
 
     public SystemCycleVector getCurrentCycleInfo() {
         return currentCycleInfo;
     }
 
-    public Matrix getProcessNoise() {
+    public Vector getProcessNoise() {
         return processNoise;
     }
 
-    public void setProcessNoise(Matrix processNoise) throws IllegalArgumentException {
-        if (processNoise.isDiagonal())
-            this.processNoise = processNoise;
-        else
-            throw new IllegalArgumentException("The process noise matrix must be a diagonal matrix");
+    public void setProcessNoise(Vector processNoise) {
+        this.processNoise = processNoise;
     }
 
     @Override
@@ -60,6 +55,7 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
         //         )
         //     );
         currentCycleInfo.setMeasurement(measurement);
+        currentCycleInfo.setEstimateUncertainty(calculateCurrentEstimateUncertainty());
     }
 
     @Override
@@ -77,17 +73,19 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
 
     @Override
     public Matrix calculateCurrentEstimateUncertainty() {
-        // TODO: Determine estimate error
-        return equationFactory.useEstimateUncertaintyEquation(new Vector(new double[] { 55, -2, 1 }));
+        return equationFactory.useCovarianceUpdateEquation(
+            new Matrix(), 
+            KalmanFilterMatrices.getObservationMatrix(3, 3), 
+            currentCycleInfo.getEstimateUncertaintyPrediction(), 
+            currentCycleInfo.getMeasurementUncertainty()
+        );
     }
 
     @Override
     public Matrix calculateExtrapolatedEstimateUncertainty() {
-        // TODO: Get covariance matrix
-        // DONE: Get process noise matrix
         return equationFactory.useCovarianceExtrapolationEquation(
-            new Matrix(new double[][] { { 7 } }),
-            new Matrix(new double[][] { { 6 } })
+            currentCycleInfo.getEstimateUncertainty(),
+            processNoise
         );
     }
 }

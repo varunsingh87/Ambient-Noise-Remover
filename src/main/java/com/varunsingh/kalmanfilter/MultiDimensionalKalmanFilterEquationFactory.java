@@ -17,9 +17,9 @@ public class MultiDimensionalKalmanFilterEquationFactory {
         return firstSum.plus(secondSum);
     }
 
-    Matrix useCovarianceExtrapolationEquation(Matrix currentCovarianceMatrix, Matrix processNoiseMatrix) {
-        return currentCovarianceMatrix.times(KalmanFilterMatrices.getStateTransitionMatrix(timeInterval))
-                .plus(processNoiseMatrix);
+    Matrix useCovarianceExtrapolationEquation(Matrix currentEstUnc, Matrix processNoiseUncertainty) {
+        return currentEstUnc.times(KalmanFilterMatrices.getStateTransitionMatrix(timeInterval))
+                .plus(processNoiseUncertainty);
     }
 
     Matrix useMeasurementEquation(Matrix observation, Vector hiddenState, Vector randomNoise) {
@@ -44,16 +44,6 @@ public class MultiDimensionalKalmanFilterEquationFactory {
      */
     Matrix useProcessNoiseUncertaintyEquation(Vector processNoise) {
         return processNoise.calcInnerProduct().calcExpectedValue();
-    }
-
-    Matrix useEstimateUncertaintyEquation(Vector estimationError) {
-        return estimationError.calcInnerProduct().calcExpectedValue();
-    }
-
-    Matrix useEstimateUncertaintyEquation(Vector hiddenState, Vector estimatedState) {
-        Matrix stateDifference = hiddenState.minus(estimatedState);
-
-        return stateDifference.calcInnerProduct().calcExpectedValue();
     }
 
     Matrix useStateUpdateEquation(Vector previousState, Matrix kalmanGain, Vector measurement) {

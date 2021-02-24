@@ -34,6 +34,16 @@ public class Vector extends Matrix {
         setMatrixElements(temp);
     }
 
+    public Matrix calcExpectedValue() {
+        double sum = 0;
+
+        for (int i = 0; i < getRows(); i++) {
+            sum += get(i);
+        }
+
+        return new Matrix(sum / getRows());
+    }
+
     /**
      * Calculates the standard norm of the vector in the real number space
      * @return The norm of this vector
