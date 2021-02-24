@@ -77,4 +77,34 @@ public class WaveForm {
 
         return new WaveForm(invertedAudioData);
     }
+
+    public WaveForm invert(byte noise) {
+        byte[] invertedAudioData = new byte[audioData.length];
+
+        for (int i = 0; i < invertedAudioData.length; i++) {
+            invertedAudioData[i] -= noise;
+        }
+
+        return new WaveForm(invertedAudioData);
+    }
+
+    public WaveForm invert(int start, int end) {
+        byte[] invertedAudioData = new byte[audioData.length];
+
+        for (int i = start; i < end; i++) {
+            invertedAudioData[i] = (byte) (-1 * ((short) audioData[i]));
+        }
+
+        return new WaveForm(invertedAudioData);
+    }
+
+    public WaveForm invert(int start, int end, byte noise) {
+        byte[] invertedAudioData = new byte[audioData.length];
+        
+        for (int i = start; i < end; i++) {
+            invertedAudioData[i] -= noise;
+        }
+
+        return new WaveForm(invertedAudioData);
+    }
 }

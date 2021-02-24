@@ -32,9 +32,9 @@ public class AlphaFilterTest {
     @Test
     public void testCalculateCurrentState() {
         // Arrange
-        int firstMeasurement = 1030;
-        int secondMeasurement = 989;
-        int thirdMeasurement = 1017;
+        double firstMeasurement = 1030;
+        double secondMeasurement = 989;
+        double thirdMeasurement = 1017;
 
         // Act
         alphaFilter.measure(firstMeasurement);
@@ -54,6 +54,6 @@ public class AlphaFilterTest {
     
     @Test
     public void testCalculatePrediction() {
-        assertEquals(1000, alphaFilter.calculateStatePrediction(), 0.1);
+        assertEquals(1000, alphaFilter.calculateStateExtrapolation(), 0.1);
     }
 }

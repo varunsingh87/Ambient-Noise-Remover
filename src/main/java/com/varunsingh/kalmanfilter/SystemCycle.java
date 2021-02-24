@@ -5,35 +5,49 @@ import java.util.Objects;
 /**
  * A model for the information in one cycle of a system
  */
-public class SystemState {
+public class SystemCycle {
     private double measurement;
     private double stateEstimate;
     private double stateVelocity;
     private double stateAcceleration;
     private double statePrediction;
     private double velocityPrediction;
+    private double estimateUncertainty;
+    private double measurementUncertainty;
+    private double estimateUncertaintyPrediction;
 
-    public SystemState() {
-        
+    public SystemCycle() {
     }
 
-    public SystemState(double m) {
+    public SystemCycle(double m) {
         measurement = m;
     }
 
-    public SystemState(double stateEst, double stateVel, double stateAcc) {
+    public SystemCycle(double stateEst, double stateVel, double stateAcc) {
         stateEstimate = stateEst;
         stateVelocity = stateVel;
         stateAcceleration = stateAcc;
     }
 
-    public SystemState(double m, double stateEst, double stateVel, double stateAcc, double statePred, double velPred) {
+    public SystemCycle(double m, double stateEst, double stateVel, double stateAcc, double statePred, double velPred) {
         measurement = m;
         stateEstimate = stateEst;
         stateVelocity = stateVel;
         stateAcceleration = stateAcc;
         statePrediction = statePred;
         velocityPrediction = velPred;
+    }
+
+    public SystemCycle(SystemCycle s) {
+        measurement = s.getMeasurement();
+        stateEstimate = s.getStateEstimate();
+        stateVelocity = s.getStateVelocity();
+        stateAcceleration = s.getStateAcceleration();
+        statePrediction = s.getStatePrediction();
+        velocityPrediction = s.getVelocityPrediction();
+        estimateUncertainty = s.getEstimateUncertainty();
+        measurementUncertainty = s.getMeasurementUncertainty();
+        estimateUncertaintyPrediction = s.getEstimateUncertaintyPrediction();
     }
 
     public double getMeasurement() {
@@ -48,7 +62,7 @@ public class SystemState {
         return stateEstimate;
     }
 
-    void setStateEstimate(double stateEstimate) {
+    public void setStateEstimate(double stateEstimate) {
         this.stateEstimate = stateEstimate;
     }
 
@@ -82,6 +96,30 @@ public class SystemState {
 
     void setVelocityPrediction(double velocityPrediction) {
         this.velocityPrediction = velocityPrediction;
+    }
+
+    public double getMeasurementUncertainty() {
+        return measurementUncertainty;
+    }
+
+    public void setMeasurementUncertainty(double measurementUncertainty) {
+        this.measurementUncertainty = measurementUncertainty;
+    }
+
+    public double getEstimateUncertainty() {
+        return estimateUncertainty;
+    }
+
+    public void setEstimateUncertainty(double estimateUncertainty) {
+        this.estimateUncertainty = estimateUncertainty;
+    }
+
+    public double getEstimateUncertaintyPrediction() {
+        return estimateUncertaintyPrediction;
+    }
+
+    public void setEstimateUncertaintyPrediction(double estimateUncertaintyPrediction) {
+        this.estimateUncertaintyPrediction = estimateUncertaintyPrediction;
     }
 
     @Override

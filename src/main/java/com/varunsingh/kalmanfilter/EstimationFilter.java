@@ -1,9 +1,9 @@
 package com.varunsingh.kalmanfilter;
 
-public interface EstimationFilter {
-    double calculateCurrentStateEstimate();
+public interface EstimationFilter<T> {
+    T calculateCurrentStateEstimate();
 
-    double calculateStatePrediction();
+    T calculateStateExtrapolation();
 
-    void measure(double measurement);
+    void measure(T measurement);
 }

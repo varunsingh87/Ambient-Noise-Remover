@@ -2,6 +2,10 @@
 
 Ambient Noise Remover is a Java program that removes ambient noise from an audio file. It uses the multidimensional Kalman Filter to estimate the positions of the ambient noise in an inputted audio file and the Java Sound API to remove it from the sound file. It then outputs a new file with removed ambient noise. 
 
+## Motivation
+
+Communication applications, such as Telegram, Signal, Discord, and Skype, automatically remove background noise during video and voice calls as part of their software, before the sound reaches the recipient. In my project, I wanted to do what they were doing, just in an audio file rather than incoming sound. 
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
@@ -27,11 +31,11 @@ mvn install
 
 To see the program in action, find background heavy audio files and place them in data. Then edit the file path inside the main method of [AmbientNoiseRemover.java](src/main/java/com/varunsingh/ambientnoiseremover/AmbientNoiseRemover.java)
 
-## Running the tests
+## Running the Tests
 
-To run the tests, enter `mvn test` in the command line. 
+To run the tests, enter `mvn test` in the command line. You can also use the features of your IDE or code editor if it has a GUI for tests. The project currently only has Unit Tests. 
 
-### Break down into end to end tests
+### Unit Tests
 
 The WaveFormTest class tests the WaveForm class and is important for making sure the methods that manipulate the waveform function correctly
 

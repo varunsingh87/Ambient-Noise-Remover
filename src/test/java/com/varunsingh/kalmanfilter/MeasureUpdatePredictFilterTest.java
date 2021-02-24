@@ -6,26 +6,26 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class MeasureUpdatePredictFilterTest {
-	MeasureUpdatePredictFilter measureUpdatePredictFilter;
+	MeasureUpdatePredictFilter<Double> measureUpdatePredictFilter;
 
     @Before
     public void setUp() {
-        measureUpdatePredictFilter = new MeasureUpdatePredictFilter(200) {
+        measureUpdatePredictFilter = new MeasureUpdatePredictFilter<Double>(200.0) {
             @Override
-            public double calculateCurrentStateEstimate() { return 0; }
+            public Double calculateCurrentStateEstimate() { return 0.0; }
 
             @Override
-            public double calculateStatePrediction() { return 0; }
+            public Double calculateStateExtrapolation() { return 0.0; }
         };
     }
 
     @Test
     public void testIterationIncrement() {
         // Act
-        measureUpdatePredictFilter.measure(60);
+        measureUpdatePredictFilter.measure(60.0);
         int iterationAfter1Measurement = measureUpdatePredictFilter.getIteration();
 
-        measureUpdatePredictFilter.measure(67);
+        measureUpdatePredictFilter.measure(67.0);
         int iterationAfter2Measurements = measureUpdatePredictFilter.getIteration();
 
         // Assert
