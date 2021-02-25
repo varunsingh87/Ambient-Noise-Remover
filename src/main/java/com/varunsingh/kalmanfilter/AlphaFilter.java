@@ -1,16 +1,28 @@
 package com.varunsingh.kalmanfilter;
 
-public class AlphaFilter extends MeasureUpdatePredictFilter<Double> {
+public class AlphaFilter implements EstimationFilter<Double> {
+    private SystemCycle cycleInfo;
+    private int iteration = 0;
 
     public AlphaFilter(double initialStateGuess) {
-        super(initialStateGuess);
+        cycleInfo = new SystemCycle(initialStateGuess);
+        cycleInfo.setStatePrediction(calculateStateExtrapolation());
+    }
+
+    public SystemCycle getCycleInfo() {
+        return cycleInfo;
+    }
+
+    public Double getCurrentStateEstimate() {
+        return cycleInfo.getStateEstimate();
     }
     
     @Override
     public void measure(Double measurement) {
-        super.measure(measurement);
-        currentMeasurement = measurement;
-        currentState = calculateCurrentStateEstimate();
+        iteration++;
+        cycleInfo.setMeasurement(measurement);
+        cycleInfo.setStateEstimate(calculateCurrentStateEstimate());
+        cycleInfo.setStatePrediction(calculateStateExtrapolation());
     }
 
     public Double calculateAlphaFilter() {
@@ -20,14 +32,14 @@ public class AlphaFilter extends MeasureUpdatePredictFilter<Double> {
     @Override
     public Double calculateCurrentStateEstimate() {
         return KalmanFilterEquations.usePositionalStateUpdateEquation(
-            currentState, 
+            cycleInfo.getStateEstimate(), 
             calculateAlphaFilter(), 
-            currentMeasurement
+            cycleInfo.getMeasurement()
         );
     }
 
     @Override
     public Double calculateStateExtrapolation() {
-        return currentState;
+        return getCurrentStateEstimate();
     }
 }

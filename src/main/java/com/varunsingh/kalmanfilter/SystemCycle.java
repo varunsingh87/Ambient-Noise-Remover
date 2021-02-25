@@ -19,8 +19,8 @@ public class SystemCycle {
     public SystemCycle() {
     }
 
-    public SystemCycle(double m) {
-        measurement = m;
+    public SystemCycle(double initStateGuess) {
+        stateEstimate = initStateGuess;
     }
 
     public SystemCycle(double stateEst, double stateVel, double stateAcc) {

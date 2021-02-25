@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -49,6 +50,13 @@ public class AmbientNoiseRemover {
                 AmbientNoiseRemover anr = new AmbientNoiseRemover(sourcePath, destPath);
                 anr.distinguishNoise();
                 anr.writeOutputToFile();
+                System.out.println(
+                    Arrays.equals(
+                        anr.getWaveForm().getAudioData(),
+                        AudioSystem.getAudioInputStream(new File(sourcePath)).readAllBytes()
+                    )
+                );
+
             }
         } catch (UnsupportedAudioFileException | IOException e) {
             e.printStackTrace();
@@ -56,16 +64,12 @@ public class AmbientNoiseRemover {
     }
 
     byte[] loadSourceFileData() throws UnsupportedAudioFileException {
-        try (AudioInputStream in = getAudioInputStream()) {
+        try (AudioInputStream in = AudioSystem.getAudioInputStream(sourceFile)) {
             return in.readAllBytes();
         } catch (IOException e) {
             e.printStackTrace();
             return new byte[] {};
         }
-    }
-
-    AudioInputStream getAudioInputStream() throws IOException, UnsupportedAudioFileException {
-        return AudioSystem.getAudioInputStream(sourceFile);
     }
 
     public WaveForm getWaveForm() {
@@ -133,7 +137,7 @@ public class AmbientNoiseRemover {
     void playAudio() {
         try {
             Clip clip = AudioSystem.getClip();
-            clip.open(AudioSystem.getAudioInputStream(destinationFile));
+            clip.open(AudioSystem.getAudioInputStream(sourceFile));
 
             clip.start();
             while (!clip.isRunning())

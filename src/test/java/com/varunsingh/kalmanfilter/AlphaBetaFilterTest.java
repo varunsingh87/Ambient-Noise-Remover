@@ -32,7 +32,7 @@ public class AlphaBetaFilterTest {
             double[] currentIteration = systemData[i];
             // Act
             filter.measure((double) currentIteration[0]);
-            assertEquals((double) currentIteration[1], filter.getCurrentState(), 0.1);
+            assertEquals((double) currentIteration[1], filter.getCycleInfo().getStateEstimate(), 0.1);
         }
     }
 
@@ -43,7 +43,7 @@ public class AlphaBetaFilterTest {
 
             filter.measure((double) currentIteration[0]);
 
-            assertEquals((double) currentIteration[2], filter.getCurrentVelocity(), 0.1);
+            assertEquals((double) currentIteration[2], filter.getCycleInfo().getStateVelocity(), 0.1);
         }
     }
 
@@ -52,7 +52,7 @@ public class AlphaBetaFilterTest {
         for (int i = 0; i < systemData.length; i++) {
             double[] currentIteration = systemData[i];
             filter.measure((double) currentIteration[0]);
-            assertEquals((double) currentIteration[3], filter.getCurrentPrediction(), 0.1);
+            assertEquals((double) currentIteration[3], filter.getCycleInfo().getStatePrediction(), 0.1);
         }
     }
 }

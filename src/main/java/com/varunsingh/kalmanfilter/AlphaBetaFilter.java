@@ -4,27 +4,37 @@ package com.varunsingh.kalmanfilter;
  * Filter using the Measure, Update, Predict algorithm that estimates position
  * and velocity
  */
-public class AlphaBetaFilter extends MeasureUpdatePredictFilter<Double> {
-    private Double currentVelocity;
-    private Double currentPrediction;
+public class AlphaBetaFilter implements EstimationFilter<Double> {
+    private SystemCycle cycleInfo;
     private Double alphaFilter;
     private Double betaFilter;
+    private int iteration = 0;
 
     private final int TIME_INTERVAL = 5;
 
     /**
      * Constructor for AlphaBetaFilter
-     * @param initialStateGuess The initial guess of the system state
-     * @param initialVelocityGuess The initial guess of the velocity 
-     * @param alphaFilter       The factor weight for the estimate of the position
-     * @param betaFilter        The factor weight for the estimate of the velocity
+     * 
+     * @param initialStateGuess    The initial guess of the system state
+     * @param initialVelocityGuess The initial guess of the velocity
+     * @param alphaFilter          The factor weight for the estimate of the
+     *                             position
+     * @param betaFilter           The factor weight for the estimate of the
+     *                             velocity
      */
     public AlphaBetaFilter(double initialStateGuess, double initialVelocityGuess, Double alpha, Double beta) {
-        super(initialStateGuess);
-        currentVelocity = initialVelocityGuess;
-        currentPrediction = calculateStateExtrapolation();
+        cycleInfo = new SystemCycle(initialStateGuess, initialVelocityGuess, 0);
+        cycleInfo.setStatePrediction(calculateStateExtrapolation());
         setAlphaFilter(alpha);
         setBetaFilter(beta);
+    }
+
+    public SystemCycle getCycleInfo() {
+        return cycleInfo;
+    }
+
+    public void setCycleInfo(SystemCycle cycleInfo) {
+        this.cycleInfo = cycleInfo;
     }
 
     public Double getBetaFilter() {
@@ -43,29 +53,25 @@ public class AlphaBetaFilter extends MeasureUpdatePredictFilter<Double> {
         this.alphaFilter = alphaFilter;
     }
 
-    public Double getCurrentVelocity() {
-        return currentVelocity;
-    }
-    
-    public Double getCurrentPrediction() {
-        return currentPrediction;
+    public int getIteration() {
+        return iteration;
     }
 
     @Override
     public Double calculateCurrentStateEstimate() {
         return KalmanFilterEquations.usePositionalStateUpdateEquation(
-            currentPrediction, 
+            cycleInfo.getStatePrediction(), 
             alphaFilter, 
-            currentMeasurement
+            cycleInfo.getMeasurement()
         );
     }
 
     public Double calculateCurrentVelocity() {
         return KalmanFilterEquations.useVelocityStateUpdateEquation(
-            currentPrediction, 
-            currentVelocity, 
+            cycleInfo.getStatePrediction(), 
+            cycleInfo.getStateVelocity(), 
             betaFilter, 
-            currentMeasurement, 
+            cycleInfo.getMeasurement(), 
             TIME_INTERVAL
         );
     }
@@ -73,18 +79,19 @@ public class AlphaBetaFilter extends MeasureUpdatePredictFilter<Double> {
     @Override
     public Double calculateStateExtrapolation() {
         return KalmanFilterEquations.usePositionalStateExtrapolationEquation(
-            currentState, 
+            cycleInfo.getStateEstimate(), 
             TIME_INTERVAL, 
-            currentVelocity
+            cycleInfo.getStateVelocity()
         );
     }
 
     @Override
     public void measure(Double measurement) {
-        super.measure(measurement);
-        currentVelocity = calculateCurrentVelocity();
-        currentState = calculateCurrentStateEstimate();
-        currentPrediction = calculateStateExtrapolation();
+        iteration++;
+        cycleInfo.setMeasurement(measurement);
+        cycleInfo.setStateVelocity(calculateCurrentVelocity());
+        cycleInfo.setStateEstimate(calculateCurrentStateEstimate());
+        cycleInfo.setStatePrediction(calculateStateExtrapolation());
     }
     
 }

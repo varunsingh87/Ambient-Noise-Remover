@@ -26,8 +26,8 @@ public class OneDimensionalKalmanFilterTest {
 
         filterWithProcessNoise.measure(108.36);
 
-        assertEquals(25, filter.getSystemState().getMeasurementUncertainty(), 0.1);
-        assertEquals(0.01, filterWithProcessNoise.getSystemState().getMeasurementUncertainty(), 0.1);
+        assertEquals(25, filter.getCycleInfo().getMeasurementUncertainty(), 0.1);
+        assertEquals(0.01, filterWithProcessNoise.getCycleInfo().getMeasurementUncertainty(), 0.1);
     }
 
     @Test
@@ -38,28 +38,28 @@ public class OneDimensionalKalmanFilterTest {
         filterWithProcessNoise.measure(49.95);
         filterWithProcessNoise.measure(108.36);
 
-        assertEquals(49.69, filterWithoutProcessNoise.getSystemState().getStateEstimate(), 0.1);
-        assertEquals(79.155, filterWithProcessNoise.getSystemState().getStateEstimate(), 0.001);
+        assertEquals(49.69, filterWithoutProcessNoise.getCycleInfo().getStateEstimate(), 0.1);
+        assertEquals(79.155, filterWithProcessNoise.getCycleInfo().getStateEstimate(), 0.001);
     }
 
     @Test
     public void testCalculateStatePrediction() {
         filterWithoutProcessNoise.measure(48.54);
-        assertEquals(filterWithoutProcessNoise.getSystemState().getStatePrediction(), filterWithoutProcessNoise.getSystemState().getStateEstimate(), 0.1);
+        assertEquals(filterWithoutProcessNoise.getCycleInfo().getStatePrediction(), filterWithoutProcessNoise.getCycleInfo().getStateEstimate(), 0.1);
     }
 
     @Test
     public void testCalculateEstimateUncertainty() {
         filterWithoutProcessNoise.measure(48.54);
         filterWithoutProcessNoise.measure(47.11);
-        assertEquals(11.84, filterWithoutProcessNoise.getSystemState().getEstimateUncertainty(), 0.1);
+        assertEquals(11.84, filterWithoutProcessNoise.getCycleInfo().getEstimateUncertainty(), 0.1);
     }
 
     @Test
     public void testCalculateEstimateUncertaintyExtrapolation_withoutProcessNoise() {
         filterWithoutProcessNoise.measure(48.54);
         filterWithoutProcessNoise.measure(47.11);
-        assertEquals(filterWithoutProcessNoise.getSystemState().getEstimateUncertainty(), filterWithoutProcessNoise.getSystemState().getEstimateUncertaintyPrediction(), 0.1);
+        assertEquals(filterWithoutProcessNoise.getCycleInfo().getEstimateUncertainty(), filterWithoutProcessNoise.getCycleInfo().getEstimateUncertaintyPrediction(), 0.1);
     }
 
     @Test
@@ -68,11 +68,11 @@ public class OneDimensionalKalmanFilterTest {
 
         k2.measure(49.95);
 
-        double firstIterationExtrapolatedEstimateUncertainty = k2.getSystemState().getEstimateUncertaintyPrediction();
+        double firstIterationExtrapolatedEstimateUncertainty = k2.getCycleInfo().getEstimateUncertaintyPrediction();
         
         k2.measure(108.36);
 
-        double secondIterationExtrapolatedEstimateUncertainty = k2.getSystemState().getEstimateUncertaintyPrediction();
+        double secondIterationExtrapolatedEstimateUncertainty = k2.getCycleInfo().getEstimateUncertaintyPrediction();
 
         assertEquals(0.0101, firstIterationExtrapolatedEstimateUncertainty, 0.0001);
         assertEquals(0.0051, secondIterationExtrapolatedEstimateUncertainty, 0.0001);

@@ -38,13 +38,13 @@ public class AlphaFilterTest {
 
         // Act
         alphaFilter.measure(firstMeasurement);
-        double stateAfterFirstIteration = alphaFilter.getCurrentState();
+        double stateAfterFirstIteration = alphaFilter.getCurrentStateEstimate();
 
         alphaFilter.measure(secondMeasurement);
-        double stateAfterSecondIteration = alphaFilter.getCurrentState();
+        double stateAfterSecondIteration = alphaFilter.getCurrentStateEstimate();
 
         alphaFilter.measure(thirdMeasurement);
-        double stateAfterThirdIteration = alphaFilter.getCurrentState();
+        double stateAfterThirdIteration = alphaFilter.getCurrentStateEstimate();
 
         // Assert
         assertEquals(firstMeasurement, stateAfterFirstIteration, 0.01);
@@ -54,6 +54,6 @@ public class AlphaFilterTest {
     
     @Test
     public void testCalculatePrediction() {
-        assertEquals(1000, alphaFilter.calculateStateExtrapolation(), 0.1);
+        assertEquals(1000, alphaFilter.getCycleInfo().getStatePrediction(), 0.1);
     }
 }
