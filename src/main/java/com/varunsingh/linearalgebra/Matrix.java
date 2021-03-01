@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 
+import com.varunsingh.linearalgebra.Vector.VectorType;
+
 public class Matrix {
     protected double[][] matrixElements;
 
@@ -262,18 +264,6 @@ public class Matrix {
         }
     }
     
-    public Matrix calcInnerProduct() {
-        return this.times(transpose());
-    }
-
-    public Matrix calcInnerProduct(Matrix y) {
-        return this.transpose().times(y);
-    }
-
-    public Matrix calcOuterProduct(Matrix y) {
-        return this.times(y.transpose());
-    }
-
     public boolean isSquare() {
         return matrixElements.length == matrixElements[0].length;
     }
@@ -312,7 +302,7 @@ public class Matrix {
         return this.times(inverse).isIdentityMatrix() && inverse.times(this).isIdentityMatrix();
     }
 
-	public Matrix calcExpectedValue() {
-		return null;
-	}
+    public Vector asRowVector() {
+        return new Vector(this.getMatrixElements()[0], VectorType.ROW);
+    }
 }

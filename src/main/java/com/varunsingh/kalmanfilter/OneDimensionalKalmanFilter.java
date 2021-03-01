@@ -32,6 +32,10 @@ public class OneDimensionalKalmanFilter implements KalmanFilter<Double> {
     public void setProcessNoise(double processNoise) {
         this.processNoise = processNoise;
     }
+
+    public int getIteration() {
+        return iteration;
+    }
     
     public void measure(Double measurement) {
         iteration++;

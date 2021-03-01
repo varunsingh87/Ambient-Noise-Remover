@@ -3,9 +3,21 @@ package com.varunsingh.linearalgebra;
 public class Vector extends Matrix {
     private double[] vectorElements;
 
+    public enum VectorType {
+        ROW, COLUMN
+    }
+
+    private VectorType vectorType;
+
     public Vector(double[] v) {
         super(loadVectorElements(v));
         vectorElements = v;
+        vectorType = VectorType.COLUMN;
+    }
+
+    public Vector(double[] v, VectorType t) {
+        super(t == VectorType.ROW ? new double[][] { v } : loadVectorElements(v));
+        vectorType = t;
     }
 
     private static double[][] loadVectorElements(double[] v) {
@@ -25,7 +37,13 @@ public class Vector extends Matrix {
     }
 
     public double get(int index) {
-        return getMatrixElements()[index][0];
+        switch (vectorType) {
+            case ROW:
+                return getMatrixElements()[0][index];
+            case COLUMN:
+            default:
+                return getMatrixElements()[index][0];
+        }
     }
 
     public void setVectorElement(int rowIndex, double newValue) {
@@ -34,25 +52,54 @@ public class Vector extends Matrix {
         setMatrixElements(temp);
     }
 
-    public Matrix calcExpectedValue() {
+    public Vector calcInnerProduct() {
+        return this.transpose().times(this).asRowVector();
+    }
+
+    public Vector calcInnerProduct(Vector y) {
+        return this.transpose().times(y).asRowVector();
+    }
+
+    /**
+     * Multiplies every element in each vector by every element in the other vector
+     * 
+     * @param y The vector to multiply this vector by
+     * @return A matrix of the outer product
+     */
+    public Matrix calcOuterProduct(Vector y) {
+        return this.times(y.transpose());
+    }
+
+    /**
+     * Gets the size of the vector
+     * 
+     * @return the numbers of rows if this is a column vector and the number of
+     *         columns if this is a row vector
+     */
+    int getSize() {
+        return vectorType == VectorType.ROW ? getColumns() : getRows();
+    }
+
+    public double calcExpectedValue() {
         double sum = 0;
 
-        for (int i = 0; i < getRows(); i++) {
+        for (int i = 0; i < getSize(); i++) {
             sum += get(i);
         }
 
-        return new Matrix(sum / getRows());
+        return sum / getSize();
     }
 
     /**
      * Calculates the standard norm of the vector in the real number space
+     * 
      * @return The norm of this vector
      */
     public double calcNorm() {
         double result = 0;
-        
-        for (int i = 0; i < getRows(); i++) {
-            result += Math.sqrt(this.get(i));
+
+        for (double el : vectorElements) {
+            result += Math.sqrt(el);
         }
 
         return result;

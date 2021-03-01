@@ -11,10 +11,10 @@ public class MultiDimensionalKalmanFilterEquationFactory {
         timeInterval = t;
     }
 
-    Matrix useStateExtrapolationEquation(Vector v, Vector v2) {
+    Vector useStateExtrapolationEquation(Vector v, Vector v2) {
         Matrix firstSum = KalmanFilterMatrices.getControlMatrix(timeInterval).times(v);
         Matrix secondSum = KalmanFilterMatrices.getStateTransitionMatrix(timeInterval).times(v2);
-        return firstSum.plus(secondSum);
+        return (Vector) firstSum.plus(secondSum);
     }
 
     Matrix useCovarianceExtrapolationEquation(Matrix currentEstUnc, Matrix processNoiseUncertainty) {
@@ -32,7 +32,7 @@ public class MultiDimensionalKalmanFilterEquationFactory {
      * @param measurementError measurement error
      * @return Rn The covariance matrix of the measurement
      */
-    Matrix useMeasurementUncertaintyEquation(Vector measurementError) {
+    double useMeasurementUncertaintyEquation(Vector measurementError) {
         return measurementError.calcInnerProduct().calcExpectedValue();
     }
 
@@ -42,22 +42,29 @@ public class MultiDimensionalKalmanFilterEquationFactory {
      * @param processNoise the process noise vector
      * @return A covariance matrix of the process noise
      */
-    Matrix useProcessNoiseUncertaintyEquation(Vector processNoise) {
+    double useProcessNoiseUncertaintyEquation(Vector processNoise) {
         return processNoise.calcInnerProduct().calcExpectedValue();
     }
 
-    Matrix useStateUpdateEquation(Vector previousState, Matrix kalmanGain, Vector measurement) {
-        Matrix innovation = measurement.minus(KalmanFilterMatrices.getObservationMatrix(3, 5).times(previousState));
+    Vector useStateUpdateEquation(Vector previousState, Matrix kalmanGain, Vector measurement) {
+        Matrix innovation = measurement.minus(
+            KalmanFilterMatrices.getObservationMatrix(3, 3).times(previousState));
 
-        return previousState.plus(kalmanGain.times(innovation));
+        return (Vector) previousState.plus(kalmanGain.times(innovation));
     }
 
     Matrix useCovarianceUpdateEquation(Matrix kalmanGain, Matrix observation, Matrix prevEstUnc,
             Matrix measurementUnc) {
         // I - Kn*H
-        Matrix identityKalmanObserve = KalmanFilterMatrices.getIdentityMatrix(kalmanGain.getColumns())
-                .minus(kalmanGain.times(KalmanFilterMatrices.getObservationMatrix(measurementUnc.getRows(),
-                        measurementUnc.getColumns())));
+        Matrix identityKalmanObserve = Matrix.createIdentityMatrix(kalmanGain.getColumns())
+                .minus(kalmanGain
+                    .times(
+                        KalmanFilterMatrices.getObservationMatrix(
+                            measurementUnc.getRows(), 
+                            measurementUnc.getColumns()
+                        )
+                    )
+                );
 
         // Kn*Rn*KnT
         Matrix lastTerm = kalmanGain.times(measurementUnc).times(kalmanGain.transpose());
@@ -66,8 +73,13 @@ public class MultiDimensionalKalmanFilterEquationFactory {
     }
 
     Matrix useKalmanGainEquation(Matrix prevEstUnc, Matrix observation, Matrix measurementUnc) throws MatrixNotInvertibleException {
-        Matrix nonCurrMatrixProd = prevEstUnc.times(observation.transpose());
-        Matrix uncertaintiesObservationInverse = observation.times(nonCurrMatrixProd).plus(measurementUnc).invert();
-        return nonCurrMatrixProd.times(uncertaintiesObservationInverse);
+        Matrix nonCurrMatrixProd = prevEstUnc
+            .times(observation.transpose());
+        Matrix uncertaintiesObservationInverse = observation
+            .times(nonCurrMatrixProd)
+            .plus(measurementUnc)
+            .invert();
+        return nonCurrMatrixProd
+            .times(uncertaintiesObservationInverse);
     }
 }
