@@ -3,12 +3,12 @@ package com.varunsingh.ambientnoiseremover;
 /**
  * A representation of any sound wave
  */
-public class WaveForm {
+public class CompoundWave implements Wave {
     private byte[] audioData;
     private byte maximum;
     private byte minimum;
 
-    public WaveForm(byte[] data) {
+    public CompoundWave(byte[] data) {
         audioData = data;
         minimum = findMinimum();
         maximum = findMaximum();
@@ -51,60 +51,56 @@ public class WaveForm {
     }
 
     public boolean equals(Object object) {
-        return audioData.equals(((WaveForm) object).getAudioData());
+        return audioData.equals(((CompoundWave) object).getAudioData());
     }
 
-    public WaveForm add(WaveForm wave) {
-        byte[] sumByteData = new byte[Math.max(wave.getAudioData().length, getAudioData().length)];
-
-        for (int i = 0; i < wave.getAudioData().length; i++) {
-            sumByteData[i] = (byte) (audioData[i] + wave.getAudioData()[i]);
-        }
-
-        return new WaveForm(sumByteData);
+    @Override
+    public CompoundWave add(Wave wave) {
+        return (CompoundWave) wave.add(this);
     }
 
-    WaveForm mute() {
+    CompoundWave mute() {
         return add(invert());
     }
 
-    public WaveForm invert() {
+    @Override
+    public CompoundWave invert() {
         byte[] invertedAudioData = new byte[audioData.length];
 
         for (int i = 136; i < invertedAudioData.length; i++) {
             invertedAudioData[i] = (byte) (-1 * ((short) audioData[i]));
         }
 
-        return new WaveForm(invertedAudioData);
+        return new CompoundWave(invertedAudioData);
     }
 
-    public WaveForm invert(byte noise) {
+    public CompoundWave invert(byte noise) {
         byte[] invertedAudioData = new byte[audioData.length];
 
         for (int i = 0; i < invertedAudioData.length; i++) {
             invertedAudioData[i] -= noise;
         }
 
-        return new WaveForm(invertedAudioData);
+        return new CompoundWave(invertedAudioData);
     }
 
-    public WaveForm invert(int start, int end) {
+    public CompoundWave invert(int start, int end) {
         byte[] invertedAudioData = new byte[audioData.length];
 
         for (int i = start; i < end; i++) {
             invertedAudioData[i] = (byte) (-1 * ((short) audioData[i]));
         }
 
-        return new WaveForm(invertedAudioData);
+        return new CompoundWave(invertedAudioData);
     }
 
-    public WaveForm invert(int start, int end, byte noise) {
+    public CompoundWave invert(int start, int end, byte noise) {
         byte[] invertedAudioData = new byte[audioData.length];
         
         for (int i = start; i < end; i++) {
             invertedAudioData[i] -= noise;
         }
 
-        return new WaveForm(invertedAudioData);
+        return new CompoundWave(invertedAudioData);
     }
 }

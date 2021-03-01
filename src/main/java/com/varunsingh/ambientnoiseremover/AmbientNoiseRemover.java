@@ -28,12 +28,12 @@ import com.varunsingh.linearalgebra.Vector;
 public class AmbientNoiseRemover {
     private File sourceFile;
     private File destinationFile;
-    private WaveForm waveForm;
+    private CompoundWave waveForm;
 
     public AmbientNoiseRemover(String src, String dest) throws UnsupportedAudioFileException, IOException {
         sourceFile = new File(src);
         destinationFile = new File(dest);
-        waveForm = new WaveForm(loadSourceFileData());
+        waveForm = new CompoundWave(loadSourceFileData());
     }
 
     public static void main(String[] args) {
@@ -44,8 +44,8 @@ public class AmbientNoiseRemover {
         try {
             for (int i = 1; i <= 5; i++) {
                 String fileName = "sample" + i + ".wav";
-                String sourcePath = "data/samples/".concat(fileName);
-                String destPath = "data/output/".concat(fileName);
+                String sourcePath = "data/noiseremoval/samples/".concat(fileName);
+                String destPath = "data/noiseremoval/output/".concat(fileName);
 
                 AmbientNoiseRemover anr = new AmbientNoiseRemover(sourcePath, destPath);
                 anr.distinguishNoise();
@@ -72,11 +72,11 @@ public class AmbientNoiseRemover {
         }
     }
 
-    public WaveForm getWaveForm() {
+    public CompoundWave getWaveForm() {
         return waveForm;
     }
 
-    public void setWaveForm(WaveForm waveForm) {
+    public void setWaveForm(CompoundWave waveForm) {
         this.waveForm = waveForm;
     }
 
@@ -118,11 +118,18 @@ public class AmbientNoiseRemover {
                 Vector initialUncertainty = new Vector(new double[] { 0.8, 0.1, 0.6 });
                 MultiDimensionalKalmanFilter filter = new MultiDimensionalKalmanFilter(initialState, initialUncertainty);
                 for (int i = 0; i < noisePositions.size() - 2; i += 3) {
-                    filter.measure(new Vector(new double[] { audioData[noisePositions.get(i)],
-                            audioData[noisePositions.get(i + 1)], audioData[noisePositions.get(i + 2)] }));
+                    filter.measure(
+                        new Vector(
+                            new double[] { 
+                                audioData[noisePositions.get(i)],
+                                audioData[noisePositions.get(i + 1)], 
+                                audioData[noisePositions.get(i + 2)] 
+                            }
+                        )
+                    );
                 }
 
-                byte noise = audioData[(int) filter.getCurrentCycleInfo().getStateEstimate().getVectorElements()[0]];
+                byte noise = (byte) filter.getCurrentCycleInfo().getStateEstimate().getVectorElements()[0];
                 setWaveForm(waveForm.add(waveForm.invert(noise)));
             }
         } catch (LineUnavailableException e) {

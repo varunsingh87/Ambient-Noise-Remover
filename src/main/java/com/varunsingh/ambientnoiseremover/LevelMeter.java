@@ -17,6 +17,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 
 /**
+ * Code by Radiodef on StackOverflow
  * @see https://stackoverflow.com/a/26576548/9860982
  */
 public class LevelMeter extends JComponent {
