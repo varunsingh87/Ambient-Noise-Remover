@@ -1,4 +1,4 @@
-package com.varunsingh.ambientnoiseremover;
+package com.varunsingh.soundmanipulation;
 
 public interface Wave {
     Wave add(Wave addendWave);

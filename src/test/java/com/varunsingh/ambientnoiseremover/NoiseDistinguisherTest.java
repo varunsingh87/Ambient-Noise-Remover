@@ -12,7 +12,7 @@ import org.junit.Test;
 public class NoiseDistinguisherTest {
     @Test
     public void testFindBytesWithAmplitudesBelowNoiseThreshold() {
-        NoiseDistinguisher noiseDistinguisher = new NoiseDistinguisher(new File("data/samples/sample2.wav"));
+        NoiseDistinguisher noiseDistinguisher = new NoiseDistinguisher(new File("data/noiseremoval/samples/sample2.wav"));
 
         HashMap<Integer, Float> bytesWithAmplitudesBelowNoiseThreshold = noiseDistinguisher.findSamplesBelowNoiseThreshold();
         Iterator<Map.Entry<Integer, Float>> entrySet = bytesWithAmplitudesBelowNoiseThreshold.entrySet().iterator();

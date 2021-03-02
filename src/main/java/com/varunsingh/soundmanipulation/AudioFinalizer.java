@@ -1,4 +1,4 @@
-package com.varunsingh.ambientnoiseremover;
+package com.varunsingh.soundmanipulation;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

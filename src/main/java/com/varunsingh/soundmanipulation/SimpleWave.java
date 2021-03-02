@@ -1,12 +1,22 @@
-package com.varunsingh.ambientnoiseremover;
+package com.varunsingh.soundmanipulation;
+
+import java.util.Objects;
 
 public class SimpleWave {
     private double frequency;
     private double amplitude;
+    private double seconds;
 
     public SimpleWave(double f, double a) {
         setFrequency(f);
         setAmplitude(a);
+        seconds = Double.POSITIVE_INFINITY;
+    }
+
+    public SimpleWave(double f, double a, double t) {
+        setFrequency(f);
+        setAmplitude(a);
+        setSeconds(t);
     }
 
     public double getFrequency() {
@@ -29,18 +39,30 @@ public class SimpleWave {
         this.amplitude = amplitude;
     }
 
+    public boolean hasFiniteTimeValue() {
+        return Double.isFinite(seconds);
+    }
+
+    public double getSeconds() {
+        return seconds;
+    }
+
+    public void setSeconds(double seconds) {
+        this.seconds = seconds;
+    }
+
     public float calcSample(double time) {
         return (float) (amplitude * Math.sin(getFrequencyInRadians() * time));
     }
 
-    public SimpleWave add(SimpleWave addendWave) {
+    public SimpleWave invert() {
         return new SimpleWave(
-            frequency + addendWave.getFrequency(),
-            amplitude + addendWave.getAmplitude()
+            frequency,
+            -amplitude
         );
     }
 
     public CompoundWave append(SimpleWave waveToConcat) {
-        throw new UnsupportedOperationException();        
+        return new CompoundWave(this, waveToConcat);        
     }
 }

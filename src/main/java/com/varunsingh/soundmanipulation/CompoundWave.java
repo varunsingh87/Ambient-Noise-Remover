@@ -1,4 +1,6 @@
-package com.varunsingh.ambientnoiseremover;
+package com.varunsingh.soundmanipulation;
+
+import java.util.Arrays;
 
 /**
  * A representation of any sound wave
@@ -7,6 +9,7 @@ public class CompoundWave implements Wave {
     private byte[] audioData;
     private byte maximum;
     private byte minimum;
+    private double seconds;
 
     public CompoundWave(byte[] data) {
         audioData = data;
@@ -14,7 +17,21 @@ public class CompoundWave implements Wave {
         maximum = findMaximum();
     }
 
-    private byte findMinimum() {
+    public CompoundWave(SimpleWave... appendingWaves) {
+        seconds = findSumOfSeconds(appendingWaves);        
+	}
+
+    protected double findSumOfSeconds(SimpleWave... appendingWaves) {
+        double sum = 0;
+        
+        for (int i = 0; i < appendingWaves.length; i++) {
+            sum += appendingWaves[i].getSeconds();
+        }
+
+        return sum;
+    }
+
+	private byte findMinimum() {
         byte currentMin = Byte.MAX_VALUE;
         for (int i = 0; i < audioData.length; i++) {
             if (audioData[i] < currentMin) {
@@ -46,8 +63,8 @@ public class CompoundWave implements Wave {
         return audioData;
     }
 
-    public void setAudioData(byte[] newData) {
-        audioData = newData;
+    public double getSeconds() {
+        return seconds;
     }
 
     public boolean equals(Object object) {

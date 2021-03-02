@@ -1,8 +1,6 @@
 package com.varunsingh.ambientnoiseremover;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +13,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.varunsingh.kalmanfilter.MultiDimensionalKalmanFilter;
 import com.varunsingh.linearalgebra.Vector;
+import com.varunsingh.soundmanipulation.CompoundWave;
 
 /**
  * Samples: Talk by Neil Cummings at Kunsthal Aarhus, on 11 December, as part of
@@ -49,7 +48,7 @@ public class AmbientNoiseRemover {
 
                 AmbientNoiseRemover anr = new AmbientNoiseRemover(sourcePath, destPath);
                 anr.distinguishNoise();
-                anr.writeOutputToFile();
+                
                 System.out.println(
                     Arrays.equals(
                         anr.getWaveForm().getAudioData(),
@@ -159,14 +158,6 @@ public class AmbientNoiseRemover {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    void writeOutputToFile() throws FileNotFoundException {
-        try (FileOutputStream outputStream = new FileOutputStream(destinationFile)) {
-            outputStream.write(waveForm.getAudioData());
         } catch (IOException e) {
             e.printStackTrace();
         }

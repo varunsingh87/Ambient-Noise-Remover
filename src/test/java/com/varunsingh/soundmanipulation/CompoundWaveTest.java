@@ -1,11 +1,11 @@
-package com.varunsingh.ambientnoiseremover;
+package com.varunsingh.soundmanipulation;
 
 import static org.junit.Assert.assertArrayEquals;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class WaveFormTest {
+public class CompoundWaveTest {
     @Test
     @Ignore
     public void testAdd() {
