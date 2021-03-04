@@ -26,12 +26,11 @@ import com.varunsingh.soundmanipulation.CompoundWave;
  */
 public class AmbientNoiseRemover {
     private File sourceFile;
-    private File destinationFile;
     private CompoundWave waveForm;
 
     public AmbientNoiseRemover(String src, String dest) throws UnsupportedAudioFileException, IOException {
         sourceFile = new File(src);
-        destinationFile = new File(dest);
+        new File(dest);
         waveForm = new CompoundWave(loadSourceFileData());
     }
 

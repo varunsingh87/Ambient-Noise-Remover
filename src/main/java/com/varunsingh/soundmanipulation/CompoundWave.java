@@ -1,7 +1,5 @@
 package com.varunsingh.soundmanipulation;
 
-import java.util.Arrays;
-
 /**
  * A representation of any sound wave
  */

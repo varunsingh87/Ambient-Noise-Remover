@@ -1,7 +1,5 @@
 package com.varunsingh.soundmanipulation;
 
-import java.util.Objects;
-
 public class SimpleWave {
     private double frequency;
     private double amplitude;
