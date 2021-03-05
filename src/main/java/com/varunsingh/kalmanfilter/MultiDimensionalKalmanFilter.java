@@ -21,6 +21,12 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
             { 0.0003, 0.0671 }
         });
         currentCycleInfo.setStatePrediction(calculateStateExtrapolation());
+        kalmanGain = calculateKalmanGain();
+        currentCycleInfo.setMeasurementUncertainty(
+            equationFactory.useMeasurementUncertaintyEquation(
+                new Vector(new double[] {0.005 })
+            )
+        );
     }
 
     public SystemCycleVector getCurrentCycleInfo() {
@@ -83,6 +89,7 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
         //         )
         //     );
         currentCycleInfo.setMeasurement(measurement);
+        kalmanGain = calculateKalmanGain();
         currentCycleInfo.setStateEstimate(calculateCurrentStateEstimate());
         currentCycleInfo.setStatePrediction(calculateStateExtrapolation());
         currentCycleInfo.setEstimateUncertainty(calculateCurrentEstimateUncertainty());

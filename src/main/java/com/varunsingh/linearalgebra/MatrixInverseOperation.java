@@ -4,29 +4,31 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 
-import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
-
 /**
  * Operation for getting a matrix's inverse using Gauss-Jordan elimination
  */
-public class MatrixInverseOperation {
+public class MatrixInverseOperation implements MatrixOperation {
     private Matrix matrixToInvert;
     private Matrix leftMatrix;
     private Matrix augmentedMatrix;
     private int dimensions;
 
-    MatrixInverseOperation(Matrix m) {
+    MatrixInverseOperation(Matrix m) throws Matrix.MatrixNotInvertibleException {
         dimensions = m.getRows();
         matrixToInvert = m;
         leftMatrix = new Matrix(copyMatrixElements(m.getMatrixElements()));
         augmentedMatrix = Matrix.createIdentityMatrix(dimensions);
+
+        if (!matrixToInvert.isSquare()) throw new Matrix.MatrixNotInvertibleException();
     }
 
-    MatrixInverseOperation(double[][] els) {
+    MatrixInverseOperation(double[][] els) throws Matrix.MatrixNotInvertibleException {
         dimensions = els.length;
         matrixToInvert = new Matrix(els);
         leftMatrix = new Matrix(copyMatrixElements(els));
         augmentedMatrix = Matrix.createIdentityMatrix(dimensions);
+
+        if (!matrixToInvert.isSquare()) throw new Matrix.MatrixNotInvertibleException();
     }
 
     private double[][] copyMatrixElements(double[][] elements) {
@@ -39,10 +41,8 @@ public class MatrixInverseOperation {
         return matrixElsToInvert;
     }
 
-    Matrix computeInverse() throws MatrixNotInvertibleException {
-        if (!matrixToInvert.isSquare())
-            throw new Matrix.MatrixNotInvertibleException();
-
+    public Matrix compute() {
+        
         int dimensions = matrixToInvert.getRows();        
 
         for (int k = 0; k < dimensions; k++) {

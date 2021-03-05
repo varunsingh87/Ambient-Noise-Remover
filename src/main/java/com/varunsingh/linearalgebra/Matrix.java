@@ -104,7 +104,7 @@ public class Matrix {
     }
 
     /**
-     * Adds to matrices together
+     * Adds two matrices together
      * 
      * @param augend The matrix to add to the current matrix
      * @return The sum of the two matrices
@@ -222,11 +222,11 @@ public class Matrix {
         return bigDecimal.doubleValue();
     }
 
-    public static Matrix createIdentityMatrix(int numDimens) {
-        double[][] identityElements = new double[numDimens][numDimens];
+    public static Matrix createIdentityMatrix(int size) {
+        double[][] identityElements = new double[size][size];
 
-        for (int i = 0; i < numDimens; i++) {
-            for (int j = 0; j < numDimens; j++) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 identityElements[i][j] = i == j ? 1 : 0;
             }
         }
@@ -240,14 +240,18 @@ public class Matrix {
         for (int i = 0; i < dimens; i++) {
             
             for (int j = 0; j < dimens; j++) {
-                if (i == j)
-                    toReturn[i][i] = value;
-                else
-                    toReturn[i][j] = 0;
+                if (i == j) toReturn[i][i] = value;
+                else toReturn[i][j] = 0;
             }
         }
 
         return new Matrix(toReturn);
+    }
+
+    public static Matrix createCovarianceMatrix(Vector v1, Vector v2) {
+        return new Matrix(new double[][] {
+            
+        });
     }
 
     public double getDeterminant() throws MatrixNotInvertibleException {
@@ -304,5 +308,9 @@ public class Matrix {
 
     public Vector asRowVector() {
         return new Vector(this.getMatrixElements()[0], VectorType.ROW);
+    }
+
+    public Vector asColumnVector() {
+        return Vector.valueOf(this);
     }
 }

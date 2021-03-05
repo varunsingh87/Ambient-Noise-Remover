@@ -28,6 +28,29 @@ public class Vector extends Matrix {
         return toConstruct;
     }
 
+    public Vector transpose() {
+        switch (vectorType) {
+            case COLUMN: return super.transpose().asRowVector();
+            case ROW:
+            default: return super.transpose().asColumnVector();
+        }
+    }
+
+    /**
+     * Converts matrix to a column vector
+     */
+    public static Vector valueOf(Matrix m) {
+        Vector columnVector = new Vector(new double[m.getRows()]);
+
+        for (int i = 0; i < m.getRows(); i++) {
+            for (int j = 0; j < m.getColumns(); j++) {
+                columnVector.set(i, 0, m.get(i, j));
+            }
+        }
+
+        return columnVector;
+    }
+
     public double[] getVectorElements() {
         return vectorElements;
     }
@@ -103,5 +126,9 @@ public class Vector extends Matrix {
         }
 
         return result;
+    }
+
+    public double calcCovarianceIn2x2Matrix(Vector v2) {
+        throw new UnsupportedOperationException();
     }
 }

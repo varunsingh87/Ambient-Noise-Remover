@@ -1,6 +1,7 @@
 package com.varunsingh.kalmanfilter;
 
 import com.varunsingh.linearalgebra.Matrix;
+import com.varunsingh.linearalgebra.MatrixCovarianceOperation;
 import com.varunsingh.linearalgebra.Vector;
 import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
 
@@ -14,7 +15,7 @@ public class MultiDimensionalKalmanFilterEquationFactory {
     Vector useStateExtrapolationEquation(Vector v, Vector v2) {
         Matrix firstSum = KalmanFilterMatrices.getControlMatrix(timeInterval).times(v);
         Matrix secondSum = KalmanFilterMatrices.getStateTransitionMatrix(timeInterval).times(v2);
-        return (Vector) firstSum.plus(secondSum);
+        return Vector.valueOf(firstSum.plus(secondSum));
     }
 
     Matrix useCovarianceExtrapolationEquation(Matrix currentEstUnc, Matrix processNoiseUncertainty) {
@@ -32,8 +33,8 @@ public class MultiDimensionalKalmanFilterEquationFactory {
      * @param measurementError measurement error
      * @return Rn The covariance matrix of the measurement
      */
-    double useMeasurementUncertaintyEquation(Vector measurementError) {
-        return measurementError.calcInnerProduct().calcExpectedValue();
+    Matrix useMeasurementUncertaintyEquation(Vector measurementError) {
+        return new MatrixCovarianceOperation(measurementError.transpose(), measurementError).compute();
     }
 
     /**
@@ -42,8 +43,8 @@ public class MultiDimensionalKalmanFilterEquationFactory {
      * @param processNoise the process noise vector
      * @return A covariance matrix of the process noise
      */
-    double useProcessNoiseUncertaintyEquation(Vector processNoise) {
-        return processNoise.calcInnerProduct().calcExpectedValue();
+    Matrix useProcessNoiseUncertaintyEquation(Vector processNoise) {
+        return new MatrixCovarianceOperation(processNoise.transpose(), processNoise).compute();
     }
 
     Vector useStateUpdateEquation(Vector previousState, Matrix kalmanGain, Vector measurement) {
