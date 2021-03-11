@@ -59,8 +59,4 @@ public class SimpleWave {
             -amplitude
         );
     }
-
-    public CompoundWave append(SimpleWave waveToConcat) {
-        return new CompoundWave(this, waveToConcat);        
-    }
 }

@@ -1,10 +1,8 @@
 package com.varunsingh.soundmanipulation;
 
 import java.io.File;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,18 +14,8 @@ public class AudioSampleSet {
 
     float[] sampleBuffer;
 
-    public AudioSampleSet(SimpleWave simpleWave) {
-        sampleBuffer = createSampleBufferFromWave(simpleWave);
-    }
-
     public AudioSampleSet(float[] sb) {
         sampleBuffer = sb;
-    }
-
-    public AudioSampleSet(byte[] bb) {
-        ShortBuffer sbuf = ByteBuffer.wrap(bb).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
-        short[] audioShorts = new short[sbuf.capacity()];
-        sbuf.get(audioShorts);
     }
 
     public float[] getSampleBuffer() {
@@ -38,22 +26,72 @@ public class AudioSampleSet {
         sampleBuffer = newSampleBuffer;
     }
 
+    public int getBufferSize() {
+        return sampleBuffer.length;
+    }
+
+    public float get(int index) {
+        return sampleBuffer[index];
+    }
+
+    public void set(int index, float newSampleVal) {
+        sampleBuffer[index] = newSampleVal;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return Arrays.equals(((AudioSampleSet) obj).getSampleBuffer(), sampleBuffer);
+    }
+
+    @Override
+    public String toString() {
+        return "Sample Buffer " + sampleBuffer.toString() + " with " + getBufferSize() + " samples";
+    }
+
     /**
-     * Converts a SimpleWave object into a float[] of samples representing the
-     * buffer
+     * Factory method to convert a SimpleWave object into a float[] of samples
+     * representing the buffer
      * 
      * @param wave The SimpleWave object representing the waveform
      * @return The sample buffer
+     * @apiNote Encapsulates the float[] inside the AudioSampleSet object
      */
-    public static float[] createSampleBufferFromWave(SimpleWave wave) {
-        float[] buffer = new float[(int) (seconds * sampleRate)];
+    public static AudioSampleSet createSampleBufferFromWave(SimpleWave wave) {
+        double bufferSeconds = wave.hasFiniteTimeValue() ? wave.getSeconds() : seconds;
+        float[] buffer = new float[(int) (bufferSeconds * sampleRate)];
 
         for (int sample = 0; sample < buffer.length; sample++) {
             double time = sample / sampleRate;
             buffer[sample] = wave.calcSample(time);
         }
 
-        return buffer;
+        return new AudioSampleSet(buffer);
+    }
+
+    /**
+     * Converts a sample buffer to a computer-understandable and playable byte
+     * buffer
+     * 
+     * @param byteBuffer The byte buffer
+     * @return The sample buffer of floats
+     */
+    public static AudioSampleSet createSampleBufferFromByteBuffer(byte[] byteBuffer) {
+        float[] sampleBuffer = new float[byteBuffer.length / 2];
+
+        for (int i = 0; i < sampleBuffer.length; i++) {
+            // convert byte pair to int
+            short buf1 = byteBuffer[i*2+1];
+            short buf2 = byteBuffer[i*2];
+
+            buf1 = (short) ((buf1 & 0xff) << 8);
+            buf2 = (short) (buf2 & 0xff);
+
+            short res= (short) (buf1 | buf2);
+
+            sampleBuffer[i] = res / 32767f;
+        }
+
+        return new AudioSampleSet(sampleBuffer);
     }
 
     public static AudioFormat createArbitraryAudioFormat() {
@@ -66,26 +104,28 @@ public class AudioSampleSet {
         return new AudioFormat((float) sampleRate, bits, channels, signed, isBigEndian);
     }
 
-    public AudioSampleSet concat(float[] secondSampleBuffer) {
+    public AudioSampleSet concat(AudioSampleSet secondSampleBuffer) {
         SimpleWave firstSimpleWave = new SimpleWave(440.0, 0.8);
-        float[] firstSampleBuffer = AudioSampleSet.createSampleBufferFromWave(firstSimpleWave);
+        AudioSampleSet firstSampleBuffer = AudioSampleSet.createSampleBufferFromWave(firstSimpleWave);
 
-        float[] combinedSample = new float[firstSampleBuffer.length + secondSampleBuffer.length];
+        AudioSampleSet combinedSample = new AudioSampleSet(
+                new float[firstSampleBuffer.getBufferSize() + secondSampleBuffer.getBufferSize()]);
 
-        System.arraycopy(firstSampleBuffer, 0, combinedSample, 0, firstSampleBuffer.length);
-        System.arraycopy(secondSampleBuffer, 0, combinedSample, firstSampleBuffer.length, secondSampleBuffer.length);
+        System.arraycopy(firstSampleBuffer, 0, combinedSample, 0, firstSampleBuffer.getBufferSize());
+        System.arraycopy(secondSampleBuffer, 0, combinedSample, firstSampleBuffer.getBufferSize(),
+                secondSampleBuffer.getBufferSize());
 
-        return new AudioSampleSet(combinedSample);
+        return combinedSample;
     }
 
     public AudioSampleSet concatNWaves(SimpleWave... waves) {
         List<Float> combinedSampleBuffer = new ArrayList<Float>();
 
         for (SimpleWave wave : waves) {
-            float[] waveSampleBuffer = AudioSampleSet.createSampleBufferFromWave(wave);
+            AudioSampleSet waveSampleBuffer = AudioSampleSet.createSampleBufferFromWave(wave);
 
-            for (int i = 0; i < waveSampleBuffer.length; i++) {
-                combinedSampleBuffer.add(waveSampleBuffer[i]);
+            for (int i = 0; i < waveSampleBuffer.getBufferSize(); i++) {
+                combinedSampleBuffer.add(waveSampleBuffer.get(i));
             }
         }
 
@@ -98,31 +138,39 @@ public class AudioSampleSet {
         return new AudioSampleSet(combinedSampleBufferArr);
     }
 
-    public AudioSampleSet add(float[] addendSampleBuffer) {
-        float[] wave1Samples = AudioSampleSet.createSampleBufferFromWave(new SimpleWave(420, 0.5));
+    public AudioSampleSet add(AudioSampleSet addendSampleBuffer) {
+        AudioSampleSet wave1Samples = AudioSampleSet.createSampleBufferFromWave(new SimpleWave(420, 0.5));
 
-        float[] newSamples = new float[Math.max(wave1Samples.length, addendSampleBuffer.length)];
+        float[] newSamples = new float[Math.max(wave1Samples.getSampleBuffer().length,
+                addendSampleBuffer.getSampleBuffer().length)];
 
-        for (int i = 0; i < wave1Samples.length; i++) {
-            newSamples[i] = wave1Samples[i] + addendSampleBuffer[i];
+        for (int i = 0; i < wave1Samples.getSampleBuffer().length; i++) {
+            newSamples[i] = wave1Samples.getSampleBuffer()[i] + addendSampleBuffer.getSampleBuffer()[i];
         }
 
         return new AudioSampleSet(newSamples);
     }
 
+    public AudioSampleSet muteNoise(float noise) {
+        AudioSampleSet noiseMuted = new AudioSampleSet(new float[getBufferSize()]);
+        
+        for (int i = 0; i < getBufferSize(); i++) {
+            noiseMuted.set(i, get(i) - noise);
+        }
+
+        return noiseMuted;
+    }
+
     public static void recordSilence() {
         AudioFormat format = AudioSampleSet.createArbitraryAudioFormat();
         SimpleWave wave = new SimpleWave(440, 0.5);
-        float[] wave1Samples = AudioSampleSet.createSampleBufferFromWave(wave);
-        float[] inverseSamples = AudioSampleSet.createSampleBufferFromWave(wave.invert());
+        AudioSampleSet wave1Samples = AudioSampleSet.createSampleBufferFromWave(wave);
+        AudioSampleSet inverseSamples = AudioSampleSet.createSampleBufferFromWave(wave.invert());
 
-        float[] newSamples = new float[wave1Samples.length];
-        for (int i = 0; i < wave1Samples.length; i++) {
-            newSamples[i] = wave1Samples[i] + inverseSamples[i];
-        }
+        AudioSampleSet newSamples = wave1Samples.add(inverseSamples);
 
-        byte[] silenceByteBuffer = AudioByteSet.createByteBufferFromSampleBuffer(newSamples);
+        AudioByteSet silenceByteBuffer = AudioByteSet.createByteBufferFromSampleBuffer(newSamples.getSampleBuffer());
         File out = new File("data/sandbox/outputs/silence.wav");
-        AudioFileManager.writeToOutputFile(format, silenceByteBuffer, newSamples.length, out);
+        AudioFileManager.writeToOutputFile(format, silenceByteBuffer.getByteBuffer(), newSamples.getSampleBuffer().length, out);
     }
 }

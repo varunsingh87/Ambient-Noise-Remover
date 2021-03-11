@@ -3,8 +3,8 @@ package com.varunsingh.soundmanipulation;
 public class AudioByteSet {
     private byte[] byteBuffer;
 
-    public AudioByteSet(float[] buffer) {
-        setByteBuffer(createByteBufferFromSampleBuffer(buffer));
+    public AudioByteSet(byte[] bb) {
+        byteBuffer = bb;
     }
 
     public byte[] getByteBuffer() {
@@ -23,17 +23,16 @@ public class AudioByteSet {
      * @param buffer The buffer of samples
      * @return A byte array representing the samples as data in WAV format
      */
-    public static byte[] createByteBufferFromSampleBuffer(float[] buffer) {
+    public static AudioByteSet createByteBufferFromSampleBuffer(float[] buffer) {
         final byte[] byteBuffer = new byte[buffer.length * 2];
 
-        int bufferIndex = 0;
-        for (int i = 0; i < byteBuffer.length; i++) {
-            final int x = (int)(buffer[bufferIndex++] * 32767.0);
-
-            byteBuffer[i++] = (byte)x;
-            byteBuffer[i] = (byte)(x >>> 8);
+        for (int i = 0; i < buffer.length; i++) {
+            final int x = (int) (buffer[i] * (Math.pow(2, 15) - 1));
+           
+            byteBuffer[i*2] = (byte) x;
+            byteBuffer[i*2 + 1] = (byte) (x >>> 8);
         }
 
-        return byteBuffer;
+        return new AudioByteSet(byteBuffer);
     }
 }

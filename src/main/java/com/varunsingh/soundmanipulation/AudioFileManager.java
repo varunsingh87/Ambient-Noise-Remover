@@ -10,10 +10,10 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 /**
- * A manager for 
+ * A manager for audio files
  */
 public class AudioFileManager {
-    static boolean writeToOutputFile(AudioFormat format, byte[] byteBuffer, int sampleBufferLength, File outputFile) {
+    public static boolean writeToOutputFile(AudioFormat format, byte[] byteBuffer, int sampleBufferLength, File outputFile) {
         try (ByteArrayInputStream bais = new ByteArrayInputStream(byteBuffer)) {
             try (AudioInputStream ais = new AudioInputStream(bais, format, sampleBufferLength)) {
                 AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outputFile);
@@ -23,15 +23,5 @@ public class AudioFileManager {
             e.printStackTrace();
             return false;
         }
-    }
-
-    private static AudioFormat createArbitraryAudioFormat(double sampleRate) {
-        final boolean isBigEndian = false;
-        final boolean signed = true;
-
-        final int bits = 16;
-        final int channels = 1;
-
-        return new AudioFormat((float) sampleRate, bits, channels, signed, isBigEndian);
     }
 }

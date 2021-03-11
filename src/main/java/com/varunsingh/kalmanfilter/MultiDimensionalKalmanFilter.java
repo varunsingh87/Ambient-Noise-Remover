@@ -1,32 +1,49 @@
 package com.varunsingh.kalmanfilter;
 
 import com.varunsingh.linearalgebra.Matrix;
-import com.varunsingh.linearalgebra.Vector;
 import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
+import com.varunsingh.linearalgebra.Vector;
 
 public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
     private SystemCycleVector currentCycleInfo;
-    private MultiDimensionalKalmanFilterEquationFactory equationFactory;
+    private MultiDimensionalKalmanFilterParameterFactory equationFactory;
     private Vector processNoise;
     private Matrix processNoiseUncertainty;
     private Matrix kalmanGain;
 
-    private final static int TIME_INTERVAL = 5;
+    private int stateVectorSize;
+    private int measurementVectorSize;
 
-    public MultiDimensionalKalmanFilter(Vector initialEstimate, Vector initialEstUnc) {
-        currentCycleInfo = new SystemCycleVector(initialEstimate, initialEstUnc);
-        equationFactory = new MultiDimensionalKalmanFilterEquationFactory(TIME_INTERVAL);
+    public final static int TIME_INTERVAL = 5;
+
+    public MultiDimensionalKalmanFilter(int vec, int meas) {
+        stateVectorSize = vec;
+        measurementVectorSize = meas;
+    }
+
+    public void initialize(SystemCycleVector initialStateParams) {
+        currentCycleInfo = initialStateParams;
+        equationFactory = new MultiDimensionalKalmanFilterParameterFactory(TIME_INTERVAL);
+        
         processNoiseUncertainty = new Matrix(new double[][] {
-            { 0.0005, 0.0003 },
-            { 0.0003, 0.0671 }
+            { 0.005, 0.003, 0.007 },
+            { 0.003, 0.067, 0.042 },
+            { 0.004, 0.015, 0.1   }
         });
-        currentCycleInfo.setStatePrediction(calculateStateExtrapolation());
+
+        currentCycleInfo.setMeasurementUncertainty(calculateMeasurementUncertainty());
+        
         kalmanGain = calculateKalmanGain();
-        currentCycleInfo.setMeasurementUncertainty(
-            equationFactory.useMeasurementUncertaintyEquation(
-                new Vector(new double[] {0.005 })
-            )
-        );
+    }
+
+    public void initialize(SystemCycleVector initialStateParams, Matrix procNoiseUnc, Matrix measUnc) {
+        currentCycleInfo = initialStateParams;
+        equationFactory = new MultiDimensionalKalmanFilterParameterFactory(TIME_INTERVAL);
+        processNoiseUncertainty = procNoiseUnc;
+
+        currentCycleInfo.setMeasurementUncertainty(measUnc);
+        
+        kalmanGain = calculateKalmanGain();
     }
 
     public SystemCycleVector getCurrentCycleInfo() {
@@ -57,12 +74,29 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
         this.kalmanGain = kalmanGain;
     }
 
+    public int getStateVectorSize() {
+        return stateVectorSize;
+    }
+
+    public void setStateVectorSize(int stateVectorSize) {
+        this.stateVectorSize = stateVectorSize;
+    }
+
+    public int getMeasurementVectorSize() {
+        return measurementVectorSize;
+    }
+
+    public void setMeasurementVectorSize(int measurementVectorSize) {
+        this.measurementVectorSize = measurementVectorSize;
+    }
+
     @Override
     public Vector calculateCurrentStateEstimate() {
         return equationFactory.useStateUpdateEquation(
             currentCycleInfo.getStatePrediction(), 
             calculateKalmanGain(),
-            currentCycleInfo.getStateEstimate()
+            currentCycleInfo.getMeasurement(),
+            KalmanFilterMatrices.createObservationMatrix(measurementVectorSize, stateVectorSize)
         );
     }
 
@@ -74,20 +108,22 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
         );
     }
 
+    private Matrix calculateMeasurementUncertainty() {
+        double[][] measurementUncertainty = new double[measurementVectorSize][measurementVectorSize];
+        
+        for (int i = 0; i < measurementVectorSize; i++) {
+            for (int j = 0; j < measurementVectorSize; j++) {
+                measurementUncertainty[i][j] = Math.abs(Math.random() / 2);
+            }
+        }
+
+        return new Matrix(measurementUncertainty);
+    }
+
     @Override
     public void measure(Matrix m) {
         Vector measurement = (Vector) m;
-        // equationFactory
-        //     .useMeasurementEquation(
-        //         KalmanFilterMatrices.getObservationMatrix(
-        //             currentCycleInfo.getStateEstimate().getRows(),
-        //             currentCycleInfo.getStatePrediction().getColumns()
-        //         ),
-        //         measurement, 
-        //         new Vector(
-        //             new double[] { 0.0016 }
-        //         )
-        //     );
+
         currentCycleInfo.setMeasurement(measurement);
         kalmanGain = calculateKalmanGain();
         currentCycleInfo.setStateEstimate(calculateCurrentStateEstimate());
@@ -100,16 +136,13 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
     public Matrix calculateKalmanGain() {
         try {
             return equationFactory.useKalmanGainEquation(
-                currentCycleInfo.getStatePrediction(),
-                KalmanFilterMatrices.getObservationMatrix(
-                    currentCycleInfo.getStateEstimate().getRows(),
-                    currentCycleInfo.getStatePrediction().getColumns()
-                ),
+                currentCycleInfo.getEstimateUncertaintyPrediction(),
+                KalmanFilterMatrices.createObservationMatrix(measurementVectorSize, stateVectorSize),
                 currentCycleInfo.getMeasurementUncertainty()
             );
         } catch (MatrixNotInvertibleException e) {
             e.printStackTrace();
-            return new Matrix(new double[][] { { 1 } });
+            return new Matrix(new double[][] { { } });
         }
     }
 
@@ -117,7 +150,7 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
     public Matrix calculateCurrentEstimateUncertainty() {
         return equationFactory.useCovarianceUpdateEquation(
             getKalmanGain(), 
-            KalmanFilterMatrices.getObservationMatrix(3, 3), 
+            KalmanFilterMatrices.createObservationMatrix(measurementVectorSize, stateVectorSize), 
             currentCycleInfo.getEstimateUncertaintyPrediction(), 
             currentCycleInfo.getMeasurementUncertainty()
         );

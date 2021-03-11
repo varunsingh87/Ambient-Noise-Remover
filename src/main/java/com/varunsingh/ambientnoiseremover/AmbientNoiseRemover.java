@@ -2,9 +2,9 @@ package com.varunsingh.ambientnoiseremover;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -12,8 +12,12 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.varunsingh.kalmanfilter.MultiDimensionalKalmanFilter;
+import com.varunsingh.kalmanfilter.SystemCycleVector;
+import com.varunsingh.linearalgebra.Matrix;
 import com.varunsingh.linearalgebra.Vector;
-import com.varunsingh.soundmanipulation.CompoundWave;
+import com.varunsingh.soundmanipulation.AudioByteSet;
+import com.varunsingh.soundmanipulation.AudioFileManager;
+import com.varunsingh.soundmanipulation.AudioSampleSet;
 
 /**
  * Samples: Talk by Neil Cummings at Kunsthal Aarhus, on 11 December, as part of
@@ -26,34 +30,27 @@ import com.varunsingh.soundmanipulation.CompoundWave;
  */
 public class AmbientNoiseRemover {
     private File sourceFile;
-    private CompoundWave waveForm;
+    private AudioSampleSet waveForm;
+    private AudioFormat format;
 
     public AmbientNoiseRemover(String src, String dest) throws UnsupportedAudioFileException, IOException {
         sourceFile = new File(src);
-        new File(dest);
-        waveForm = new CompoundWave(loadSourceFileData());
+        waveForm = AudioSampleSet.createSampleBufferFromByteBuffer(loadSourceFileData());
     }
 
     public static void main(String[] args) {
-        removeAmbientNoise();
+        removeAmbientNoiseFromFiles();
     }
 
-    protected static void removeAmbientNoise() {
+    protected static void removeAmbientNoiseFromFiles() {
         try {
-            for (int i = 1; i <= 5; i++) {
+            for (int i = 1; i <= 7; i++) {
                 String fileName = "sample" + i + ".wav";
                 String sourcePath = "data/noiseremoval/samples/".concat(fileName);
                 String destPath = "data/noiseremoval/output/".concat(fileName);
 
                 AmbientNoiseRemover anr = new AmbientNoiseRemover(sourcePath, destPath);
-                anr.distinguishNoise();
-                
-                System.out.println(
-                    Arrays.equals(
-                        anr.getWaveForm().getAudioData(),
-                        AudioSystem.getAudioInputStream(new File(sourcePath)).readAllBytes()
-                    )
-                );
+                anr.removeNoise(i);
 
             }
         } catch (UnsupportedAudioFileException | IOException e) {
@@ -63,6 +60,7 @@ public class AmbientNoiseRemover {
 
     byte[] loadSourceFileData() throws UnsupportedAudioFileException {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(sourceFile)) {
+            format = in.getFormat();
             return in.readAllBytes();
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,73 +68,49 @@ public class AmbientNoiseRemover {
         }
     }
 
-    public CompoundWave getWaveForm() {
+    public AudioSampleSet getWaveForm() {
         return waveForm;
     }
 
-    public void setWaveForm(CompoundWave waveForm) {
+    public void setWaveForm(AudioSampleSet waveForm) {
         this.waveForm = waveForm;
     }
 
-    void distinguishNoise() {
-        try (AudioInputStream noisySoundStream = AudioSystem.getAudioInputStream(sourceFile)) {
-            try (Clip clip = AudioSystem.getClip()) {
-                final float NOISE_THRESHOLD = 0.115f;
-                ArrayList<Integer> noisePositions = new ArrayList<Integer>();
-                byte[] audioData = loadSourceFileData();
-                byte[] buf = new byte[clip.getBufferSize()];
-                float[] samples = new float[buf.length / 2];
+    void removeNoise(int index) {
+        NoiseDistinguisher noisePositionFinder = new NoiseDistinguisher(waveForm);
+        List<Float> noisePositions = noisePositionFinder.findSamplesBelowNoiseThreshold();
+        
+        int measurementVectorSize = format.getFrameSize();
 
-                int bytesRead;
-                while ((bytesRead = noisySoundStream.read(buf, 0, buf.length)) != -1) {
+        Vector initialState = new Vector(new double[] { 0.01, 0.001, 0.04 });
+        Matrix initialUncertainty = new Matrix(new double[][] { { 0.068, 0.43, 0.3 }, { 0.2, 0.3, 0.1 }, { 0.3, 0.1, 0.2 } });
+        MultiDimensionalKalmanFilter filter = new MultiDimensionalKalmanFilter(3, measurementVectorSize);
 
-                    // convert bytes to samples here
-                    for (int i = 0, s = 0; i < bytesRead;) {
-                        int sample = 0;
+        filter.initialize(new SystemCycleVector(initialState, initialUncertainty));
+        
+        for (int i = 0; i < noisePositions.size() / format.getFrameSize(); i++) {
+            double[] frame = new double[format.getFrameSize()];
 
-                        sample |= buf[i++] & 0xFF; // (reverse these two lines
-                        sample |= buf[i++] << 8; // if the format is big endian)
-
-                        // normalize to range of +/-1.0f
-                        samples[s++] = sample / 32768f;
-                    }
-
-                    float rms = 0f;
-                    for (float sample : samples) {
-                        rms += sample * sample;
-                    }
-
-                    rms = (float) Math.sqrt(rms / samples.length);
-
-                    if (rms < NOISE_THRESHOLD)
-                        noisePositions.add(bytesRead);
-                }
-
-                Vector initialState = new Vector(new double[] { 0.01, 0.001, 127 });
-                Vector initialUncertainty = new Vector(new double[] { 0.8, 0.1, 0.6 });
-                MultiDimensionalKalmanFilter filter = new MultiDimensionalKalmanFilter(initialState, initialUncertainty);
-                for (int i = 0; i < noisePositions.size() - 2; i += 3) {
-                    filter.measure(
-                        new Vector(
-                            new double[] { 
-                                audioData[noisePositions.get(i)],
-                                audioData[noisePositions.get(i + 1)], 
-                                audioData[noisePositions.get(i + 2)] 
-                            }
-                        )
-                    );
-                }
-
-                byte noise = (byte) filter.getCurrentCycleInfo().getStateEstimate().getVectorElements()[0];
-                setWaveForm(waveForm.add(waveForm.invert(noise)));
+            for (int j = 0; j < format.getFrameSize(); j++) {
+                frame[j] = noisePositions.get(i * format.getFrameSize() + j);
             }
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            filter.measure(new Vector(frame));
         }
+
+        float noise = (float) filter.getCurrentCycleInfo().getStateEstimate().get(0);
+        AudioSampleSet noiseRemovedWaveForm = waveForm.muteNoise(noise);
+
+        AudioByteSet outputByteData = AudioByteSet.createByteBufferFromSampleBuffer(waveForm.getSampleBuffer());
+
+        AudioFileManager.writeToOutputFile(
+            format, 
+            outputByteData.getByteBuffer(), 
+            noiseRemovedWaveForm.getBufferSize(),
+            new File("data/noiseremoval/output/output" + index + ".wav")
+        );
+
+        System.out.println(String.format("File %s has been written!", String.valueOf(index)));
     }
 
     void playAudio() {

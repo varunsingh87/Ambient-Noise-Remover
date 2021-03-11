@@ -10,8 +10,8 @@ public class SystemCycleVector {
     private Matrix measurementUncertainty;
     private Matrix estimateUncertainty;
     private Matrix estimateUncertaintyPrediction;
-
-    SystemCycleVector(Vector initialGuess, Vector estimateUncertainty) {
+    
+    public SystemCycleVector(Vector initialGuess, Matrix estimateUncertainty) {
         setStateEstimate(initialGuess);
         setEstimateUncertainty(estimateUncertainty);
         setStatePrediction(initialGuess);

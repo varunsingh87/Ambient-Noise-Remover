@@ -1,7 +1,5 @@
 package com.varunsingh.linearalgebra;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Arrays;
 
 import com.varunsingh.linearalgebra.Vector.VectorType;
@@ -82,7 +80,7 @@ public class Matrix {
     public Matrix times(Matrix m) {
         if (getColumns() != m.getRows())
             throw new IllegalArgumentException();
-
+            
         Matrix toReturn = new Matrix(new double[getRows()][m.getColumns()]);
 
         for (int i = 0; i < getRows(); i++) {
@@ -166,60 +164,7 @@ public class Matrix {
      * @throws MatrixNotInvertibleException
      */
     public Matrix invert() throws MatrixNotInvertibleException {
-        if (!isSquare())
-            throw new MatrixNotInvertibleException();
-
-        int dimensions = getRows();
-
-        double[][] matrixElsToInvert = new double[getRows()][getColumns()];
-        for (int i = 0; i < dimensions; i++) {
-            matrixElsToInvert[i] = Arrays.copyOf(matrixElements[i], matrixElsToInvert[i].length);
-        }
-
-        Matrix matrixToInvert = new Matrix(matrixElsToInvert);
-        Matrix augmentedMatrix = createIdentityMatrix(getColumns());
-        
-        for (int k = 0; k < dimensions; k++) {
-            
-            double cellValueBeforeOne = matrixToInvert.get(k, k);
-            for (int i = 0; i < dimensions; i++) {
-                matrixToInvert.set(k, i, matrixToInvert.get(k, i) / cellValueBeforeOne);
-                augmentedMatrix.set(k, i, augmentedMatrix.get(k, i) / cellValueBeforeOne);
-            }
-
-            for (int i = 0; i < dimensions; i++) {
-                double firstZeroFactor = matrixToInvert.get(i, k);
-                if (i != k) {
-                    for (int j = 0; j < dimensions; j++) {                
-                        double firstRowValue = matrixToInvert.get(k, j);
-                        double valueToChange = matrixToInvert.get(i, j);
-
-                        matrixToInvert.set(i, j, valueToChange - firstZeroFactor * firstRowValue);
-                        
-                        firstRowValue = augmentedMatrix.get(k, j);
-                        valueToChange = augmentedMatrix.get(i, j);
-
-                        augmentedMatrix.set(i, j, valueToChange - firstZeroFactor * firstRowValue);
-                    }
-                }
-            }
-        }
-        
-        System.out.println(augmentedMatrix);
-        
-        for (int i = 0; i < dimensions; i++) {
-            for (int j = 0; j < dimensions; j++) {
-                augmentedMatrix.set(i, j, roundDouble(augmentedMatrix.get(i, j), 3));
-            }
-        }
-
-        return augmentedMatrix;
-    }
-
-    private static double roundDouble(double d, int places) {
-        BigDecimal bigDecimal = new BigDecimal(Double.toString(d));
-        bigDecimal = bigDecimal.setScale(places, RoundingMode.HALF_UP);
-        return bigDecimal.doubleValue();
+        return new MatrixInverseOperation(this).compute();
     }
 
     public static Matrix createIdentityMatrix(int size) {
