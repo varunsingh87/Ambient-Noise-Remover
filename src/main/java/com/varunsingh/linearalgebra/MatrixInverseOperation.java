@@ -100,7 +100,7 @@ public class MatrixInverseOperation implements MatrixOperation {
     }
 
     private double roundDouble(double d, int places) {
-        if (Double.isNaN(d) || Double.isInfinite(d)) return 0;  
+        //if (Double.isNaN(d) || Double.isInfinite(d)) return 0;  
         
         BigDecimal bigDecimal = new BigDecimal(Double.toString(d));
         bigDecimal = bigDecimal.setScale(places, RoundingMode.HALF_UP);

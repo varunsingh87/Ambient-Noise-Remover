@@ -25,11 +25,7 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
         currentCycleInfo = initialStateParams;
         equationFactory = new MultiDimensionalKalmanFilterParameterFactory(TIME_INTERVAL);
         
-        processNoiseUncertainty = new Matrix(new double[][] {
-            { 0.005, 0.003, 0.007 },
-            { 0.003, 0.067, 0.042 },
-            { 0.004, 0.015, 0.1   }
-        });
+        processNoiseUncertainty = generateProcessNoiseMatrix();
 
         currentCycleInfo.setMeasurementUncertainty(calculateMeasurementUncertainty());
         
@@ -109,15 +105,12 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
     }
 
     private Matrix calculateMeasurementUncertainty() {
-        double[][] measurementUncertainty = new double[measurementVectorSize][measurementVectorSize];
-        
-        for (int i = 0; i < measurementVectorSize; i++) {
-            for (int j = 0; j < measurementVectorSize; j++) {
-                measurementUncertainty[i][j] = Math.abs(Math.random() / 2);
-            }
-        }
-
-        return new Matrix(measurementUncertainty);
+        return new Matrix(new double[][] {
+            { 0.012, 0.605, 0.003, 0.554 },
+            { 0.017, 0.324, 0.145, 0.382 },
+            { 0.364, 0.879, 0.128, 0.003 }, 
+            { 0.356, 0.112, 0.040, 0.103 }
+        });
     }
 
     @Override
@@ -162,5 +155,13 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
             currentCycleInfo.getEstimateUncertainty(),
             processNoiseUncertainty
         );
+    }
+
+    private Matrix generateProcessNoiseMatrix() {
+        return new Matrix(new double[][] {
+            { 0.005, 0.003, 0.007 },
+            { 0.003, 0.067, 0.042 },
+            { 0.004, 0.015, 0.1   }
+        });
     }
 }
