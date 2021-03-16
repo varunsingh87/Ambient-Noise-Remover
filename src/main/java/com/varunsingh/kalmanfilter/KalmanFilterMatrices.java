@@ -12,13 +12,12 @@ public class KalmanFilterMatrices {
     }
 
     static Matrix createObservationMatrix(int measurementVectorSize, int stateVectorSize) {
-        Matrix observationMatrix = new Matrix(new double[measurementVectorSize][stateVectorSize]);
-        
-        for (int i = 0; i < measurementVectorSize; i++) {
-            for (int j = 0; j < stateVectorSize; j++) {
-                observationMatrix.set(i, j, Math.abs(Math.random() * 2));
-            }
-        }
+        Matrix observationMatrix = new Matrix(new double[][] {
+            { 0.004, 0.005, 0.003 },
+            { 0.017, 0.324, 0.145 },
+            { 0.364, 0.879, 0.128 }, 
+            { 0.356, 0.112, 0.040 }
+        });
 
         return observationMatrix;
     }
