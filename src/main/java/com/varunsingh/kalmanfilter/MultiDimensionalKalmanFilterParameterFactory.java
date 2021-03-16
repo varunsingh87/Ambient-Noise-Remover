@@ -6,20 +6,20 @@ import com.varunsingh.linearalgebra.Vector;
 import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
 
 public class MultiDimensionalKalmanFilterParameterFactory {
-    private double timeInterval;
+    private CovarianceMatrixSet covarianceMatrixSet;
 
-    public MultiDimensionalKalmanFilterParameterFactory(double t) {
-        timeInterval = t;
+    public MultiDimensionalKalmanFilterParameterFactory(CovarianceMatrixSet s) {
+        covarianceMatrixSet = s;
     }
 
     Vector useStateExtrapolationEquation(Vector v, Vector v2) {
-        Matrix firstSum = KalmanFilterMatrices.getControlMatrix(timeInterval).times(v);
-        Matrix secondSum = KalmanFilterMatrices.getStateTransitionMatrix(timeInterval).times(v2);
+        Matrix firstSum = covarianceMatrixSet.getControl().times(v);
+        Matrix secondSum = covarianceMatrixSet.getStateTransition().times(v2);
         return Vector.valueOf(firstSum.plus(secondSum));
     }
 
     Matrix useCovarianceExtrapolationEquation(Matrix currentEstUnc, Matrix processNoiseUncertainty) {
-        return currentEstUnc.times(KalmanFilterMatrices.getStateTransitionMatrix(timeInterval))
+        return currentEstUnc.times(covarianceMatrixSet.getStateTransition())
                 .plus(processNoiseUncertainty);
     }
 

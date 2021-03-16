@@ -16,30 +16,36 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
 
     public final static int TIME_INTERVAL = 5;
 
+    private CovarianceMatrixSet currentCovarianceParameters;
+
     public MultiDimensionalKalmanFilter(int vec, int meas) {
         stateVectorSize = vec;
         measurementVectorSize = meas;
     }
 
-    public void initialize(SystemCycleVector initialStateParams) {
+    public void initialize(SystemCycleVector initialStateParams, CovarianceMatrixSet currCovParams, Matrix procNoiseUnc, Matrix measUnc) {
         currentCycleInfo = initialStateParams;
-        equationFactory = new MultiDimensionalKalmanFilterParameterFactory(TIME_INTERVAL);
-        
-        processNoiseUncertainty = generateProcessNoiseMatrix();
+        setCurrentCovarianceParameters(currCovParams);
 
-        currentCycleInfo.setMeasurementUncertainty(calculateMeasurementUncertainty());
-        
-        kalmanGain = calculateKalmanGain();
-    }
-
-    public void initialize(SystemCycleVector initialStateParams, Matrix procNoiseUnc, Matrix measUnc) {
-        currentCycleInfo = initialStateParams;
-        equationFactory = new MultiDimensionalKalmanFilterParameterFactory(TIME_INTERVAL);
+        equationFactory = new MultiDimensionalKalmanFilterParameterFactory(currCovParams);
         processNoiseUncertainty = procNoiseUnc;
 
         currentCycleInfo.setMeasurementUncertainty(measUnc);
-        
+
         kalmanGain = calculateKalmanGain();
+    }
+    
+    public CovarianceMatrixSet getCurrentCovarianceParameters() {
+        return currentCovarianceParameters;
+    }
+
+    public void setCurrentCovarianceParameters(CovarianceMatrixSet currentCovarianceParameters) {
+        this.currentCovarianceParameters = currentCovarianceParameters;
+    }
+
+    public boolean checkAllParametersAreInitialized() {
+        return processNoiseUncertainty != null && kalmanGain != null
+                && currentCycleInfo.checkAllParametersAreInitialized();
     }
 
     public SystemCycleVector getCurrentCycleInfo() {
@@ -88,33 +94,24 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
 
     @Override
     public Vector calculateCurrentStateEstimate() {
-        return equationFactory.useStateUpdateEquation(
-            currentCycleInfo.getStatePrediction(), 
-            calculateKalmanGain(),
-            currentCycleInfo.getMeasurement(),
-            KalmanFilterMatrices.createObservationMatrix(measurementVectorSize, stateVectorSize)
-        );
+        return equationFactory.useStateUpdateEquation(currentCycleInfo.getStatePrediction(), calculateKalmanGain(),
+                currentCycleInfo.getMeasurement(),
+                currentCovarianceParameters.getObservation());
     }
 
     @Override
     public Vector calculateStateExtrapolation() {
-        return equationFactory.useStateExtrapolationEquation(
-            currentCycleInfo.getStatePrediction(),
-            currentCycleInfo.getStateEstimate()
-        );
-    }
-
-    private Matrix calculateMeasurementUncertainty() {
-        return new Matrix(new double[][] {
-            { 0.012, 0.605, 0.003, 0.554 },
-            { 0.017, 0.324, 0.145, 0.382 },
-            { 0.364, 0.879, 0.128, 0.003 }, 
-            { 0.356, 0.112, 0.040, 0.103 }
-        });
+        return equationFactory.useStateExtrapolationEquation(currentCycleInfo.getStatePrediction(),
+                currentCycleInfo.getStateEstimate());
     }
 
     @Override
     public void measure(Matrix m) {
+        if (!checkAllParametersAreInitialized()) {
+            String errorMessage = "Not all parameters have been initialized, so measurement cannot begin";
+            throw new NullPointerException(errorMessage);
+        }
+        
         Vector measurement = (Vector) m;
 
         currentCycleInfo.setMeasurement(measurement);
@@ -128,40 +125,25 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
     @Override
     public Matrix calculateKalmanGain() {
         try {
-            return equationFactory.useKalmanGainEquation(
-                currentCycleInfo.getEstimateUncertaintyPrediction(),
-                KalmanFilterMatrices.createObservationMatrix(measurementVectorSize, stateVectorSize),
-                currentCycleInfo.getMeasurementUncertainty()
-            );
+            return equationFactory.useKalmanGainEquation(currentCycleInfo.getEstimateUncertaintyPrediction(),
+                    currentCovarianceParameters.getObservation(),
+                    currentCycleInfo.getMeasurementUncertainty());
         } catch (MatrixNotInvertibleException e) {
             e.printStackTrace();
-            return new Matrix(new double[][] { { } });
+            return new Matrix(new double[][] { {} });
         }
     }
 
     @Override
     public Matrix calculateCurrentEstimateUncertainty() {
-        return equationFactory.useCovarianceUpdateEquation(
-            getKalmanGain(), 
-            KalmanFilterMatrices.createObservationMatrix(measurementVectorSize, stateVectorSize), 
-            currentCycleInfo.getEstimateUncertaintyPrediction(), 
-            currentCycleInfo.getMeasurementUncertainty()
-        );
+        return equationFactory.useCovarianceUpdateEquation(getKalmanGain(),
+                currentCovarianceParameters.getObservation(),
+                currentCycleInfo.getEstimateUncertaintyPrediction(), currentCycleInfo.getMeasurementUncertainty());
     }
 
     @Override
     public Matrix calculateExtrapolatedEstimateUncertainty() {
-        return equationFactory.useCovarianceExtrapolationEquation(
-            currentCycleInfo.getEstimateUncertainty(),
-            processNoiseUncertainty
-        );
-    }
-
-    private Matrix generateProcessNoiseMatrix() {
-        return new Matrix(new double[][] {
-            { 0.005, 0.003, 0.007 },
-            { 0.003, 0.067, 0.042 },
-            { 0.004, 0.015, 0.1   }
-        });
+        return equationFactory.useCovarianceExtrapolationEquation(currentCycleInfo.getEstimateUncertainty(),
+                processNoiseUncertainty);
     }
 }

@@ -18,6 +18,14 @@ public class SystemCycleVector {
         setEstimateUncertaintyPrediction(estimateUncertainty);
     }
 
+    public boolean checkAllParametersAreInitialized() {
+        return measurement != null 
+            && stateEstimate != null 
+            && statePrediction != null 
+            && measurementUncertainty != null 
+            && estimateUncertainty != null;
+    }
+
     public Vector getMeasurement() {
         return measurement;
     }
