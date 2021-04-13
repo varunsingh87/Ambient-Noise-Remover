@@ -20,6 +20,26 @@ import com.varunsingh.soundmanipulation.AudioByteSet;
 import com.varunsingh.soundmanipulation.AudioFileManager;
 import com.varunsingh.soundmanipulation.AudioSampleSet;
 
+/* 
+    Ambient Noise Remover: A program that removes background noise from an audio file
+    using the multidimensional Kalman Filter
+    
+    Copyright (C) 2021 Varun Singh
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
 /**
  * Samples: Talk by Neil Cummings at Kunsthal Aarhus, on 11 December, as part of
  * The Perfect Institution series. Source: FreeSound, user kunsthalaarhus
@@ -84,7 +104,7 @@ public class AmbientNoiseRemover {
         int measurementVectorSize = format.getFrameSize();
 
         Vector initialState = new Vector(new double[] { 0.01, 0.001, 0.04 });
-        Matrix initialUncertainty = new Matrix(new double[][] { { 0.068, 0.43, 0.3 }, { 0.2, 0.3, 0.1 }, { 0.3, 0.1, 0.2 } });
+        Matrix initialUncertainty = new Matrix(new double[][] { { 0.068, 0.0043, 0.03 }, { 0.02, 0.03, 0.1 }, { 0.3, 0.1, 0.2 } });
         MultiDimensionalKalmanFilter filter = new MultiDimensionalKalmanFilter(3, measurementVectorSize);
 
         CovarianceMatrixSet kalmanFilterCovarianceMatrices = new CovarianceMatrixSet();
@@ -112,33 +132,35 @@ public class AmbientNoiseRemover {
             kalmanFilterCovarianceMatrices,
             new Matrix(
                 new double[][] { 
+                    { 0.005, 0.003, 0.007 }, 
+                    { 0.003, 0.067, 0.042 }, 
+                    { 0.004, 0.015, 0.1   }
+                }
+            ),
+            new Matrix(
+                new double[][] { 
                     { 0.012, 0.605, 0.003, 0.554 }, 
                     { 0.017, 0.324, 0.145, 0.382 },
                     { 0.364, 0.879, 0.128, 0.003 }, 
                     { 0.356, 0.112, 0.040, 0.103 } 
                 }
-            ),
-            new Matrix(
-                new double[][] { 
-                    { 0.005, 0.003, 0.007 }, 
-                    { 0.003, 0.067, 0.042 }, 
-                    { 0.004, 0.015, 0.1 } 
-                }
             )
         );
         
-        for (int i = 0; i < noisePositions.size() / format.getFrameSize(); i++) {
-            double[] frame = new double[format.getFrameSize()];
+        int estimatedWaveLength = format.getFrameSize();
 
-            for (int j = 0; j < format.getFrameSize(); j++) {
-                frame[j] = noisePositions.get(i * format.getFrameSize() + j);
+        for (int i = 0; i < noisePositions.size() / estimatedWaveLength; i++) {
+            double[] frame = new double[estimatedWaveLength];
+
+            for (int j = 0; j < estimatedWaveLength; j++) {
+                frame[j] = noisePositions.get(i * estimatedWaveLength + j);
             }
 
             filter.measure(new Vector(frame));
         }
 
-        float noise = (float) filter.getCurrentCycleInfo().getStateEstimate().get(0);
-        AudioSampleSet noiseRemovedWaveForm = waveForm.muteNoise(noise);
+        Vector noise = filter.getCurrentCycleInfo().getStateEstimate();
+        AudioSampleSet noiseRemovedWaveForm = waveForm.muteNoise(noise.getVectorElements());
 
         AudioByteSet outputByteData = AudioByteSet.createByteBufferFromSampleBuffer(waveForm.getSampleBuffer());
 
