@@ -14,12 +14,25 @@ These instructions will get you a copy of the project up and running on your loc
 
 Ambient-Noise-Remover uses the Maven Dependency Management System to store and update dependencies and version the software. To install Maven, go to their [website](https://maven.apache.org) and download it. 
 
+#### Maven Dependency Management System
+
 Run 
 ```
 mvn -v
 ```
 
 to make sure it is configured correctly. 
+
+#### Understanding of the Kalman Filter 
+
+Before writing code for or reading code in this repository, you need to understand how the one dimensional and multidimensional Kalman Filter works. I suggest the following resources:
+
+* Background Info: https://www.kalmanfilter.net/background.html
+* One Dimensional Kalman Filter: https://www.kalmanfilter.net/kalman1d.html
+* Multi-Dimensional Kalman Filter: 
+        
+    - https://www.kalmanfilter.net/kalmanmulti.html
+    - https://www.vectornav.com/resources/kalman-filters
 
 ### Installing
 
@@ -98,5 +111,5 @@ I, Varun Singh, did the research and wrote the software.
 
 ## License
 
-This project is licensed under the GNU General Public License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GNU General Public License - see the [LICENSE](LICENSE) file for details
 
