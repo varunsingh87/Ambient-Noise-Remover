@@ -7,6 +7,7 @@ import com.varunsingh.linearalgebra.Vector;
 public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
     private SystemCycleVector currentCycleInfo;
     private MultiDimensionalKalmanFilterParameterFactory equationFactory;
+    private CovarianceMatrixSet currentCovarianceParameters;
     private Vector processNoise;
     private Matrix processNoiseUncertainty;
     private Matrix kalmanGain;
@@ -15,8 +16,6 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
     private int measurementVectorSize;
 
     public final static int TIME_INTERVAL = 5;
-
-    private CovarianceMatrixSet currentCovarianceParameters;
 
     public MultiDimensionalKalmanFilter(int vec, int meas) {
         stateVectorSize = vec;
@@ -125,9 +124,11 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix> {
     @Override
     public Matrix calculateKalmanGain() {
         try {
-            return equationFactory.useKalmanGainEquation(currentCycleInfo.getEstimateUncertaintyPrediction(),
-                    currentCovarianceParameters.getObservation(),
-                    currentCycleInfo.getMeasurementUncertainty());
+            return equationFactory.useKalmanGainEquation(
+                currentCycleInfo.getEstimateUncertaintyPrediction(),
+                currentCovarianceParameters.getObservation(),
+                currentCycleInfo.getMeasurementUncertainty()
+            );
         } catch (MatrixNotInvertibleException e) {
             e.printStackTrace();
             return new Matrix(new double[][] { {} });

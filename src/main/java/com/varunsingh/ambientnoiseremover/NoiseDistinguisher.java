@@ -11,7 +11,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import com.varunsingh.soundmanipulation.AudioSampleSet;
 
 public class NoiseDistinguisher {
-    public final static float NOISE_THRESHOLD = 0.815f;
+    public final static float NOISE_THRESHOLD = 1.815f;
 
     private AudioSampleSet sampleBuffer;
 

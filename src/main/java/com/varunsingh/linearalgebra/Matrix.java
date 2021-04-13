@@ -104,19 +104,19 @@ public class Matrix {
     /**
      * Adds two matrices together
      * 
-     * @param augend The matrix to add to the current matrix
+     * @param addend The matrix to add to the current matrix
      * @return The sum of the two matrices
      * @throws IllegalArgumentException When the matrices cannot be added
      */
-    public Matrix plus(Matrix augend) {
-        if (!(getRows() == augend.getRows() && getColumns() == augend.getColumns()))
+    public Matrix plus(Matrix addend) {
+        if (!(getRows() == addend.getRows() && getColumns() == addend.getColumns()))
             throw new IllegalArgumentException("Cannot add matrices of different dimensions");
 
         Matrix toReturn = new Matrix(new double[getRows()][getColumns()]);
 
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getColumns(); j++) {
-                toReturn.set(i, j, matrixElements[i][j] + augend.getMatrixElements()[i][j]);
+                toReturn.set(i, j, matrixElements[i][j] + addend.getMatrixElements()[i][j]);
             }
         }
 

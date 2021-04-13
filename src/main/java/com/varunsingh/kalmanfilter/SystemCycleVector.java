@@ -19,8 +19,7 @@ public class SystemCycleVector {
     }
 
     public boolean checkAllParametersAreInitialized() {
-        return measurement != null 
-            && stateEstimate != null 
+        return stateEstimate != null 
             && statePrediction != null 
             && measurementUncertainty != null 
             && estimateUncertainty != null;
