@@ -161,6 +161,16 @@ public class AudioSampleSet {
         return noiseMuted;
     }
 
+    public AudioSampleSet muteNoise(double[] noises) {
+        AudioSampleSet noiseMuted = new AudioSampleSet(new float[getBufferSize()]);
+
+        for (int i = 0, j = 1; i < getBufferSize() && j <= noises.length; i++, j++) {
+            noiseMuted.set(i, get(i) - (float) noises[i % j]);
+        }
+
+        return noiseMuted;
+    }
+
     public static void recordSilence() {
         AudioFormat format = AudioSampleSet.createArbitraryAudioFormat();
         SimpleWave wave = new SimpleWave(440, 0.5);
