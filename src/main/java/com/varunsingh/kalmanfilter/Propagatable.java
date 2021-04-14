@@ -16,9 +16,9 @@ import com.varunsingh.linearalgebra.Vector;
 interface Propagatable {
     Vector predictNextStateVector();
 
-    Matrix predictNextStateCovarianceMatrix();
+    // Matrix predictNextEstimateUncertainty();
 
-    Vector modelNextStateVectorWithNoise();
+    Matrix modelNextStateVectorWithNoise();
 
-    Matrix modelNextStateCovarianceMatrixWithNoise();
+    Matrix modelNextEstimateUncertaintyWithNoise();
 }

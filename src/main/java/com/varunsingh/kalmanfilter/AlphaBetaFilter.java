@@ -4,7 +4,7 @@ package com.varunsingh.kalmanfilter;
  * Filter using the Measure, Update, Predict algorithm that estimates position
  * and velocity
  */
-public class AlphaBetaFilter implements EstimationFilter<Double> {
+public class AlphaBetaFilter implements EstimationFilter<Double>, Measurable<Double> {
     private SystemCycle cycleInfo;
     private Double alphaFilter;
     private Double betaFilter;

@@ -1,6 +1,6 @@
 package com.varunsingh.kalmanfilter;
 
-public class AlphaFilter implements EstimationFilter<Double> {
+public class AlphaFilter implements EstimationFilter<Double>, Measurable<Double> {
     private SystemCycle cycleInfo;
     private int iteration = 0;
 
