@@ -1,7 +1,10 @@
 package com.varunsingh.soundmanipulation;
 
+import be.tarsos.dsp.beatroot.Agent;
+
 public class AudioByteSet {
     private byte[] byteBuffer;
+    private Agent agent;
 
     public AudioByteSet(byte[] bb) {
         byteBuffer = bb;
