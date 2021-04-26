@@ -1,6 +1,4 @@
-#
 # Standard Maven .gitignore
-#
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -11,16 +9,12 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 
-#
 # IntelliJ
-#
 *.iml
 .idea/*
 !.idea/runConfigurations/
 
-#
 # Visual Studio Code
-#
 .settings/
 .classpath
 .factorypath
@@ -28,6 +22,5 @@ buildNumber.properties
 .vscode/
 
 # Project Specific
-
 data/
 nextcommitmessage.txt
