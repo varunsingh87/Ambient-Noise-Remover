@@ -79,8 +79,14 @@ public class Vector extends Matrix {
         return this.transpose().times(this).asRowVector();
     }
 
+    /**
+     * Calculates the dot product of two real Kx1 vectors
+     * defined at https://statlect.com/matrix-algebra/inner-product
+     * @param y The vector to multiply by
+     * @return The inner product
+     */
     public Vector calcInnerProduct(Vector y) {
-        return this.transpose().times(y).asRowVector();
+        return y.transpose().times(this).asRowVector();
     }
 
     /**
@@ -130,5 +136,20 @@ public class Vector extends Matrix {
 
     public double calcCovarianceIn2x2Matrix(Vector v2) {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Calculates the length of a vector
+     * @return ||this|| the square root of the sum of the squares of each component
+     */
+    public double calcLength() {
+        double sumOfComponents = 0;
+
+        for (int i = 0; i < getSize(); i++) {
+            double componentSquared = get(i) * get(i);
+            sumOfComponents += componentSquared;
+        }
+
+        return Math.sqrt(sumOfComponents);
     }
 }
