@@ -101,6 +101,18 @@ public class Matrix {
         return toReturn;
     }
 
+    public Matrix scale(double scalar) {
+        Matrix scaledUpMatrix = new Matrix(new double[getRows()][getColumns()]);
+
+        for (int i = 0; i < scaledUpMatrix.getRows(); i++) {
+            for (int j = 0; j < scaledUpMatrix.getColumns(); j++) {
+                scaledUpMatrix.set(i, j, scalar * get(i, j));
+            }
+        }
+
+        return scaledUpMatrix;
+    }
+
     /**
      * Adds two matrices together
      * 

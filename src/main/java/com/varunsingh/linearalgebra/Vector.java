@@ -28,11 +28,17 @@ public class Vector extends Matrix {
         return toConstruct;
     }
 
+    public Vector scale(double scalar) {
+        return super.scale(scalar).asColumnVector();
+    }
+
     public Vector transpose() {
         switch (vectorType) {
-            case COLUMN: return super.transpose().asRowVector();
+            case COLUMN:
+                return super.transpose().asRowVector();
             case ROW:
-            default: return super.transpose().asColumnVector();
+            default:
+                return super.transpose().asColumnVector();
         }
     }
 
@@ -80,8 +86,9 @@ public class Vector extends Matrix {
     }
 
     /**
-     * Calculates the dot product of two real Kx1 vectors
-     * defined at https://statlect.com/matrix-algebra/inner-product
+     * Calculates the dot product of two real Kx1 vectors defined at
+     * https://statlect.com/matrix-algebra/inner-product
+     * 
      * @param y The vector to multiply by
      * @return The inner product
      */
@@ -140,9 +147,14 @@ public class Vector extends Matrix {
 
     /**
      * Calculates the length of a vector
+     * 
      * @return ||this|| the square root of the sum of the squares of each component
      */
     public double calcLength() {
+        return Math.sqrt(dot());
+    }
+
+    public double dot() {
         double sumOfComponents = 0;
 
         for (int i = 0; i < getSize(); i++) {
@@ -150,6 +162,19 @@ public class Vector extends Matrix {
             sumOfComponents += componentSquared;
         }
 
-        return Math.sqrt(sumOfComponents);
+        return sumOfComponents;
+    }
+
+    public double dot(Vector v) {
+        if (getSize() != v.getSize())
+            throw new IllegalArgumentException("The vectors must be the same size");
+
+        double product = 0;
+
+        for (int i = 0; i < v.getSize(); i++) {
+            product += v.get(i) * get(i);
+        }
+
+        return product;
     }
 }

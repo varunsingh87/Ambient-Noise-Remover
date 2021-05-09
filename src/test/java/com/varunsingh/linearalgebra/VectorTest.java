@@ -12,7 +12,7 @@ public class VectorTest {
     public void testTranspose() {
         assertEquals(
             new Vector(
-                new double[] { 5, 7, 6}
+                new double[] { 5, 7, 6 }
             ), 
             new Vector(
                 new double[] { 5, 7, 6 }, 
@@ -29,5 +29,6 @@ public class VectorTest {
 
         assertEquals(Math.sqrt(29), calculatedLength, 0.0);
     }
+
 
 }
