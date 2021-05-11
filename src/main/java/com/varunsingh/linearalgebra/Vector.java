@@ -81,8 +81,8 @@ public class Vector extends Matrix {
         setMatrixElements(temp);
     }
 
-    public Vector calcInnerProduct() {
-        return this.transpose().times(this).asRowVector();
+    public double calcInnerProduct() {
+        return dot();
     }
 
     /**
@@ -92,8 +92,8 @@ public class Vector extends Matrix {
      * @param y The vector to multiply by
      * @return The inner product
      */
-    public Vector calcInnerProduct(Vector y) {
-        return y.transpose().times(this).asRowVector();
+    public double calcInnerProduct(Vector y) {
+        return dot(y);
     }
 
     /**
@@ -126,21 +126,6 @@ public class Vector extends Matrix {
         return sum / getSize();
     }
 
-    /**
-     * Calculates the standard norm of the vector in the real number space
-     * 
-     * @return The norm of this vector
-     */
-    public double calcNorm() {
-        double result = 0;
-
-        for (double el : vectorElements) {
-            result += Math.sqrt(el);
-        }
-
-        return result;
-    }
-
     public double calcCovarianceIn2x2Matrix(Vector v2) {
         throw new UnsupportedOperationException();
     }
@@ -151,6 +136,14 @@ public class Vector extends Matrix {
      * @return ||this|| the square root of the sum of the squares of each component
      */
     public double calcLength() {
+        return Math.sqrt(dot());
+    }
+
+    public double calcNorm() {
+        return Math.sqrt(dot());
+    }
+
+    public double calcMagnitude() {
         return Math.sqrt(dot());
     }
 
