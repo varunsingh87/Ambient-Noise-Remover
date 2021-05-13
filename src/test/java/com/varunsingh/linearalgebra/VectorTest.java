@@ -1,7 +1,9 @@
 package com.varunsingh.linearalgebra;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.varunsingh.linearalgebra.Vector.VectorType;
 
@@ -49,5 +51,27 @@ public class VectorTest {
         assertEquals(lengthOfSum, sumOfLengths, 0.0);
     }
 
-    
+    @Test
+    public void testCrossProductWithValidFactors() {
+        Vector x = new Vector(new double[] { 1, -7, 1 });
+        Vector y = new Vector(new double[] { 5, 2, 4 });
+
+        Vector crossProduct = x.cross(y);
+        Vector expectedResult = new Vector(new double[] { -30, 1, 37 });
+
+        assertEquals(expectedResult, crossProduct);
+        assertEquals(0, crossProduct.dot(x), 0.0);
+        assertEquals(0, crossProduct.dot(y), 0.0);
+    }
+
+    @Test
+    public void testCrossProductWithInvalidFactors() {
+        Vector x = new Vector(new double[] { 11, 20 });
+        Vector y = new Vector(new double[] { 52, 60, 30 });
+
+        try {
+            x.cross(y);
+            fail();
+        } catch (IllegalArgumentException e) {}
+    }
 }

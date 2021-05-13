@@ -170,4 +170,22 @@ public class Vector extends Matrix {
 
         return product;
     }
+
+    /**
+     * Evaluates the cross product of this and another vector
+     * @param y The second factor
+     * @return The vector cross product
+     */
+    public Vector cross(Vector y) {
+        if (getSize() != 3 || y.getSize() != 3)
+            throw new IllegalArgumentException("Vector must have 3 elements to be crossable");
+
+        Vector crossProduct = new Vector(new double[3]);
+
+        crossProduct.setVectorElement(0, get(1) * y.get(2) - get(2) * y.get(1));
+        crossProduct.setVectorElement(1, get(2) * y.get(0) - get(0) * y.get(2));
+        crossProduct.setVectorElement(2, get(0) * y.get(1) - get(1) * y.get(0));
+
+        return crossProduct;
+    }
 }
