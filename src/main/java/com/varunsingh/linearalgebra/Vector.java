@@ -138,11 +138,20 @@ public class Vector extends Matrix {
     public double calcLength() {
         return Math.sqrt(dot());
     }
-
+    /**
+     * Calculates the norm of a vector
+     * 
+     * @return ||this|| the square root of the sum of the squares of each component
+     */
     public double calcNorm() {
         return Math.sqrt(dot());
     }
 
+    /**
+     * Calculates the magnitude of a vector
+     * 
+     * @return ||this|| the square root of the sum of the squares of each component
+     */
     public double calcMagnitude() {
         return Math.sqrt(dot());
     }

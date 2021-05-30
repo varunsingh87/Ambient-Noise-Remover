@@ -74,4 +74,41 @@ public class VectorTest {
             fail();
         } catch (IllegalArgumentException e) {}
     }
+
+    @Test
+    public void testDotProductEqualsProductOfMagnitudeTimesCosine() {
+        Vector a = new Vector(new double[] { 1, 2, 3 });
+        Vector b = new Vector(new double[] { -8, -9, -10 });
+
+        double dotProduct = a.dot(b);
+        double productOfMagnitudesAndCosine = a.calcMagnitude() * b.calcMagnitude() * Math.cos(2.8444);
+        
+        assertEquals(dotProduct, productOfMagnitudesAndCosine, 0.1);
+    }
+
+    @Test
+    public void testMagnitudeOfCrossProductEqualsProductOfMagnitudeTimesSine() {
+        Vector a = new Vector(new double[] { 5, -9, 2 });
+        Vector b = new Vector(new double[] { -2, 10, 8 });
+
+        double crossProductMagnitude = a.cross(b).calcMagnitude();
+
+        assertEquals(106.883, crossProductMagnitude, 0.001);
+        assertEquals(crossProductMagnitude, a.calcMagnitude() * b.calcMagnitude() * Math.sin(0.904709029), 0.001);
+    }
+
+    /**
+     * @see https://en.wikipedia.org/wiki/Triple_product#Vector_triple_product
+     */
+    @Test
+    public void testTripleProductExpansion() {
+        Vector a = new Vector(new double[] { 5, 6, 7 });
+        Vector b = new Vector(new double[] { 1, 2, 3 });
+        Vector c = new Vector(new double[] { -1, -9, 8 });
+
+        Vector tripleCrossProduct = a.cross(b.cross(c));
+        Vector lagrangeFormulaRightHandSide = b.scale(a.dot(c)).minus(c.scale(a.dot(b))).asColumnVector(); 
+
+        assertEquals(lagrangeFormulaRightHandSide, tripleCrossProduct);
+    }
 }
