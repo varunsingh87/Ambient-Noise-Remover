@@ -4,7 +4,7 @@ package com.varunsingh.kalmanfilter;
  * Filter using the Measure, Update, Predict algorithm that estimates position
  * and velocity
  */
-public class AlphaBetaFilter implements EstimationFilter<Double>, Measurable<Double> {
+public class AlphaBetaFilter implements EstimationFilter<Double> {
     private SystemCycle cycleInfo;
     private Double alphaFilter;
     private Double betaFilter;
@@ -57,8 +57,7 @@ public class AlphaBetaFilter implements EstimationFilter<Double>, Measurable<Dou
         return iteration;
     }
 
-    @Override
-    public Double calculateCurrentStateEstimate() {
+    private double calculateCurrentStateEstimate() {
         return KalmanFilterEquations.usePositionalStateUpdateEquation(
             cycleInfo.getStatePrediction(), 
             alphaFilter, 
@@ -66,7 +65,7 @@ public class AlphaBetaFilter implements EstimationFilter<Double>, Measurable<Dou
         );
     }
 
-    public Double calculateCurrentVelocity() {
+    private double calculateCurrentVelocity() {
         return KalmanFilterEquations.useVelocityStateUpdateEquation(
             cycleInfo.getStatePrediction(), 
             cycleInfo.getStateVelocity(), 
@@ -76,8 +75,7 @@ public class AlphaBetaFilter implements EstimationFilter<Double>, Measurable<Dou
         );
     }
 
-    @Override
-    public Double calculateStateExtrapolation() {
+    private double calculateStateExtrapolation() {
         return KalmanFilterEquations.usePositionalStateExtrapolationEquation(
             cycleInfo.getStateEstimate(), 
             TIME_INTERVAL, 
@@ -88,10 +86,17 @@ public class AlphaBetaFilter implements EstimationFilter<Double>, Measurable<Dou
     @Override
     public void measure(Double measurement) {
         iteration++;
-        cycleInfo.setMeasurement(measurement);
-        cycleInfo.setStateVelocity(calculateCurrentVelocity());
-        cycleInfo.setStateEstimate(calculateCurrentStateEstimate());
-        cycleInfo.setStatePrediction(calculateStateExtrapolation());
+        cycleInfo.setMeasurement(measurement);   
     }
     
+    @Override
+    public void update() {
+        cycleInfo.setStateVelocity(calculateCurrentVelocity());
+        cycleInfo.setStateEstimate(calculateCurrentStateEstimate());
+    }
+    
+    @Override
+    public void predict() {
+        cycleInfo.setStatePrediction(calculateStateExtrapolation());
+    }
 }

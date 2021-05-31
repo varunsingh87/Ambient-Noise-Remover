@@ -36,7 +36,7 @@ public class AlphaBetaFilterTest {
             double[] currentIteration = systemData[i];
             
             // Act
-            filter.measure((double) currentIteration[0]);
+            filter.runAlgorithm((double) currentIteration[0]);
 
             // Assert
             assertEquals((double) currentIteration[1], filter.getCycleInfo().getStateEstimate(), 0.1);

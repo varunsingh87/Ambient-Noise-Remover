@@ -1,6 +1,6 @@
 package com.varunsingh.kalmanfilter;
 
-public class AlphaFilter implements EstimationFilter<Double>, Measurable<Double> {
+public class AlphaFilter implements EstimationFilter<Double> {
     private SystemCycle cycleInfo;
     private int iteration = 0;
 
@@ -21,7 +21,15 @@ public class AlphaFilter implements EstimationFilter<Double>, Measurable<Double>
     public void measure(Double measurement) {
         iteration++;
         cycleInfo.setMeasurement(measurement);
+    }
+    
+    @Override
+    public void update() {
         cycleInfo.setStateEstimate(calculateCurrentStateEstimate());
+    }
+    
+    @Override
+    public void predict() {
         cycleInfo.setStatePrediction(calculateStateExtrapolation());
     }
 
@@ -29,8 +37,7 @@ public class AlphaFilter implements EstimationFilter<Double>, Measurable<Double>
         return iteration != 0.0 ? 1.0 / iteration : 1.0;
     }
 
-    @Override
-    public Double calculateCurrentStateEstimate() {
+    private Double calculateCurrentStateEstimate() {
         return KalmanFilterEquations.usePositionalStateUpdateEquation(
             cycleInfo.getStateEstimate(), 
             calculateAlphaFilter(), 
@@ -38,8 +45,7 @@ public class AlphaFilter implements EstimationFilter<Double>, Measurable<Double>
         );
     }
 
-    @Override
-    public Double calculateStateExtrapolation() {
+    private Double calculateStateExtrapolation() {
         return getCurrentStateEstimate();
     }
 }

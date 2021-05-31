@@ -4,7 +4,7 @@ import com.varunsingh.linearalgebra.Matrix;
 import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
 import com.varunsingh.linearalgebra.Vector;
 
-public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix>, Measurable<Vector> {
+public class MultiDimensionalKalmanFilter implements EstimationFilter<Vector> {
     private SystemCycleVector currentCycleInfo;
     private MultiDimensionalKalmanFilterParameterFactory equationFactory;
     private CovarianceMatrixSet currentCovarianceParameters;
@@ -95,15 +95,13 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix>, Measu
         this.measurementVectorSize = measurementVectorSize;
     }
 
-    @Override
-    public Vector calculateCurrentStateEstimate() {
+    private Vector calculateCurrentStateEstimate() {
         return equationFactory.useStateUpdateEquation(currentCycleInfo.getStatePrediction(), calculateKalmanGain(),
                 currentCycleInfo.getMeasurement(),
                 currentCovarianceParameters.getObservation());
     }
 
-    @Override
-    public Vector calculateStateExtrapolation() {
+    private Vector calculateStateExtrapolation() {
         return equationFactory.useStateExtrapolationEquation(currentCycleInfo.getStatePrediction(),
                 currentCycleInfo.getStateEstimate());
     }
@@ -123,8 +121,7 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix>, Measu
         // currentCycleInfo.setEstimateUncertaintyPrediction(calculateExtrapolatedEstimateUncertainty());
     }
 
-    @Override
-    public Matrix calculateKalmanGain() {
+    private Matrix calculateKalmanGain() {
         try {
             return equationFactory.useKalmanGainEquation(
                 currentCycleInfo.getEstimateUncertaintyPrediction(),
@@ -137,23 +134,27 @@ public class MultiDimensionalKalmanFilter implements KalmanFilter<Matrix>, Measu
         }
     }
 
-    @Override
-    public Matrix calculateCurrentEstimateUncertainty() {
+    private Matrix calculateCurrentEstimateUncertainty() {
         return equationFactory.useCovarianceUpdateEquation(getKalmanGain(),
                 currentCovarianceParameters.getObservation(),
                 currentCycleInfo.getEstimateUncertaintyPrediction(), currentCycleInfo.getMeasurementUncertainty());
     }
 
-    @Override
-    public Matrix calculateExtrapolatedEstimateUncertainty() {
+    private Matrix calculateExtrapolatedEstimateUncertainty() {
         return equationFactory.useCovarianceExtrapolationEquation(currentCycleInfo.getEstimateUncertainty(),
                 processNoiseUncertainty);
     }
 
-    void predict() {
+    public void predict() {
         Propagation propagation = new Propagation();
         currentCycleInfo.setStatePrediction(propagation.predictNextStateVector());
         currentCycleInfo.setStatePrediction(propagation.modelNextStateVectorWithNoise());
         currentCycleInfo.setEstimateUncertaintyPrediction(propagation.modelNextEstimateUncertaintyWithNoise());
+    }
+
+    @Override
+    public void update() {
+        // TODO Auto-generated method stub
+        
     }
 }

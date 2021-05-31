@@ -15,13 +15,13 @@ public class AlphaFilterTest {
 
     @Test
     public void testCalculateAlphaFilter() {
-        alphaFilter.measure(45.5);
+        alphaFilter.runAlgorithm(45.5);
         double kalmanGainAfter1Iteration = alphaFilter.calculateAlphaFilter();
         
-        alphaFilter.measure(52.3);
+        alphaFilter.runAlgorithm(52.3);
         double kalmanGainAfter2Iterations = alphaFilter.calculateAlphaFilter();
 
-        alphaFilter.measure(56.0);
+        alphaFilter.runAlgorithm(56.0);
         double kalmanGainAfter3Iterations = alphaFilter.calculateAlphaFilter();
 
         assertEquals(1.0, kalmanGainAfter1Iteration, 0.001);
@@ -37,13 +37,13 @@ public class AlphaFilterTest {
         double thirdMeasurement = 1017;
 
         // Act
-        alphaFilter.measure(firstMeasurement);
+        alphaFilter.runAlgorithm(firstMeasurement);
         double stateAfterFirstIteration = alphaFilter.getCurrentStateEstimate();
 
-        alphaFilter.measure(secondMeasurement);
+        alphaFilter.runAlgorithm(secondMeasurement);
         double stateAfterSecondIteration = alphaFilter.getCurrentStateEstimate();
 
-        alphaFilter.measure(thirdMeasurement);
+        alphaFilter.runAlgorithm(thirdMeasurement);
         double stateAfterThirdIteration = alphaFilter.getCurrentStateEstimate();
 
         // Assert

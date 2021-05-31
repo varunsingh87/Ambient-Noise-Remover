@@ -54,8 +54,7 @@ public class AlphaBetaGammaFilter implements EstimationFilter<Double> {
         return iteration;
     }
 
-    @Override
-    public Double calculateCurrentStateEstimate() {
+    private double calculateCurrentStateEstimate() {
         return KalmanFilterEquations.usePositionalStateUpdateEquation(
             cycleInfo.getStatePrediction(),
             alphaFilter,
@@ -73,7 +72,7 @@ public class AlphaBetaGammaFilter implements EstimationFilter<Double> {
         );
     }
 
-    public Double calculateCurrentAcceleration() {
+    private double calculateCurrentAcceleration() {
         return KalmanFilterEquations.useAccelerationStateUpdateEquation(
             cycleInfo.getStatePrediction(),
             cycleInfo.getStateAcceleration(),
@@ -83,8 +82,7 @@ public class AlphaBetaGammaFilter implements EstimationFilter<Double> {
         );
     }
 
-    @Override
-    public Double calculateStateExtrapolation() {
+    private double calculateStateExtrapolation() {
         return KalmanFilterEquations.usePositionalStateExtrapolationEquation(
             cycleInfo.getStateEstimate(), 
             TIME_INTERVAL, 
@@ -93,7 +91,7 @@ public class AlphaBetaGammaFilter implements EstimationFilter<Double> {
         );
     }
 
-    public Double calculateVelocityPrediction() {
+    private double calculateVelocityPrediction() {
         return KalmanFilterEquations.useVelocityStateExtrapolationEquation(
             cycleInfo.getStateVelocity(),
             cycleInfo.getStateAcceleration(),
@@ -101,12 +99,21 @@ public class AlphaBetaGammaFilter implements EstimationFilter<Double> {
         );
     }
 
+    @Override
     public void measure(Double measurement) {
         iteration++;
         cycleInfo.setMeasurement(measurement);
+    }
+
+    @Override
+    public void update() {
         cycleInfo.setStateVelocity(calculateCurrentVelocity());
         cycleInfo.setStateEstimate(calculateCurrentStateEstimate());
         cycleInfo.setStateAcceleration(calculateCurrentAcceleration());
+    }
+
+    @Override
+    public void predict() {
         cycleInfo.setVelocityPrediction(calculateVelocityPrediction());
         cycleInfo.setStatePrediction(calculateStateExtrapolation());
     }

@@ -1,7 +1,15 @@
 package com.varunsingh.kalmanfilter;
 
 public interface EstimationFilter<T> {
-    T calculateCurrentStateEstimate();
+    default void runAlgorithm(T measurement) {
+        measure(measurement);
+        update();
+        predict();
+    }
 
-    T calculateStateExtrapolation();
+    void measure(T measurement);
+
+    void update();
+
+    void predict();
 }

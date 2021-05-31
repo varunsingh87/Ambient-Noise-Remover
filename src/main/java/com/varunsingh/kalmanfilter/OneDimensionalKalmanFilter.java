@@ -1,6 +1,6 @@
 package com.varunsingh.kalmanfilter;
 
-public class OneDimensionalKalmanFilter implements KalmanFilter<Double> {
+public class OneDimensionalKalmanFilter implements EstimationFilter<Double> {
     private double currentKalmanGain;
     private double processNoise = 0;
     private SystemCycle cycleInfo;
@@ -40,20 +40,26 @@ public class OneDimensionalKalmanFilter implements KalmanFilter<Double> {
     public void measure(Double measurement) {
         iteration++;
         cycleInfo.setMeasurement(measurement);
+    }
+    
+    @Override
+    public void update() {
         currentKalmanGain = calculateKalmanGain();
         cycleInfo.setStateEstimate(calculateCurrentStateEstimate());
         cycleInfo.setEstimateUncertainty(calculateCurrentEstimateUncertainty());
+    }
+
+    @Override
+    public void predict() {
         cycleInfo.setStatePrediction(calculateStateExtrapolation());
         cycleInfo.setEstimateUncertaintyPrediction(calculateExtrapolatedEstimateUncertainty());
     }
 
-    @Override
     public Double calculateKalmanGain() {
         return cycleInfo.getEstimateUncertainty() / (cycleInfo.getEstimateUncertainty() + cycleInfo.getMeasurementUncertainty());
     }
 
-    @Override
-    public Double calculateCurrentStateEstimate() {
+    private Double calculateCurrentStateEstimate() {
         return KalmanFilterEquations.usePositionalStateUpdateEquation(
             cycleInfo.getStatePrediction(), 
             currentKalmanGain, 
@@ -61,18 +67,15 @@ public class OneDimensionalKalmanFilter implements KalmanFilter<Double> {
         );
     }
 
-    @Override
-    public Double calculateStateExtrapolation() {
+    private double calculateStateExtrapolation() {
         return cycleInfo.getStateEstimate();
     }
 
-    @Override
-    public Double calculateCurrentEstimateUncertainty() {
+    private double calculateCurrentEstimateUncertainty() {
         return (1 - currentKalmanGain) * cycleInfo.getEstimateUncertainty();
     }
 
-    @Override
-    public Double calculateExtrapolatedEstimateUncertainty() {
+    private double calculateExtrapolatedEstimateUncertainty() {
         return cycleInfo.getEstimateUncertainty() + processNoise;
     }
     

@@ -20,11 +20,12 @@ public class AlphaBetaGammaFilterTest {
 
     /**
      * Unit test for Alpha-Beta-Gamma Filter algorithm
+     * Tests that the state values are correct
      */
     @Test
     public void testAlphaBetaGammaFilterTest() {
         for (SystemCycle state : systemData) {
-            filter.measure(state.getMeasurement());
+            filter.runAlgorithm(state.getMeasurement());
             assertEquals(state.getStateEstimate(), filter.getCycleInfo().getStateEstimate(), 0.1);
             assertEquals(state.getStateVelocity(), filter.getCycleInfo().getStateVelocity(), 0.1);
             assertEquals(state.getStateAcceleration(), filter.getCycleInfo().getStateAcceleration(), 0.1);
