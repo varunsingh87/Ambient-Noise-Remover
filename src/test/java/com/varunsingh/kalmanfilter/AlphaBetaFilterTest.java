@@ -26,32 +26,21 @@ public class AlphaBetaFilterTest {
         filter = new AlphaBetaFilter(30000, 40, 0.2, 0.1);
     }
 
+    /**
+     * Unit test for alpha beta filter class
+     */
     @Test
-    public void testCalculateCurrentState() {
+    public void testAlphaBetaFilter() {
         for (int i = 0; i < systemData.length; i++) {
+            // Arrange
             double[] currentIteration = systemData[i];
+            
             // Act
             filter.measure((double) currentIteration[0]);
+
+            // Assert
             assertEquals((double) currentIteration[1], filter.getCycleInfo().getStateEstimate(), 0.1);
-        }
-    }
-
-    @Test
-    public void testCalculateCurrentVelocity() {
-        for (int i = 0; i < systemData.length; i++) {
-            double[] currentIteration = systemData[i];
-
-            filter.measure((double) currentIteration[0]);
-
             assertEquals((double) currentIteration[2], filter.getCycleInfo().getStateVelocity(), 0.1);
-        }
-    }
-
-    @Test
-    public void testCalculatePrediction() {
-        for (int i = 0; i < systemData.length; i++) {
-            double[] currentIteration = systemData[i];
-            filter.measure((double) currentIteration[0]);
             assertEquals((double) currentIteration[3], filter.getCycleInfo().getStatePrediction(), 0.1);
         }
     }

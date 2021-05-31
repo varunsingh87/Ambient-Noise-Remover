@@ -22,11 +22,13 @@ public class OneDimensionalKalmanFilterTest {
     @Test
     public void testCalculateMeasurementUncertainty() {
         OneDimensionalKalmanFilter filter = new OneDimensionalKalmanFilter(60, 5, 15);
-        OneDimensionalKalmanFilter filterWithProcessNoise = new OneDimensionalKalmanFilter(sampleUncertainState, 0.15);
-
-        filterWithProcessNoise.measure(108.36);
-
         assertEquals(25, filter.getCycleInfo().getMeasurementUncertainty(), 0.1);
+    }
+
+    @Test
+    public void testCalculateMeasurementUncertaintyWithProcessNoise() {
+        OneDimensionalKalmanFilter filterWithProcessNoise = new OneDimensionalKalmanFilter(sampleUncertainState, 0.15);
+        filterWithProcessNoise.measure(108.36);
         assertEquals(0.01, filterWithProcessNoise.getCycleInfo().getMeasurementUncertainty(), 0.1);
     }
 

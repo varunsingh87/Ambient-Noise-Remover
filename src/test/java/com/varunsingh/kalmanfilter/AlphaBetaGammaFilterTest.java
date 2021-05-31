@@ -18,43 +18,19 @@ public class AlphaBetaGammaFilterTest {
         filter = new AlphaBetaGammaFilter(new SystemCycle(30_000, 50, 0), 0.5, 0.4, 0.1);
     }
 
+    /**
+     * Unit test for Alpha-Beta-Gamma Filter algorithm
+     */
     @Test
-    public void testCalculateCurrentState() {
+    public void testAlphaBetaGammaFilterTest() {
         for (SystemCycle state : systemData) {
             filter.measure(state.getMeasurement());
             assertEquals(state.getStateEstimate(), filter.getCycleInfo().getStateEstimate(), 0.1);
-        }
-    }
-
-    @Test
-    public void testCalculateCurrentVelocity() {
-        for (SystemCycle state : systemData) {
-            filter.measure(state.getMeasurement());
             assertEquals(state.getStateVelocity(), filter.getCycleInfo().getStateVelocity(), 0.1);
-        }
-    }
-
-    @Test
-    public void testCalculateCurrentAcceleration() {
-        for (SystemCycle state : systemData) {
-            filter.measure(state.getMeasurement());
             assertEquals(state.getStateAcceleration(), filter.getCycleInfo().getStateAcceleration(), 0.1);
-        }
-    }
-
-    @Test
-    public void testCalculateStatePrediction() {
-        for (SystemCycle state : systemData) {
-            filter.measure(state.getMeasurement());
             assertEquals(state.getStatePrediction(), filter.getCycleInfo().getStatePrediction(), 0.1);
-        }
-    }
-
-    @Test
-    public void testCalculateVelocityPrediction() {
-        for (SystemCycle state : systemData) {
-            filter.measure(state.getMeasurement());
             assertEquals(state.getVelocityPrediction(), filter.getCycleInfo().getVelocityPrediction(), 0.1);
         }
     }
+    
 }

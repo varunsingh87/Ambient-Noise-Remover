@@ -123,6 +123,20 @@ public class SystemCycle {
     }
 
     @Override
+    public boolean equals(Object o) {
+        SystemCycle cycleToCompare = (SystemCycle) o;
+        
+        return estimateUncertainty == cycleToCompare.getEstimateUncertainty() 
+            && estimateUncertaintyPrediction == cycleToCompare.getEstimateUncertaintyPrediction() 
+            && stateEstimate == cycleToCompare.getStateEstimate()
+            && statePrediction == cycleToCompare.getStatePrediction()
+            && stateVelocity == cycleToCompare.getStateVelocity()
+            && stateAcceleration == cycleToCompare.getStateAcceleration()
+            && measurement == cycleToCompare.getMeasurement()
+            && measurementUncertainty == cycleToCompare.getMeasurementUncertainty();
+    }
+
+    @Override
     public String toString() {
         String str = "\t ------System State------ \n";
         
