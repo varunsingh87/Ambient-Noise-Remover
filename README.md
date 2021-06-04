@@ -27,12 +27,13 @@ to make sure it is configured correctly.
 
 Before writing code for or reading code in this repository, you need to understand how the one dimensional and multidimensional Kalman Filter works. I suggest the following resources:
 
-* Background Info: https://www.kalmanfilter.net/background.html
-* One Dimensional Kalman Filter: https://www.kalmanfilter.net/kalman1d.html
+* [Background Info](https://www.kalmanfilter.net/background.html)
+* [One Dimensional Kalman Filter](https://www.kalmanfilter.net/kalman1d.html)
 * Multi-Dimensional Kalman Filter: 
         
-    - https://www.kalmanfilter.net/kalmanmulti.html
-    - https://www.vectornav.com/resources/kalman-filters
+    - [Video tutorial by Michel van Biezen](https://www.youtube.com/playlist?list=PLX2gX-ftPVXU3oUFNATxGXY90AULiqnWT)
+    - [Series of visually-aided articles by Alex Becker](https://www.kalmanfilter.net/kalmanmulti.html)
+    - [Math-intensive article on Vector Nav](https://www.vectornav.com/resources/kalman-filters)
 
 ### Installing
 

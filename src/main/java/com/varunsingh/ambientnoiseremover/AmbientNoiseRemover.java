@@ -11,7 +11,6 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import com.varunsingh.kalmanfilter.CovarianceMatrixSet;
 import com.varunsingh.kalmanfilter.MultiDimensionalKalmanFilter;
 import com.varunsingh.kalmanfilter.SystemCycleVector;
 import com.varunsingh.linearalgebra.Matrix;
@@ -105,48 +104,9 @@ public class AmbientNoiseRemover {
 
         Vector initialState = new Vector(new double[] { 0.01, 0.001, 0.04 });
         Matrix initialUncertainty = new Matrix(new double[][] { { 0.068, 0.0043, 0.03 }, { 0.02, 0.03, 0.1 }, { 0.3, 0.1, 0.2 } });
-        MultiDimensionalKalmanFilter filter = new MultiDimensionalKalmanFilter(3, measurementVectorSize);
+        MultiDimensionalKalmanFilter filter = new MultiDimensionalKalmanFilter();
 
-        CovarianceMatrixSet kalmanFilterCovarianceMatrices = new CovarianceMatrixSet();
-        kalmanFilterCovarianceMatrices.setStateTransition(
-            new Matrix(
-                new double[][] { 
-                    { 1, MultiDimensionalKalmanFilter.TIME_INTERVAL, 0 }, 
-                    { 0, 1, MultiDimensionalKalmanFilter.TIME_INTERVAL }, 
-                    { 0, 0, 1, }
-                }
-            )
-        );
-
-        kalmanFilterCovarianceMatrices.setControl(Matrix.createIdentityMatrix(3));
-
-        kalmanFilterCovarianceMatrices.setObservation(new Matrix(new double[][] {
-            { 0.004, 0.005, 0.003 },
-            { 0.017, 0.324, 0.145 },
-            { 0.364, 0.879, 0.128 }, 
-            { 0.356, 0.112, 0.040 }
-        }));
-
-        filter.initialize(
-            new SystemCycleVector(initialState, initialUncertainty), 
-            kalmanFilterCovarianceMatrices,
-            new Matrix(
-                new double[][] { 
-                    { 0.005, 0.003, 0.007 }, 
-                    { 0.003, 0.067, 0.042 }, 
-                    { 0.004, 0.015, 0.1   }
-                }
-            ),
-            new Matrix(
-                new double[][] { 
-                    { 0.012, 0.605, 0.003, 0.554 }, 
-                    { 0.017, 0.324, 0.145, 0.382 },
-                    { 0.364, 0.879, 0.128, 0.003 }, 
-                    { 0.356, 0.112, 0.040, 0.103 } 
-                }
-            )
-        );
-        
+ 
         int estimatedWaveLength = format.getFrameSize();
 
         for (int i = 0; i < noisePositions.size() / estimatedWaveLength; i++) {
