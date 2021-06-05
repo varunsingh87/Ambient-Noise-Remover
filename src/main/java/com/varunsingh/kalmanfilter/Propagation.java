@@ -3,41 +3,92 @@ package com.varunsingh.kalmanfilter;
 import com.varunsingh.linearalgebra.Matrix;
 import com.varunsingh.linearalgebra.Vector;
 
-public class Propagation implements Propagatable {
-    private Vector previousStateVector;
-    private Matrix previousEstimateUncertainty;
-    private Matrix processNoise;
+/**
+ * A representation of the second equation of motion for constant acceleration
+ * in matrix format
+ * <p>
+ * x = x0 + x't + 0.5x''t^2 or
+ * </p>
+ * x = x0 + v0t + 0.5at^2
+ */
+public class Propagation {
+    /**
+     * X
+     */
+    private Vector previousState;
 
     /**
-     * The state transition matrix is the mathematical model
-     * that defines how the state vector changes over time
+     * The control variable matrix is the mathematical model that defines the state
+     * vector's acceleration
      */
-    private Matrix stateTransitionMatrix;
+    private Matrix control;
 
-    @Override
+    /**
+     * The state transition matrix is the mathematical model that defines the state
+     * vector's position and velocity
+     */
+    private Matrix stateTransition;
+
+    /**
+     * u
+     */
+    private Vector inputVariable;
+
+    private Vector state;
+
+    private double timeInterval;
+
+    final class StateTransition {
+        final Matrix POSITION_AND_VELOCITY = new Matrix(new double[][] { { 1, timeInterval }, { 0, 1 } });
+    }
+
+    final class Control {
+        final Matrix ACCELERATION = new Matrix(
+                new double[][] { { 0.5 * timeInterval * timeInterval }, { timeInterval } });
+    }
+
+    public Propagation(double t) {
+        timeInterval = t;
+    }
+
+    public Propagation setPreviousState(Vector x) {
+        previousState = x;
+        return this;
+    }
+
+    public Propagation setControl(Matrix g) {
+        control = g;
+        return this;
+    }
+
+    public Propagation setInputVariable(Vector u) {
+        inputVariable = u;
+        return this;
+    }
+
+    public Propagation setStateTransition(Matrix f) {
+        stateTransition = f;
+        return this;
+    }
+
+    /**
+     * Calculates the state vector using the State Extrapolation Equation
+     */
     public Vector predictNextStateVector() {
-        return new Vector(
-            new double[] {
-                previousStateVector.get(0) + previousStateVector.get(1) * MultiDimensionalKalmanFilter.TIME_INTERVAL,
-                previousStateVector.get(1)
-            }
-        );
+        Matrix positionAndVelocity = stateTransition.times(previousState);
+        Matrix acceleration = control.times(inputVariable);
+        return positionAndVelocity.plus(acceleration).asColumnVector();
     }
 
-    @Override
-    public Vector modelNextStateVectorWithNoise() {
-        return stateTransitionMatrix.times(previousStateVector).asRowVector();
+    public Vector getState() {
+        return state;
     }
 
-    @Override
-    public Matrix modelNextEstimateUncertaintyWithNoise() {
-        Matrix stateCovarianceMatrix = stateTransitionMatrix
-            .times(previousEstimateUncertainty)
-            .times(stateTransitionMatrix);
-        
-        Matrix estimateUncertaintyWithProcessNoise = stateCovarianceMatrix.plus(processNoise);
-
-        return estimateUncertaintyWithProcessNoise;
+    public Matrix getStateTransition() {
+        return stateTransition;
     }
 
+    public Vector getPreviousState() {
+        return previousState;
+    }
 }

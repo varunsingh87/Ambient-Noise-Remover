@@ -49,9 +49,7 @@ public class Vector extends Matrix {
         Vector columnVector = new Vector(new double[m.getRows()]);
 
         for (int i = 0; i < m.getRows(); i++) {
-            for (int j = 0; j < m.getColumns(); j++) {
-                columnVector.set(i, 0, m.get(i, j));
-            }
+            columnVector.setVectorElement(i, m.get(i, 0));
         }
 
         return columnVector;
@@ -138,6 +136,7 @@ public class Vector extends Matrix {
     public double calcLength() {
         return Math.sqrt(dot());
     }
+
     /**
      * Calculates the norm of a vector
      * 
@@ -182,6 +181,7 @@ public class Vector extends Matrix {
 
     /**
      * Evaluates the cross product of this and another vector
+     * 
      * @param y The second factor
      * @return The vector cross product
      */
