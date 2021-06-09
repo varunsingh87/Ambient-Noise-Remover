@@ -40,11 +40,24 @@ public class Propagation {
 
     final class StateTransition {
         final Matrix POSITION_AND_VELOCITY = new Matrix(new double[][] { { 1, timeInterval }, { 0, 1 } });
+        final Matrix POSITION_AND_VELOCITY_TWO_DIMENSIONS = new Matrix(new double[][] {
+            { 1, 0, timeInterval, 0 },
+            { 0, 1, 0,            timeInterval },
+            { 0, 0, 1,            0 },
+            { 0, 0, 0,            1 }
+        });
     }
 
     final class Control {
+        final double accel = 0.5 * timeInterval * timeInterval;
         final Matrix ACCELERATION = new Matrix(
-                new double[][] { { 0.5 * timeInterval * timeInterval }, { timeInterval } });
+            new double[][] { { accel }, { timeInterval } });
+        final Matrix ACCELERATION_TWO_DIMENSIONS = new Matrix(
+            new double[][] { { accel, 0 }, 
+                             { 0, accel },
+                             { timeInterval, 0 }, 
+                             { 0, timeInterval } }
+        );
     }
 
     public Propagation(double t) {
@@ -77,7 +90,7 @@ public class Propagation {
     public Vector predictNextStateVector() {
         Matrix positionAndVelocity = stateTransition.times(previousState);
         Matrix acceleration = control.times(inputVariable);
-        return positionAndVelocity.plus(acceleration).asColumnVector();
+        return Vector.valueOf(positionAndVelocity.plus(acceleration));
     }
 
     public Vector getState() {

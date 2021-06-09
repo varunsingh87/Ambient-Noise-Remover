@@ -43,7 +43,7 @@ public class Vector extends Matrix {
     }
 
     /**
-     * Converts matrix to a column vector
+     * Converts column vector in matrix form to a column vector
      */
     public static Vector valueOf(Matrix m) {
         Vector columnVector = new Vector(new double[m.getRows()]);
