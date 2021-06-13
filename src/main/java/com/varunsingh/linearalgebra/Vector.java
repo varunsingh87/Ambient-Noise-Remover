@@ -1,6 +1,6 @@
 package com.varunsingh.linearalgebra;
 
-public class Vector extends Matrix {
+public class Vector extends Matrix implements Dataset {
     private double[] vectorElements;
 
     public enum VectorType {
@@ -55,7 +55,8 @@ public class Vector extends Matrix {
         return columnVector;
     }
 
-    public double[] getVectorElements() {
+    @Override
+    public double[] getDatasetElements() {
         return vectorElements;
     }
 
@@ -196,5 +197,32 @@ public class Vector extends Matrix {
         crossProduct.setVectorElement(2, get(0) * y.get(1) - get(1) * y.get(0));
 
         return crossProduct;
+    }
+
+    public double calcAverage() {
+        double sumOfValues = 0;
+        for (int i = 0; i < getSize(); i++) {
+            sumOfValues += get(i);
+        }
+
+        return sumOfValues /= getSize();
+    }
+
+    @Override
+    public double calcVariance() {
+        double average = calcAverage();
+        double deviationSum = 0;
+
+        for (int i = 0; i < getSize(); i++) {
+            double deviation = Math.abs(average - get(i));
+            deviationSum += deviation * deviation;
+        }
+
+        return deviationSum / getSize();
+    }
+
+    @Override
+    public double calcStandardDeviation() {
+        return Math.sqrt(calcVariance());
     }
 }
