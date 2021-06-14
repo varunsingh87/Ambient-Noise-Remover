@@ -115,16 +115,6 @@ public class Vector extends Matrix implements Dataset {
         return vectorType == VectorType.ROW ? getColumns() : getRows();
     }
 
-    public double calcExpectedValue() {
-        double sum = 0;
-
-        for (int i = 0; i < getSize(); i++) {
-            sum += get(i);
-        }
-
-        return sum / getSize();
-    }
-
     public double calcCovarianceIn2x2Matrix(Vector v2) {
         throw new UnsupportedOperationException();
     }
@@ -199,8 +189,21 @@ public class Vector extends Matrix implements Dataset {
         return crossProduct;
     }
 
+    /**
+     * Calculates E(this)
+     * @see {@link #calcAverage()}
+     */
+    public double calcExpectedValue() {
+        return calcAverage();
+    }
+
+    /**
+     * Calculates the summation(i=1, xi)/N
+     * @return The average of the elements of this dataset
+     */
     public double calcAverage() {
         double sumOfValues = 0;
+
         for (int i = 0; i < getSize(); i++) {
             sumOfValues += get(i);
         }

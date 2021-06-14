@@ -42,8 +42,7 @@ public class MatrixInverseOperation implements MatrixOperation {
     }
 
     public Matrix compute() {
-        
-        int dimensions = matrixToInvert.getRows();        
+        int dimensions = calcComputedMatrixDimensions();        
 
         for (int k = 0; k < dimensions; k++) {
             startRowWith1(k); 
@@ -52,7 +51,7 @@ public class MatrixInverseOperation implements MatrixOperation {
                 if (i != k) startRowWith0(k, i);
         }
 
-        return roundMatrixToNearestThousandth(augmentedMatrix);
+        return MatrixRound.roundMatrixToNearestThousandth(augmentedMatrix);
     }
 
     private void startRowWith1(int diagonalIndexFromTopLeft) {
@@ -87,23 +86,9 @@ public class MatrixInverseOperation implements MatrixOperation {
         }
     }
 
-    private Matrix roundMatrixToNearestThousandth(Matrix augmentedMatrix) {
-        Matrix roundedMatrix = new Matrix(new double[dimensions][dimensions]);
-        
-        for (int i = 0; i < dimensions; i++) {
-            for (int j = 0; j < dimensions; j++) {
-                roundedMatrix.set(i, j, roundDouble(augmentedMatrix.get(i, j), 3));
-            }
-        }
-
-        return roundedMatrix;
-    }
-
-    private double roundDouble(double d, int places) {
-        BigDecimal bigDecimal = new BigDecimal(Double.toString(d));
-        bigDecimal = bigDecimal.setScale(places, RoundingMode.HALF_UP);
-        
-        return bigDecimal.doubleValue();
+    @Override
+    public int calcComputedMatrixDimensions() {
+        return matrixToInvert.getRows();
     }
 
 }
