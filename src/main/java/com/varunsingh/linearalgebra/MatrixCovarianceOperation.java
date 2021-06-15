@@ -3,12 +3,14 @@ package com.varunsingh.linearalgebra;
 public class MatrixCovarianceOperation implements MatrixOperation {
     Vector[] datasets;
     private int dimensionsOfComputedMatrix;
+    private int sizeOfAnyVector;
 
     public MatrixCovarianceOperation(Vector...d) {
         datasets = d;
 
         if (!checkVectorsAreSameSize()) 
             throw new IllegalArgumentException("Vectors must be the same size for a covariance matrix to be generated");
+        sizeOfAnyVector = d.length > 0 ? d[0].getSize() : 0;
 
         dimensionsOfComputedMatrix = calcComputedMatrixDimensions();
     }
@@ -35,15 +37,15 @@ public class MatrixCovarianceOperation implements MatrixOperation {
                 return new Matrix(datasets[0].calcVariance());
             case 2:
                 return new Matrix(new double[][] {
-                    { datasets[0].calcVariance(), calcVectorCovariance(datasets[0], datasets[1]) },
-                    { calcVectorCovariance(datasets[1], datasets[0]), datasets[1].calcVariance() }
+                    { datasets[0].calcVariance(), calcVectorCovariance(0, 1) },
+                    { calcVectorCovariance(1, 0), datasets[1].calcVariance() }
                 });
 
             case 3:
                 return new Matrix(new double[][] {
-                    { datasets[0].calcVariance(), calcVectorCovariance(datasets[0], datasets[1]), calcVectorCovariance(datasets[0], datasets[2]) },
-                    { calcVectorCovariance(datasets[1], datasets[0]), datasets[1].calcVariance(), calcVectorCovariance(datasets[1], datasets[2]) },
-                    { calcVectorCovariance(datasets[2], datasets[0]), calcVectorCovariance(datasets[2], datasets[1]), datasets[2].calcVariance() }
+                    { datasets[0].calcVariance(), calcVectorCovariance(0, 1), calcVectorCovariance(0, 2) },
+                    { calcVectorCovariance(1, 0), datasets[1].calcVariance(), calcVectorCovariance(1, 2) },
+                    { calcVectorCovariance(2, 0), calcVectorCovariance(2, 1), datasets[2].calcVariance() }
                 });
 
             default:
@@ -51,19 +53,22 @@ public class MatrixCovarianceOperation implements MatrixOperation {
         }
     }
 
-    protected double calcVectorCovariance(Vector v1, Vector v2) {
-        double expectedValueOfATimesB = calcVectorProductExpectedValue(v1, v2);
-        double productOfExpectedValues_Of_A_And_B = v1.calcAverage() * v2.calcAverage();
-        return MatrixRound.roundDouble(expectedValueOfATimesB - productOfExpectedValues_Of_A_And_B, 4);
-    }
+    protected double calcVectorCovariance(int index1, int index2) {
+        double covarianceSum = 0;
+        System.out.println(String.format("Sigma-%01d * Sigma-%01d = [0 ", index1, index2));
 
-    protected double calcVectorProductExpectedValue(Vector v1, Vector v2) {
-        double sum = 0;
-        
-        for (int i = 0; i < dimensionsOfComputedMatrix; i++) {
-            sum += v1.get(i) * v2.get(i);
+        for (int i = 0; i < sizeOfAnyVector; i++) {
+            double firstVectorDeviation = Math.abs(datasets[index1].getAverage() - datasets[index1].get(i));
+            
+            double secondVectorDeviation = Math.abs(datasets[index2].getAverage() - datasets[index2].get(i));
+
+            covarianceSum += firstVectorDeviation * secondVectorDeviation;
+
+            System.out.println(String.format("+ (%f - %f)(%f - %f)", datasets[index1].getAverage(), datasets[index1].get(i), datasets[index2].getAverage(), datasets[index2].get(i)));
         }
 
-        return sum / dimensionsOfComputedMatrix;
+        System.out.print("]");
+        
+        return MatrixRound.roundDouble(covarianceSum / sizeOfAnyVector, 5);
     }
 }

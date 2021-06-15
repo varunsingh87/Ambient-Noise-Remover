@@ -1,6 +1,5 @@
 package com.varunsingh.linearalgebra;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -12,11 +11,11 @@ public class MatrixCovarianceOperationTest {
         Vector bananas = new Vector(new double[] { 1, 0, -1 });
         MatrixCovarianceOperation operation = new MatrixCovarianceOperation(apples, bananas);
 
-        double[][] resultingCovarianceMatrixElements = operation.compute().getMatrixElements();
-        double[][] expectedCovarianceMatrixElements = new double[][] { { 8.0 / 3.0, 2.0 / 3.0 },
-                { 2.0 / 3.0, 2.0 / 3.0 } };
+        Matrix resultingCovarianceMatrixElements = operation.compute();
+        Matrix expectedCovarianceMatrixElements = MatrixRound.roundMatrix(new Matrix(new double[][] { { 8.0 / 3.0, 2.0 / 3.0 },
+                { 2.0 / 3.0, 2.0 / 3.0 } }), 5);
 
-        assertArrayEquals(expectedCovarianceMatrixElements, resultingCovarianceMatrixElements);
+        assertEquals(expectedCovarianceMatrixElements, resultingCovarianceMatrixElements);
     }
 
     @Test

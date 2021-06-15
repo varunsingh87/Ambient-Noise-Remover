@@ -2,6 +2,7 @@ package com.varunsingh.linearalgebra;
 
 public class Vector extends Matrix implements Dataset {
     private double[] vectorElements;
+    private double average;
 
     public enum VectorType {
         ROW, COLUMN
@@ -13,11 +14,13 @@ public class Vector extends Matrix implements Dataset {
         super(loadVectorElements(v));
         vectorElements = v;
         vectorType = VectorType.COLUMN;
+        average = calcAverage();
     }
 
     public Vector(double[] v, VectorType t) {
         super(t == VectorType.ROW ? new double[][] { v } : loadVectorElements(v));
         vectorType = t;
+        average = calcAverage();
     }
 
     private static double[][] loadVectorElements(double[] v) {
@@ -26,6 +29,10 @@ public class Vector extends Matrix implements Dataset {
             toConstruct[i][0] = v[i];
         }
         return toConstruct;
+    }
+
+    public double getAverage() {
+        return average;
     }
 
     public Vector scale(double scalar) {
@@ -201,7 +208,7 @@ public class Vector extends Matrix implements Dataset {
      * Calculates the summation(i=1, xi)/N
      * @return The average of the elements of this dataset
      */
-    public double calcAverage() {
+    private double calcAverage() {
         double sumOfValues = 0;
 
         for (int i = 0; i < getSize(); i++) {
@@ -221,7 +228,7 @@ public class Vector extends Matrix implements Dataset {
             deviationSum += deviation * deviation;
         }
 
-        return deviationSum / getSize();
+        return MatrixRound.roundDouble(deviationSum / getSize(), 5);
     }
 
     @Override

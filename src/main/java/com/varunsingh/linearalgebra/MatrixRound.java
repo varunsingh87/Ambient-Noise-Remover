@@ -4,12 +4,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class MatrixRound {
-    static Matrix roundMatrixToNearestThousandth(Matrix unroundedMatrix) {
+    static Matrix roundMatrix(Matrix unroundedMatrix, int decimalPlaces) {
         Matrix roundedMatrix = new Matrix(new double[unroundedMatrix.getRows()][unroundedMatrix.getColumns()]);
         
         for (int i = 0; i < roundedMatrix.getRows(); i++) {
             for (int j = 0; j < roundedMatrix.getColumns(); j++) {
-                roundedMatrix.set(i, j, roundDouble(unroundedMatrix.get(i, j), 3));
+                roundedMatrix.set(i, j, roundDouble(unroundedMatrix.get(i, j), decimalPlaces));
             }
         }
 

@@ -51,7 +51,7 @@ public class MatrixInverseOperation implements MatrixOperation {
                 if (i != k) startRowWith0(k, i);
         }
 
-        return MatrixRound.roundMatrixToNearestThousandth(augmentedMatrix);
+        return MatrixRound.roundMatrix(augmentedMatrix, 3);
     }
 
     private void startRowWith1(int diagonalIndexFromTopLeft) {
