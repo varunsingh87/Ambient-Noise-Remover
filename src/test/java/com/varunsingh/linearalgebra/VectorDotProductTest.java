@@ -35,7 +35,7 @@ public class VectorDotProductTest {
         Vector x = new Vector(new double[] { 2, 3, 4 });
         Vector y = new Vector(new double[] { -8, -9, -10 });
 
-        double productOfFactorAndQuantity = factor.dot(x.plus(y).asColumnVector());
+        double productOfFactorAndQuantity = factor.dot(x.plus(y));
         double sumOfDistributions = factor.dot(x) + factor.dot(y);
         
         assertEquals(productOfFactorAndQuantity, sumOfDistributions, 0.0);

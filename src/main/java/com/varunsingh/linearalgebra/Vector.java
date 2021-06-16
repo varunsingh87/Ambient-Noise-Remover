@@ -1,6 +1,8 @@
 package com.varunsingh.linearalgebra;
 
-public class Vector extends Matrix implements Dataset {
+import java.util.Arrays;
+
+public class Vector implements Dataset {
     private double[] vectorElements;
     private double average;
 
@@ -11,41 +13,33 @@ public class Vector extends Matrix implements Dataset {
     private VectorType vectorType;
 
     public Vector(double[] v) {
-        super(loadVectorElements(v));
         vectorElements = v;
         vectorType = VectorType.COLUMN;
         average = calcAverage();
     }
 
     public Vector(double[] v, VectorType t) {
-        super(t == VectorType.ROW ? new double[][] { v } : loadVectorElements(v));
         vectorType = t;
         average = calcAverage();
     }
 
-    private static double[][] loadVectorElements(double[] v) {
-        double[][] toConstruct = new double[v.length][1];
-        for (int i = 0; i < toConstruct.length; i++) {
-            toConstruct[i][0] = v[i];
-        }
-        return toConstruct;
+    @Override
+    public boolean equals(Object o) {
+        return Arrays.equals(getValues(), ((Vector) o).getValues());
     }
 
     public double getAverage() {
         return average;
     }
 
-    public Vector scale(double scalar) {
-        return super.scale(scalar).asColumnVector();
-    }
-
+    @Override
     public Vector transpose() {
         switch (vectorType) {
             case COLUMN:
-                return super.transpose().asRowVector();
+                return new Vector(vectorElements, VectorType.COLUMN);
             case ROW:
             default:
-                return super.transpose().asColumnVector();
+                return new Vector(vectorElements, VectorType.ROW);
         }
     }
 
@@ -56,35 +50,61 @@ public class Vector extends Matrix implements Dataset {
         Vector columnVector = new Vector(new double[m.getRows()]);
 
         for (int i = 0; i < m.getRows(); i++) {
-            columnVector.setVectorElement(i, m.get(i, 0));
+            columnVector.set(i, m.get(i, 0));
         }
 
         return columnVector;
     }
 
-    @Override
-    public double[] getDatasetElements() {
+    /**
+     * Gets the elements in the dataset
+     * @return The elements in a double array
+     */
+    public double[] getValues() {
         return vectorElements;
     }
 
-    public void setVectorElements(double[] newVector) {
+    public void setValues(double[] newVector) {
         vectorElements = newVector;
     }
 
     public double get(int index) {
-        switch (vectorType) {
-            case ROW:
-                return getMatrixElements()[0][index];
-            case COLUMN:
-            default:
-                return getMatrixElements()[index][0];
-        }
+        return vectorElements[index];
     }
 
-    public void setVectorElement(int rowIndex, double newValue) {
-        double[][] temp = getMatrixElements();
-        temp[rowIndex][0] = newValue;
-        setMatrixElements(temp);
+    public void set(int rowIndex, double newValue) {
+        vectorElements[rowIndex] = newValue;
+    }
+
+    @Override
+    public Dataset times(Dataset factor) {
+        return new Matrix(new double[][] { vectorElements }).times(factor);
+    }
+
+    @Override
+    public Vector scale(double scalar) {
+        return new Vector(
+            Arrays
+                .stream(vectorElements)
+                .map(v -> v * scalar)
+                .toArray()
+        );
+    }
+
+    @Override
+    public Vector plus(Dataset addend) {
+        Vector sum = new Vector(new double[getSize()]);
+        
+        for (int i = 0; i < vectorElements.length; i++) {
+            sum.set(i, get(i) + ((Vector) addend).get(i));
+        }
+
+        return sum;
+    }
+
+    @Override
+    public Vector minus(Dataset subtrahend) {
+        return plus(subtrahend.scale(-1));
     }
 
     public double calcInnerProduct() {
@@ -108,18 +128,32 @@ public class Vector extends Matrix implements Dataset {
      * @param y The vector to multiply this vector by
      * @return A matrix of the outer product
      */
-    public Matrix calcOuterProduct(Vector y) {
+    public Dataset calcOuterProduct(Vector y) {
         return this.times(y.transpose());
+    }
+
+    int getSize() {
+        return vectorElements.length;
     }
 
     /**
      * Gets the size of the vector
      * 
-     * @return the numbers of rows if this is a column vector and the number of
-     *         columns if this is a row vector
+     * @return 1 if a row vector, otherwise length of {@link #vectorElements}
      */
-    int getSize() {
-        return vectorType == VectorType.ROW ? getColumns() : getRows();
+    @Override
+    public int getRows() {
+        return vectorType == VectorType.ROW ? 1 : vectorElements.length;
+    }
+
+    /**
+     * Gets the number of columns in the vector
+     * 
+     * @return 1 if a column vector, otherwise length of {@link #vectorElements}
+     */
+    @Override
+    public int getColumns() {
+        return vectorType == VectorType.COLUMN ? 1 : vectorElements.length;
     }
 
     public double calcCovarianceIn2x2Matrix(Vector v2) {
@@ -187,12 +221,11 @@ public class Vector extends Matrix implements Dataset {
         if (getSize() != 3 || y.getSize() != 3)
             throw new IllegalArgumentException("Vector must have 3 elements to be crossable");
 
-        Vector crossProduct = new Vector(new double[3]);
-
-        crossProduct.setVectorElement(0, get(1) * y.get(2) - get(2) * y.get(1));
-        crossProduct.setVectorElement(1, get(2) * y.get(0) - get(0) * y.get(2));
-        crossProduct.setVectorElement(2, get(0) * y.get(1) - get(1) * y.get(0));
-
+        Vector crossProduct = new Vector(new double[] {
+            get(1) * y.get(2) - get(2) * y.get(1),
+            get(2) * y.get(0) - get(0) * y.get(2),
+            get(0) * y.get(1) - get(1) * y.get(0)
+        });
         return crossProduct;
     }
 
@@ -218,7 +251,10 @@ public class Vector extends Matrix implements Dataset {
         return sumOfValues /= getSize();
     }
 
-    @Override
+    /**
+     * Around 100% of values are between positive and negative sigma squared
+     * @return The positive variance (Sigma^2)
+     */
     public double calcVariance() {
         double average = calcAverage();
         double deviationSum = 0;
@@ -231,7 +267,10 @@ public class Vector extends Matrix implements Dataset {
         return MatrixRound.roundDouble(deviationSum / getSize(), 5);
     }
 
-    @Override
+    /**
+     * Around 68.3% of all values are between positive and negative sigma
+     * @return The positive standard deviation (Sigma)
+    */
     public double calcStandardDeviation() {
         return Math.sqrt(calcVariance());
     }

@@ -3,5 +3,5 @@ package com.varunsingh.linearalgebra;
 public interface MatrixOperation {
     Matrix compute();
 
-    int calcComputedMatrixDimensions();
+    int getComputedMatrixDimensions();
 }

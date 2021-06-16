@@ -35,7 +35,7 @@ public class MatrixTest {
         Matrix m = new Matrix(new double[][] { { 5.0, 5.0, 5.0 } });
         Vector v = new Vector(new double[] { 5, 5, 5 });
 
-        Matrix result = v.times(m);
+        Matrix result = (Matrix) v.times(m);
 
         assertEquals(3, result.getRows());
         assertEquals(3, result.getColumns());

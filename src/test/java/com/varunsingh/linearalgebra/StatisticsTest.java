@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class StatisticsTest {
-    private Dataset dataset;
+    private Vector dataset;
 
     public StatisticsTest() {
         double[] data = new double[] { 2, 4, 5, 7, 7 };

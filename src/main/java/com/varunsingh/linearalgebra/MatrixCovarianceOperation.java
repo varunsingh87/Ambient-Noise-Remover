@@ -1,74 +1,48 @@
 package com.varunsingh.linearalgebra;
 
+import java.util.Arrays;
+
 public class MatrixCovarianceOperation implements MatrixOperation {
-    Vector[] datasets;
+    private Matrix datasets;
+
+    /**
+     * Matrix returned when {@link #compute()} is called has dimensions nxn where n
+     * is {@code dimensionsOfComputedMatrix}
+     */
     private int dimensionsOfComputedMatrix;
     private int sizeOfAnyVector;
 
-    public MatrixCovarianceOperation(Vector...d) {
-        datasets = d;
-
-        if (!checkVectorsAreSameSize()) 
-            throw new IllegalArgumentException("Vectors must be the same size for a covariance matrix to be generated");
+    public MatrixCovarianceOperation(Vector... d) {
+        datasets = new Matrix(d);
         sizeOfAnyVector = d.length > 0 ? d[0].getSize() : 0;
-
-        dimensionsOfComputedMatrix = calcComputedMatrixDimensions();
-    }
-
-    private boolean checkVectorsAreSameSize() {
-        int firstVectorSize = datasets[0].getSize();
-        for (Vector dataset : datasets) {
-            if (dataset.getSize() != firstVectorSize) 
-                return false;
-        }
-
-        return true;
+        dimensionsOfComputedMatrix = datasets.getRows();
     }
 
     @Override
-    public int calcComputedMatrixDimensions() {
-        return datasets.length;
+    public int getComputedMatrixDimensions() {
+        return dimensionsOfComputedMatrix;
     }
 
     @Override
     public Matrix compute() {
-        switch (dimensionsOfComputedMatrix) {
-            case 1:
-                return new Matrix(datasets[0].calcVariance());
-            case 2:
-                return new Matrix(new double[][] {
-                    { datasets[0].calcVariance(), calcVectorCovariance(0, 1) },
-                    { calcVectorCovariance(1, 0), datasets[1].calcVariance() }
-                });
+        Dataset deviationMatrix = datasets
+                .minus(
+                    getUnityMatrix()
+                        .times(datasets)
+                        .scale(1 / dimensionsOfComputedMatrix)
+                );
 
-            case 3:
-                return new Matrix(new double[][] {
-                    { datasets[0].calcVariance(), calcVectorCovariance(0, 1), calcVectorCovariance(0, 2) },
-                    { calcVectorCovariance(1, 0), datasets[1].calcVariance(), calcVectorCovariance(1, 2) },
-                    { calcVectorCovariance(2, 0), calcVectorCovariance(2, 1), datasets[2].calcVariance() }
-                });
-
-            default:
-                throw new UnsupportedOperationException("That number of dimensions is not supported");
-        }
+        return (Matrix) deviationMatrix.transpose().times(deviationMatrix);
     }
 
-    protected double calcVectorCovariance(int index1, int index2) {
-        double covarianceSum = 0;
-        System.out.println(String.format("Sigma-%01d * Sigma-%01d = [0 ", index1, index2));
+    private Matrix getUnityMatrix() {
+        Matrix unityMatrix = new Matrix(new double[dimensionsOfComputedMatrix][dimensionsOfComputedMatrix]);
 
-        for (int i = 0; i < sizeOfAnyVector; i++) {
-            double firstVectorDeviation = Math.abs(datasets[index1].getAverage() - datasets[index1].get(i));
-            
-            double secondVectorDeviation = Math.abs(datasets[index2].getAverage() - datasets[index2].get(i));
-
-            covarianceSum += firstVectorDeviation * secondVectorDeviation;
-
-            System.out.println(String.format("+ (%f - %f)(%f - %f)", datasets[index1].getAverage(), datasets[index1].get(i), datasets[index2].getAverage(), datasets[index2].get(i)));
+        for (int i = 0; i < dimensionsOfComputedMatrix; i++) {
+            Arrays.fill(unityMatrix.getMatrixElements()[i], 1.0);
         }
 
-        System.out.print("]");
-        
-        return MatrixRound.roundDouble(covarianceSum / sizeOfAnyVector, 5);
+        return unityMatrix;
     }
+
 }

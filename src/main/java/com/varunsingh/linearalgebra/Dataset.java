@@ -1,24 +1,20 @@
 package com.varunsingh.linearalgebra;
 
 /**
- * A one-dimensional set of double values
+ * A set of double values
  */
 public interface Dataset {
-    /**
-     * Gets the elements in the dataset
-     * @return The elements in a double array
-     */
-    public double[] getDatasetElements();
+    int getRows();
 
-    /**
-     * Around 100% of values are between positive and negative sigma squared
-     * @return The positive variance (Sigma^2)
-     */
-    public double calcVariance();
+    int getColumns();
 
-    /**
-     * Around 68.3% of all values are between positive and negative sigma
-     * @return The positive standard deviation (Sigma)
-     */
-    public double calcStandardDeviation();
+    Dataset times(Dataset factor);
+
+    Dataset plus(Dataset addend);
+
+    Dataset minus(Dataset subtrahend);
+
+    Dataset transpose();
+
+    Dataset scale(double scalar);
 }

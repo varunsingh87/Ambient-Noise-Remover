@@ -1,7 +1,5 @@
 package com.varunsingh.linearalgebra;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Arrays;
 
 /**
@@ -42,8 +40,6 @@ public class MatrixInverseOperation implements MatrixOperation {
     }
 
     public Matrix compute() {
-        int dimensions = calcComputedMatrixDimensions();        
-
         for (int k = 0; k < dimensions; k++) {
             startRowWith1(k); 
 
@@ -87,8 +83,8 @@ public class MatrixInverseOperation implements MatrixOperation {
     }
 
     @Override
-    public int calcComputedMatrixDimensions() {
-        return matrixToInvert.getRows();
+    public int getComputedMatrixDimensions() {
+        return dimensions;
     }
 
 }

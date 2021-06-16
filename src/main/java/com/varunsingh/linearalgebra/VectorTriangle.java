@@ -9,7 +9,7 @@ public class VectorTriangle {
     public VectorTriangle(Vector a, Vector b) {
         sideA = a;
         sideB = b;
-        sideCLength = sideA.minus(sideB).asColumnVector().calcLength();
+        sideCLength = sideA.minus(sideB).calcLength();
     }
 
     public VectorTriangle(Vector a, Vector b, Vector c) {
