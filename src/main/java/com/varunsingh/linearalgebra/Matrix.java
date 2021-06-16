@@ -32,6 +32,7 @@ public class Matrix implements Dataset {
      * @param m The two-dimensional array containing all the matrix elements
      */
     public Matrix(double[][] m) {
+        vectorRows = new Vector[m.length];
         setMatrixElements(m);
     }
 
@@ -41,6 +42,8 @@ public class Matrix implements Dataset {
      * @return A, the Matrix object
      */
     public Matrix(Vector[] rows) {
+        matrixElements = new double[rows.length][rows[0].getSize()];
+        
         for (int i = 0; i < rows.length; i++) {
             matrixElements[i] = rows[i].getValues();
         }
@@ -104,29 +107,36 @@ public class Matrix implements Dataset {
     }
 
     public Dataset times(Dataset d) {
+        if (getColumns() != d.getRows())
+            throw new IllegalArgumentException();
+
         Matrix m = (Matrix) d;
 
-        if (getColumns() != m.getRows())
-            throw new IllegalArgumentException();
-            
         Matrix toReturn = new Matrix(new double[getRows()][m.getColumns()]);
 
         for (int i = 0; i < getRows(); i++) {
 
             for (int j = 0; j < m.getColumns(); j++) {
                 double sum = 0;
+
                 for (int k = 0; k < getColumns(); k++) {
+                    
                     double firstFactor = matrixElements[i][k];
                     double secondFactor = m.get(k, j);
 
                     sum += firstFactor * secondFactor;
                 }
+
                 toReturn.set(i, j, sum);
             }
 
         }
 
         return toReturn;
+    }
+
+    public Dataset times(Vector d) {
+        return times(new Matrix(new Vector[] { d }));
     }
 
     /**
@@ -136,15 +146,20 @@ public class Matrix implements Dataset {
      * @return The sum of the two matrices
      * @throws IllegalArgumentException When the matrices cannot be added
      */
-    public Matrix plus(Matrix addend) {
+    public Matrix plus(Dataset addend) {
         if (!(getRows() == addend.getRows() && getColumns() == addend.getColumns()))
             throw new IllegalArgumentException("Cannot add matrices of different dimensions");
 
+        Matrix mAddend = (Matrix) addend;
         Matrix toReturn = new Matrix(new double[getRows()][getColumns()]);
 
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getColumns(); j++) {
-                toReturn.set(i, j, matrixElements[i][j] + addend.getMatrixElements()[i][j]);
+                toReturn.set(
+                    i, 
+                    j, 
+                    matrixElements[i][j] + mAddend.get(i, j)
+                );
             }
         }
 
@@ -157,7 +172,7 @@ public class Matrix implements Dataset {
      * @param minuend The matrix being subtracted
      * @return The difference matrix
      */
-    public Matrix minus(Matrix minuend) {
+    public Dataset minus(Dataset minuend) {
         return this.plus(minuend.scale(-1));
     }
 
@@ -167,13 +182,14 @@ public class Matrix implements Dataset {
 
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getColumns(); j++) {
-                toReturn.set(i, j, scalar * matrixElements[i][j]);
+                toReturn.set(i, j, MatrixRound.roundDouble(scalar * matrixElements[i][j], 5));
             }
         }
 
         return toReturn;
     }
 
+    @Override
     public Matrix transpose() {
         Matrix toReturn = new Matrix(new double[getColumns()][getRows()]);
 
@@ -281,17 +297,5 @@ public class Matrix implements Dataset {
 
     public Vector asColumnVector() {
         return Vector.valueOf(this);
-    }
-
-    @Override
-    public Dataset plus(Dataset addend) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Dataset minus(Dataset subtrahend) {
-        // TODO Auto-generated method stub
-        return null;
     }
 }

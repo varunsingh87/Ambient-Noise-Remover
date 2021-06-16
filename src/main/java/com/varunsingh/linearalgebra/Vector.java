@@ -19,6 +19,7 @@ public class Vector implements Dataset {
     }
 
     public Vector(double[] v, VectorType t) {
+        vectorElements = v;
         vectorType = t;
         average = calcAverage();
     }
@@ -58,6 +59,7 @@ public class Vector implements Dataset {
 
     /**
      * Gets the elements in the dataset
+     * 
      * @return The elements in a double array
      */
     public double[] getValues() {
@@ -78,23 +80,55 @@ public class Vector implements Dataset {
 
     @Override
     public Dataset times(Dataset factor) {
-        return new Matrix(new double[][] { vectorElements }).times(factor);
+        if (getColumns() != factor.getRows())
+            throw new IllegalArgumentException();
+
+        switch (vectorType) {
+            case ROW: {
+                Vector product = new Vector(new double[getColumns()], VectorType.ROW);
+                Matrix mFactor = factor instanceof Matrix ? (Matrix) factor : new Matrix(new double[][] { ((Vector) factor).getValues() });
+                
+                for (int j = 0; j < factor.getColumns(); j++) {
+                    double sum = 0;
+
+                    for (int k = 0; k < getColumns(); k++) {
+
+                        double firstFactor = vectorElements[k];
+                        double secondFactor = mFactor.get(k, j);
+
+                        sum += firstFactor * secondFactor;
+                    }
+
+                    product.set(j, sum);
+                }
+
+                return product;
+            }
+            case COLUMN:
+            default: {
+                Matrix product = new Matrix(new double[getRows()][factor.getColumns()]);
+                Vector vFactor = factor instanceof Vector ? (Vector) factor : ((Matrix) factor).getRow(0);
+
+                for (int i = 0; i < getRows(); i++) {
+                    for (int j = 0; j < factor.getColumns(); j++) {
+                        product.set(i, j, get(i) * vFactor.get(j));
+                    }
+                }
+
+                return product;
+            }
+        }
     }
 
     @Override
     public Vector scale(double scalar) {
-        return new Vector(
-            Arrays
-                .stream(vectorElements)
-                .map(v -> v * scalar)
-                .toArray()
-        );
+        return new Vector(Arrays.stream(vectorElements).map(v -> v * scalar).toArray());
     }
 
     @Override
     public Vector plus(Dataset addend) {
         Vector sum = new Vector(new double[getSize()]);
-        
+
         for (int i = 0; i < vectorElements.length; i++) {
             sum.set(i, get(i) + ((Vector) addend).get(i));
         }
@@ -226,11 +260,13 @@ public class Vector implements Dataset {
             get(2) * y.get(0) - get(0) * y.get(2),
             get(0) * y.get(1) - get(1) * y.get(0)
         });
+        
         return crossProduct;
     }
 
     /**
      * Calculates E(this)
+     * 
      * @see {@link #calcAverage()}
      */
     public double calcExpectedValue() {
@@ -239,6 +275,7 @@ public class Vector implements Dataset {
 
     /**
      * Calculates the summation(i=1, xi)/N
+     * 
      * @return The average of the elements of this dataset
      */
     private double calcAverage() {
@@ -253,6 +290,7 @@ public class Vector implements Dataset {
 
     /**
      * Around 100% of values are between positive and negative sigma squared
+     * 
      * @return The positive variance (Sigma^2)
      */
     public double calcVariance() {
@@ -269,8 +307,9 @@ public class Vector implements Dataset {
 
     /**
      * Around 68.3% of all values are between positive and negative sigma
+     * 
      * @return The positive standard deviation (Sigma)
-    */
+     */
     public double calcStandardDeviation() {
         return Math.sqrt(calcVariance());
     }

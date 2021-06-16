@@ -12,7 +12,7 @@ public interface Dataset {
 
     Dataset plus(Dataset addend);
 
-    Dataset minus(Dataset subtrahend);
+    Dataset minus(Dataset minuend);
 
     Dataset transpose();
 

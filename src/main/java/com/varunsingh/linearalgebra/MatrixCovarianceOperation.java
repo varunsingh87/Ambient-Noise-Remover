@@ -10,11 +10,9 @@ public class MatrixCovarianceOperation implements MatrixOperation {
      * is {@code dimensionsOfComputedMatrix}
      */
     private int dimensionsOfComputedMatrix;
-    private int sizeOfAnyVector;
 
     public MatrixCovarianceOperation(Vector... d) {
         datasets = new Matrix(d);
-        sizeOfAnyVector = d.length > 0 ? d[0].getSize() : 0;
         dimensionsOfComputedMatrix = datasets.getRows();
     }
 
@@ -25,24 +23,26 @@ public class MatrixCovarianceOperation implements MatrixOperation {
 
     @Override
     public Matrix compute() {
-        Dataset deviationMatrix = datasets
-                .minus(
-                    getUnityMatrix()
-                        .times(datasets)
-                        .scale(1 / dimensionsOfComputedMatrix)
-                );
+        Dataset sums = getUnityMatrix().times(datasets);
+            
+        Dataset averages = sums.scale((double) 1 / (double) datasets.getRows());
 
-        return (Matrix) deviationMatrix.transpose().times(deviationMatrix);
+        Dataset deviationMatrix = datasets.minus(averages);
+
+        return (Matrix) deviationMatrix
+            .transpose()
+            .times(deviationMatrix)
+            .scale((double) 1 / (double) datasets.getRows());
     }
 
     private Matrix getUnityMatrix() {
-        Matrix unityMatrix = new Matrix(new double[dimensionsOfComputedMatrix][dimensionsOfComputedMatrix]);
+        double[][] unityMatrixValues = new double[datasets.getRows()][datasets.getRows()];
 
-        for (int i = 0; i < dimensionsOfComputedMatrix; i++) {
-            Arrays.fill(unityMatrix.getMatrixElements()[i], 1.0);
+        for (int i = 0; i < datasets.getRows(); i++) {
+            Arrays.fill(unityMatrixValues[i], 1.0);
         }
 
-        return unityMatrix;
+        return new Matrix(unityMatrixValues);
     }
 
 }

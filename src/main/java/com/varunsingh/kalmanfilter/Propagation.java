@@ -1,5 +1,6 @@
 package com.varunsingh.kalmanfilter;
 
+import com.varunsingh.linearalgebra.Dataset;
 import com.varunsingh.linearalgebra.Matrix;
 import com.varunsingh.linearalgebra.Vector;
 
@@ -88,9 +89,9 @@ public class Propagation {
      * Calculates the state vector using the State Extrapolation Equation
      */
     public Vector predictNextStateVector() {
-        Matrix positionAndVelocity = stateTransition.times(previousState);
-        Matrix acceleration = control.times(inputVariable);
-        return Vector.valueOf(positionAndVelocity.plus(acceleration));
+        Dataset positionAndVelocity = stateTransition.times(previousState);
+        Dataset acceleration = control.times(inputVariable);
+        return Vector.valueOf((Matrix) positionAndVelocity.plus(acceleration));
     }
 
     public Vector getState() {
