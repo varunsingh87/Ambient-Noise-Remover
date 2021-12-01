@@ -24,6 +24,7 @@ public class Matrix implements Dataset {
     }
 
     public Matrix(double scalar) {
+        vectorRows = new Vector[1];
         setMatrixElements(new double[][] { { scalar } });
     }
 
