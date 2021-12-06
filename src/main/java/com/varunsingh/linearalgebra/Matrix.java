@@ -23,6 +23,11 @@ public class Matrix implements Dataset {
     public Matrix() {
     }
 
+    public Matrix(int rows, int columns) {
+        matrixElements = new double[rows][columns];
+        vectorRows = new Vector[rows];
+    }
+
     public Matrix(double scalar) {
         vectorRows = new Vector[1];
         setMatrixElements(new double[][] { { scalar } });

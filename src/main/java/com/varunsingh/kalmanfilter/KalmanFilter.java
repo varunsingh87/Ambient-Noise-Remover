@@ -1,9 +1,18 @@
 package com.varunsingh.kalmanfilter;
 
+import com.varunsingh.linearalgebra.Dataset;
+import com.varunsingh.linearalgebra.Matrix;
+import com.varunsingh.linearalgebra.Vector;
+
 public class KalmanFilter {
     private double measurementError;
     private Calculations calculations;
-    private int time;
+    private int iteration;
+
+    /**
+     * The change in time between consecutive iterations
+     */
+    private double timeOfOneCycle = 1.0;
 
     private class Calculations {
         private double kalmanGain;
@@ -32,7 +41,7 @@ public class KalmanFilter {
         kf.executeKalmanFilter(70);
         kf.executeKalmanFilter(74);
         System.out.println(kf.calculations.estimate);
-        System.out.println(kf.time);
+        System.out.println(kf.iteration);
     }
 
     KalmanFilter(double initialEstimate, double initialErrorEstimate, double initialMeasurement, double me) {
@@ -48,7 +57,7 @@ public class KalmanFilter {
 
     void executeKalmanFilter(double measurement) {
         calculations = recalculate(measurement);
-        time += 1;
+        iteration += 1;
     }
 
     Calculations recalculate(double measurement) {
@@ -68,5 +77,36 @@ public class KalmanFilter {
 
     private double calculateKalmanGain(double previousErrorEstimate) {
         return previousErrorEstimate / (previousErrorEstimate + measurementError);
+    }
+
+    Dataset predictState() {
+        Matrix stateTransition = new Matrix(2, 2);
+        stateTransition.setMatrixElements(new double[][] {
+            { 1, timeOfOneCycle },
+            { 0, 1 }
+        });
+        Vector previousState = new Vector(new double[] { 20, 0 });
+        
+        Matrix adaptiveControl = new Matrix(2, 2);
+        Dataset controlVariable = new Matrix(0);
+        
+        return stateTransition.times(previousState).plus(adaptiveControl.times(controlVariable));
+    }
+
+    /**
+     * Equation: Observation Matrix (C) * State Matrix (X) + Measurement Input Vector (z)
+     * @param Vector measurementInput 
+     * @param boolean velocity
+     * @return
+     */
+    Dataset calculateMeasurement(Vector measurementInput, boolean velocity) {
+        Vector previousState = new Vector(new double[] { 20, 0 });
+        if (!velocity) {
+            Matrix observation = new Matrix(new double[][] {{ 1, 0}});
+            return observation.times(previousState);
+        } else {
+            Matrix observation = new Matrix(new double[][] {{ 1, 0}, { 0, 1 }});
+            return observation.times(previousState);
+        }
     }
 }
