@@ -31,19 +31,6 @@ public class MatrixTest {
     }
 
     @Test
-    public void testMatrixByVectorMultiplication() {
-        Matrix m = new Matrix(new double[][] { { 5.0, 5.0, 5.0 } });
-        Vector v = new Vector(new double[] { 5, 5, 5 });
-
-        Matrix result = (Matrix) v.times(m);
-
-        assertEquals(3, result.getRows());
-        assertEquals(3, result.getColumns());
-        assertEquals(new Matrix(new double[][] { { 25.0, 25.0, 25.0 }, { 25.0, 25.0, 25.0 }, { 25.0, 25.0, 25.0 } }),
-                result);
-    }
-
-    @Test
     public void testImpossibleMatrixMultiplication() {
         try {
             Matrix m = new Matrix(new double[][] { { 5, 10 }, { 10, 40 } });

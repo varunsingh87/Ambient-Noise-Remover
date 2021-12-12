@@ -23,16 +23,17 @@ public class MatrixCovarianceOperation implements MatrixOperation {
 
     @Override
     public Matrix compute() {
-        Dataset sums = getUnityMatrix().times(datasets);
+        Matrix unity = getUnityMatrix();
+        Dataset sums = unity.times(datasets);
             
         Dataset averages = sums.scale((double) 1 / (double) datasets.getRows());
 
-        Dataset deviationMatrix = datasets.minus(averages);
+        Matrix deviationMatrix = (Matrix) datasets.minus(averages);
 
         return (Matrix) deviationMatrix
             .transpose()
             .times(deviationMatrix)
-            .scale((double) 1 / (double) datasets.getRows());
+            .scale(Math.pow(datasets.getRows(), -1));
     }
 
     private Matrix getUnityMatrix() {

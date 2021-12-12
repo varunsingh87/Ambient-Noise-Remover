@@ -7,6 +7,7 @@ import com.varunsingh.linearalgebra.Vector.VectorType;
 public class Matrix implements Dataset {
     protected double[][] matrixElements;
     protected Vector[] vectorRows;
+    protected Vector[] vectorColumns;
 
     /**
      * An exception that is thrown when a matrix is attempted to be inverted when it
@@ -24,12 +25,10 @@ public class Matrix implements Dataset {
     }
 
     public Matrix(int rows, int columns) {
-        matrixElements = new double[rows][columns];
-        vectorRows = new Vector[rows];
+        setMatrixElements(new double[rows][columns]);
     }
 
     public Matrix(double scalar) {
-        vectorRows = new Vector[1];
         setMatrixElements(new double[][] { { scalar } });
     }
 
@@ -39,6 +38,7 @@ public class Matrix implements Dataset {
      */
     public Matrix(double[][] m) {
         vectorRows = new Vector[m.length];
+        vectorColumns = new Vector[m[0].length];
         setMatrixElements(m);
     }
 
@@ -55,6 +55,21 @@ public class Matrix implements Dataset {
         }
 
         vectorRows = rows;
+        vectorColumns = computeVectorColumns(matrixElements);
+    }
+
+    public Matrix(Vector v) {
+        if (v.getOrientation() == VectorType.ROW) {
+            matrixElements = new double[][] { v.getValues()};
+            vectorRows = new Vector[] { v };
+            vectorColumns = computeVectorColumns(matrixElements);
+        } else {
+            matrixElements = new double[v.getSize()][1];
+            for (int i = 0; i < v.getSize(); i++) {
+                set(i, 0, v.get(i));
+            }
+            vectorColumns = new Vector[] { v };
+        }
     }
 
     public double[][] getMatrixElements() {
@@ -64,11 +79,32 @@ public class Matrix implements Dataset {
     public void setMatrixElements(double[][] matrixElements) throws IllegalArgumentException {
         if (!validateMatrix(matrixElements)) throw new IllegalArgumentException();
 
+        this.vectorRows = computeVectorRows(matrixElements);
+        this.vectorColumns = computeVectorColumns(matrixElements);
+        this.matrixElements = matrixElements;
+    }
+
+    private Vector[] computeVectorRows(double[][] matrixElements) {
+        Vector[] vectorRows = new Vector[matrixElements.length];
+        
         for (int i = 0; i < matrixElements.length; i++) {
-            vectorRows[i] = new Vector(matrixElements[i]);
+            vectorRows[i] = Vector.row(matrixElements[i]);
         }
 
-        this.matrixElements = matrixElements;
+        return vectorRows;
+    }
+
+    private Vector[] computeVectorColumns(double[][] matrixElements) {
+        Vector[] vectorColumns = new Vector[matrixElements[0].length];
+        for (int i = 0; i < vectorColumns.length; i++) {
+            Vector column = new Vector(matrixElements.length, VectorType.COLUMN);
+            for (int j = 0; j < matrixElements.length; j++) {
+                column.set(j, matrixElements[j][i]);
+            }
+            vectorColumns[i] = column;
+        }
+
+        return vectorColumns;
     }
 
     public static boolean validateMatrix(double[][] elsToValidate) {
@@ -91,8 +127,20 @@ public class Matrix implements Dataset {
         return vectorRows[row];
     }
 
+    public Vector getColumn(int column) {
+        return vectorColumns[column];
+    }
+
     public void set(int firstLvlIndex, int secondLvlIndex, double newValue) {
         matrixElements[firstLvlIndex][secondLvlIndex] = newValue;
+        
+        if (vectorRows[firstLvlIndex] != null) {
+            vectorRows[firstLvlIndex].set(secondLvlIndex, newValue);
+        }
+        
+        if (vectorColumns[secondLvlIndex] != null) {
+            vectorColumns[secondLvlIndex].set(firstLvlIndex, newValue);
+        }
     }
 
     public int getRows() {
@@ -113,36 +161,45 @@ public class Matrix implements Dataset {
     }
 
     public Dataset times(Dataset d) {
+        if (d instanceof Vector) {
+            return timesVector((Vector) d);
+        } else if (d instanceof Matrix) {
+            return timesMatrix((Matrix) d);
+        } else {
+            throw new IllegalArgumentException("The argument must be a Vector or Matrix");
+        }
+    }
+
+    public Dataset timesMatrix(Matrix d) {
         if (getColumns() != d.getRows())
             throw new IllegalArgumentException();
 
-        Matrix m = (Matrix) d;
-
-        Matrix toReturn = new Matrix(new double[getRows()][m.getColumns()]);
-
+        Matrix product = new Matrix(getRows(), d.getColumns());
         for (int i = 0; i < getRows(); i++) {
-
-            for (int j = 0; j < m.getColumns(); j++) {
-                double sum = 0;
-
-                for (int k = 0; k < getColumns(); k++) {
-                    
-                    double firstFactor = matrixElements[i][k];
-                    double secondFactor = m.get(k, j);
-
-                    sum += firstFactor * secondFactor;
-                }
-
-                toReturn.set(i, j, sum);
+            for (int j = 0; j < d.getColumns(); j++) {
+                product.set(i, j, vectorRows[i].dot(d.getColumn(j)));
             }
-
         }
 
-        return toReturn;
+        return product;
     }
 
-    public Dataset times(Vector d) {
-        return times(new Matrix(new Vector[] { d }));
+    /**
+     * Multiply a matrix by a column vector
+     * @param d The vector by which the matrix is multiplied
+     * @return The product of the matrix and the vector (getRows() x 1 column vector)
+     */
+    public Dataset timesVector(Vector d) {
+        if (getColumns() != d.getSize())
+            throw new IllegalArgumentException("The number of columns in the matrix must equal the number of elements in the vector");
+
+        Vector result = new Vector(getRows(), VectorType.COLUMN);
+        
+        for (int i = 0; i < getRows(); i++) {
+            result.set(i, vectorRows[i].dot(d));
+        }
+
+        return result;
     }
 
     /**
@@ -197,7 +254,7 @@ public class Matrix implements Dataset {
 
     @Override
     public Matrix transpose() {
-        Matrix toReturn = new Matrix(new double[getColumns()][getRows()]);
+        Matrix toReturn = new Matrix(getColumns(), getRows());
 
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getColumns(); j++) {
@@ -298,7 +355,7 @@ public class Matrix implements Dataset {
     }
 
     public Vector asRowVector() {
-        return new Vector(this.getMatrixElements()[0], VectorType.ROW);
+        return Vector.row(this.getMatrixElements()[0]);
     }
 
     public Vector asColumnVector() {
