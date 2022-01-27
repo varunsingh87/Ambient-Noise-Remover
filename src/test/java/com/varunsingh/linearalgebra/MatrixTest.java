@@ -65,6 +65,14 @@ public class MatrixTest {
     }
 
     @Test
+    public void testZeroOutMinorDiagonal() {
+        Matrix m = new Matrix(new double[][] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } });
+        m.zeroOutMinorDiagonal();
+
+        assertArrayEquals(new double[][] { { 1, 2, 0 }, { 4, 5, 0 }, { 0, 8, 9 } }, m.getMatrixElements());
+    }
+
+    @Test
     public void testIsSquareMatrix() {
         Matrix nonSquare = new Matrix(new double[][] { { 10, 20 }, { 20, 21 }, { 7, 6 } });
         Matrix square = new Matrix(new double[][] { { 10, 20 }, { 30, 40 } });

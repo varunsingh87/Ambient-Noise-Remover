@@ -239,6 +239,10 @@ public class Matrix implements Dataset {
         return this.plus(minuend.scale(-1));
     }
 
+    public Dataset divide(Matrix denominator) throws MatrixNotInvertibleException {
+        return times(denominator.invert());
+    }
+
     @Override
     public Matrix scale(double scalar) {
         Matrix toReturn = new Matrix(new double[getRows()][getColumns()]);
@@ -301,6 +305,17 @@ public class Matrix implements Dataset {
         return new Matrix(toReturn);
     }
 
+    public Matrix zeroOutMinorDiagonal() {
+        if (!isSquare())
+            throw new IllegalArgumentException("Matrix must be square");
+
+        for (int i = 0; i < getRows(); i++) {
+            set(getRows() - i - 1, i, 0);
+        }
+
+        return this;
+    }
+
     public double getDeterminant() throws MatrixNotInvertibleException {
         if (!isSquare())
             throw new Matrix.MatrixNotInvertibleException();
@@ -360,5 +375,9 @@ public class Matrix implements Dataset {
 
     public Vector asColumnVector() {
         return Vector.valueOf(this);
+    }
+
+    public boolean isConventionalMatrix() {
+        return getRows() > 1 && getColumns() > 1;
     }
 }

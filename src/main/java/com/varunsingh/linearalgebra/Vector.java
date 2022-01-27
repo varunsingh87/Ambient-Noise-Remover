@@ -38,6 +38,11 @@ public class Vector implements Dataset {
         return Arrays.equals(getValues(), ((Vector) o).getValues());
     }
 
+    @Override
+    public String toString() {
+        return Arrays.toString(getValues());
+    }
+
     public double getAverage() {
         return average;
     }
@@ -57,6 +62,10 @@ public class Vector implements Dataset {
      * Converts column vector in matrix form to a column vector
      */
     public static Vector valueOf(Dataset m) {
+        if (m.getRows() == 1 && m.getColumns() > 1 && m instanceof Matrix) {
+            return Vector.row((Matrix) m);
+        }
+
         Vector columnVector = new Vector(new double[m.getRows()]);
 
         for (int i = 0; i < m.getRows(); i++) {
@@ -68,6 +77,10 @@ public class Vector implements Dataset {
 
     public static Vector row(double... els) {
         return new Vector(els, VectorType.ROW);
+    }
+
+    public static Vector row(Matrix m) {
+        return m.getRow(0);
     }
 
     public static Vector column(double... els) {
@@ -112,13 +125,14 @@ public class Vector implements Dataset {
                 return multiplyRowByMatrix((Matrix) factor);
             }
         } else { // this is a column vector
-            // Column vector by 1 x n row vector
+            // This=Column vector
+            // Factor= 1 x n row vector
             // Product: m x n matrix
-            return mutliplyColumnByRow((Vector) factor);
+            return multiplyColumnByRow(Vector.valueOf(factor));
         }
     }
 
-    private Matrix mutliplyColumnByRow(Vector factor) {
+    private Matrix multiplyColumnByRow(Vector factor) {
         Matrix product = new Matrix(getRows(), factor.getColumns());
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < factor.getColumns(); j++) {
@@ -151,11 +165,11 @@ public class Vector implements Dataset {
 
     @Override
     public Dataset plus(Dataset addend) {
-        if (!(addend instanceof Vector)) {
+        if (addend instanceof Matrix && ((Matrix) addend).isConventionalMatrix()) {
             throw new IllegalArgumentException("Cannot add non-vector to vector");
         }
 
-        Vector vAddend = (Vector) addend;
+        Vector vAddend = Vector.valueOf(addend);
 
         if (getSize() != vAddend.getSize() || getOrientation() != vAddend.getOrientation()) {
             throw new IllegalArgumentException("Vectors must be of equal size and the same orientation");
@@ -164,7 +178,7 @@ public class Vector implements Dataset {
         Vector sum = new Vector(new double[getSize()]);
 
         for (int i = 0; i < vectorElements.length; i++) {
-            sum.set(i, get(i) + ((Vector) addend).get(i));
+            sum.set(i, get(i) + (Vector.valueOf(addend)).get(i));
         }
 
         return sum;
