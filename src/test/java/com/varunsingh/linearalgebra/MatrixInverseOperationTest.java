@@ -1,6 +1,7 @@
 package com.varunsingh.linearalgebra;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
@@ -15,6 +16,19 @@ public class MatrixInverseOperationTest {
         } catch (MatrixNotInvertibleException e) {
             fail(e.getMessage());
         }
+    }
+
+    @Test
+    public void testInverseWith2x2() {
+        Matrix expectedInverse = new Matrix(new double[][] { { 1.0 / 1050.0, 0 }, { 0, 1.0 / 61.0 }});
+        Matrix m = new Matrix(new double[][] { { 1050, 0 }, { 0, 61 }});
+        try {
+            Matrix actualInverse = new MatrixInverseOperation(m).compute(3);
+            assertEquals(MatrixRound.roundMatrix(expectedInverse, 3), actualInverse);
+        } catch (MatrixNotInvertibleException e) {
+            fail(e.getMessage());
+        }
+
     }
 
     @Test

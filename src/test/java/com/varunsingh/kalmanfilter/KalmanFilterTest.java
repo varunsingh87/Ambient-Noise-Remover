@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.varunsingh.linearalgebra.Dataset;
 import com.varunsingh.linearalgebra.Matrix;
+import com.varunsingh.linearalgebra.MatrixRound;
 import com.varunsingh.linearalgebra.Vector;
 
 import org.junit.Before;
@@ -44,4 +45,15 @@ public class KalmanFilterTest {
         assertEquals(expected, predictedProcessCovariance);
     }
 
+    @Test
+    public void testKalmanGain() {
+        Matrix actual = (Matrix) algorithm.calculateKalmanGain();
+        
+        Matrix expected = new Matrix(new double[][] {
+            { 0.405, 0 },
+            { 0, 0.410 }
+        });
+
+        assertEquals(expected, MatrixRound.roundMatrix(actual, 3));
+    }
 }

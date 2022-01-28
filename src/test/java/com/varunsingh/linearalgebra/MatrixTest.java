@@ -69,7 +69,7 @@ public class MatrixTest {
         Matrix m = new Matrix(new double[][] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } });
         m.zeroOutMinorDiagonal();
 
-        assertArrayEquals(new double[][] { { 1, 2, 0 }, { 4, 5, 0 }, { 0, 8, 9 } }, m.getMatrixElements());
+        assertArrayEquals(new double[][] { { 1, 2, 0 }, { 4, 0, 6 }, { 0, 8, 9 } }, m.getMatrixElements());
     }
 
     @Test

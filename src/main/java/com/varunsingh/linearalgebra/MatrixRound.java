@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class MatrixRound {
-    static Matrix roundMatrix(Matrix unroundedMatrix, int decimalPlaces) {
+    public static Matrix roundMatrix(Matrix unroundedMatrix, int decimalPlaces) {
         Matrix roundedMatrix = new Matrix(new double[unroundedMatrix.getRows()][unroundedMatrix.getColumns()]);
         
         for (int i = 0; i < roundedMatrix.getRows(); i++) {

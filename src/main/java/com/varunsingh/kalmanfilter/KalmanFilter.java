@@ -157,4 +157,19 @@ public class KalmanFilter {
         return result.zeroOutMinorDiagonal();
     }
 
+    Dataset calculateKalmanGain() {
+        Matrix processCovarianceMatrix = (Matrix) predictProcessCovariance();
+        Matrix observationMatrix = Matrix.createIdentityMatrix(2);
+
+        Matrix numerator = (Matrix) processCovarianceMatrix.times(observationMatrix.transpose());
+
+        Matrix denominator = (Matrix) observationMatrix.times(numerator).plus(getMeasurementCovariance());
+
+        try {
+            return numerator.divide(denominator);
+        } catch (MatrixNotInvertibleException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
