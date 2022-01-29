@@ -3,7 +3,6 @@ package com.varunsingh.linearalgebra;
 public class VectorTriangle {
     private Vector sideA;
     private Vector sideB;
-    private Vector sideC;
     private double sideCLength;
 
     public VectorTriangle(Vector a, Vector b) {
@@ -15,7 +14,6 @@ public class VectorTriangle {
     public VectorTriangle(Vector a, Vector b, Vector c) {
         sideA = a;
         sideB = b;
-        sideC = c;
         sideCLength = c.calcLength();
     }
 

@@ -56,4 +56,39 @@ public class KalmanFilterTest {
 
         assertEquals(expected, MatrixRound.roundMatrix(actual, 3));
     }
+
+    @Test
+    public void testNewObservation() {
+        Vector actual = (Vector) algorithm.calculateNewObservation(Vector.column(4260, 282));
+        Vector expected = Vector.column(4260, 282);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testUpdateState() {
+        Vector expected = Vector.column(4272.5, 282);
+        Vector actual = (Vector) algorithm.updateState(
+            Vector.column(4281, 282), 
+            Vector.column(4260, 282)
+        );
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testUpdateProcessCovariance() {
+        Matrix expected = new Matrix(new double[][] {
+            { 253.0, 0 },
+            { 0, 14.8 }
+        });
+        Dataset actual = MatrixRound.roundMatrix(
+            (Matrix) algorithm.updateProcesCovariance(new Matrix(new double[][] {
+                { 425, 0 },
+                { 0, 25 }
+            })), 1
+        );
+
+        assertEquals(expected, actual);
+    }
 }

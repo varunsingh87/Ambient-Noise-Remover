@@ -32,6 +32,32 @@ public class MatrixInverseOperationTest {
     }
 
     @Test
+    public void test2InverseWith5x5() {
+        Matrix expectedInverse = new Matrix(new double[][] {
+            { 0, -0.143, -0.714, 5.6, -4.029 },
+            { -0.091, 0.221, 1.013, -10.418, 7.717 },
+            { 0.091, 0.279, 0.987, -8.182, 5.883 },
+            { 0.091, -0.649, -2.156, 20.018, -14.603 },
+            { -0.091, 0.292, 0.870, -7.218, 5.231 }
+        });
+
+        Matrix origMatrix = new Matrix(new double[][] {
+            { 9, 6, 13, 7, 3  },
+            { 14, 2, 8, 4, 10  },
+            { 5, 11, 12, 15, 16 },
+            { 17, 18, 19, 20, 21 },
+            { 22, 23, 24, 25, 26 }
+        });
+        try {
+            Matrix actualInverse = new MatrixInverseOperation(origMatrix).compute(3);
+            assertEquals(expectedInverse, actualInverse);
+        } catch (MatrixNotInvertibleException e) {
+            e.printStackTrace();
+            fail("Incorrectly threw a MatrixNotInvertibleException");
+        }
+    }
+
+    @Test
     public void testInverseWith5x5() {
         try {
             MatrixInverseOperation origMatrix = new MatrixInverseOperation(new double[][] {
@@ -47,7 +73,7 @@ public class MatrixInverseOperationTest {
                 { 0.091, 0.279, 0.987, -8.182, 5.883 },
                 { 0.091, -0.649, -2.156, 20.018, -14.603 },
                 { -0.091, 0.292, 0.870, -7.218, 5.231 }
-            }, origMatrix.compute().getMatrixElements());
+            }, origMatrix.compute(3).getMatrixElements());
         } catch (Matrix.MatrixNotInvertibleException e) {
             e.printStackTrace();
             fail("Incorrectly threw a MatrixNotInvertibleException");

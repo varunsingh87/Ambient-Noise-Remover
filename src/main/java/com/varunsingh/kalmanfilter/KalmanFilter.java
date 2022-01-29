@@ -77,7 +77,7 @@ public class KalmanFilter {
         }
 
         // Step 1: Calculate predicted state
-        Dataset predictedState = predictState();
+        predictState();
 
         throw new UnsupportedOperationException("Not implemented yet");
     }
@@ -172,4 +172,38 @@ public class KalmanFilter {
             return null;
         }
     }
+
+    /**
+     * Step 5 of the Kalman Filter
+     * @description Calculates measurement of the state
+     * @returnc Measurement of the state 
+     */
+    Dataset calculateNewObservation(Vector measuredObservation, Vector noise) {
+        // TODO (Primary) Reflect size of state vector
+        // TODO (Secondary) Change this to reflect which variables in the state vector are getting observed
+        Matrix observation = Matrix.createIdentityMatrix(2); 
+
+        return (Dataset) observation.times(measuredObservation).plus(noise);        
+    }
+
+    Dataset calculateNewObservation(Vector measuredObservation) {
+        return Matrix.createIdentityMatrix(2).times(measuredObservation);
+    }
+
+    Dataset updateState(Vector predictedState, Vector measurementState) {
+        Matrix kalmanGain = (Matrix) calculateKalmanGain();
+        Matrix observation = Matrix.createIdentityMatrix(2);
+        
+        Dataset adaptedPrediction = observation.times(predictedState);
+        
+        return predictedState.plus(kalmanGain.times(measurementState.minus(adaptedPrediction)));
+    }
+
+	Dataset updateProcesCovariance(Matrix predictedProcessCovariance) {
+		Dataset identity = Matrix.createIdentityMatrix(2);
+        Dataset observation = Matrix.createIdentityMatrix(2);
+        Dataset kalmanGain = calculateKalmanGain();
+        
+        return identity.minus(kalmanGain.times(observation)).times(predictedProcessCovariance);
+	}
 }

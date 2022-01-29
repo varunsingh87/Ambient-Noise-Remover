@@ -8,9 +8,7 @@ import java.util.Objects;
 
 import javax.sound.sampled.AudioFormat;
 
-import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.PitchShifter;
-import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 
 public class AudioSampleSet {
     static double sampleRate = 44100.0;
@@ -22,9 +20,9 @@ public class AudioSampleSet {
 
     public AudioSampleSet(float[] sb) {
 
-        // TODO: Initialize PitchShifter
-        // TODO: Process PitchShifter
-        // TODO: Store RMS using float buffer and pitchShifter
+        // TODO Initialize PitchShifter
+        // TODO Process PitchShifter
+        // TODO Store RMS using float buffer and pitchShifter
         // pitchShifter.process()
         // pitchShifter = new PitchShifter(20, 40000, size, overlap)
         sampleBuffer = sb;
