@@ -8,202 +8,177 @@ import com.varunsingh.linearalgebra.Vector;
 /**
  * Step 1: Predict state
  * Step 2: Initial Process Covariance
- * Step 3: Predicted Process Covariance
+ * Step 3: Predicted
+ * Process Covariance
  * Step 4: Calculating the Kalman Gain
- * Step 5: The New Observation (Update Measurement)
+ * Step 5: The New
+ * Observation (Update Measurement)
  * Step 6: Calculating the Current State
- * Step 7: 
+ * Step 7: Updating the Process Covariance
+ * Step 8: Change to next iteration
  */
 public class KalmanFilter {
-    /**
-     * Error in the measurement/observation
-     * Each element corresponds to the error in the corresponding position in X, the state vector
-     */
-    private Vector observationError;
-    
-    private Calculations calculations;
-    private int iteration;
+	/**
+	 * Error in the measurement/observation Each element corresponds to the
+	 * error in the corresponding position in X, the state vector
+	 */
+	private Vector observationError;
 
-    /**
-     * The change in time between consecutive iterations
-     */
-    private double timeOfOneCycle = 1.0;
+	private Calculations calculations;
+	private int iteration;
 
-    /**
-     * Constructor for the Kalman Filter
-     * @param initEst The initial estimate of the system
-     * @param obErr The error in the observation/measurement
-     * @param initProcErr The error in the process/estimate
-     */
-    KalmanFilter(Vector initEst, Vector obErr, Vector initProcErr) {
-        observationError = obErr;
-        calculations = new Calculations(0.0, initEst, initProcErr);
-    }
+	/**
+	 * The change in time between consecutive iterations
+	 */
+	private double timeOfOneCycle = 1.0;
 
-    /**
-     * @return the observationError
-     */
-    public Vector getObservationError() {
-        return observationError;
-    }
+	/**
+	 * Constructor for the Kalman Filter
+	 *
+	 * @param initEst     The initial estimate of the system
+	 * @param obErr       The error in the observation/measurement
+	 * @param initProcErr The error in the process/estimate
+	 */
+	KalmanFilter(Vector initEst, Vector obErr, Vector initProcErr) {
+		observationError = obErr;
+		calculations = new Calculations(initEst, initProcErr);
+	}
 
-    public Matrix getMeasurementCovariance() {
-        return new Matrix(new double[][] {
-            { Math.pow(observationError.get(0), 2), 0 },
-            { 0, Math.pow(observationError.get(1), 2) }
-        });
-    }
+	/**
+	 * @return the observationError
+	 */
+	public Vector getObservationError() {
+		return observationError;
+	}
 
-    public Calculations getCurrentSystemValues() {
-        return calculations;
-    }
-    
-    public Calculations initialize(Vector initialEstimate, Vector initialErrorEstimate) {
-        throw new UnsupportedOperationException("Initialization is not implemented yet");
-    }
+	public Matrix getMeasurementCovariance() {
+		return new Matrix(
+			new double[][] { { Math.pow(observationError.get(0), 2), 0 }, { 0,
+				Math.pow(observationError.get(1), 2) } }
+		);
+	}
 
-    void executeKalmanFilter(double measurement) {
-        calculations = recalculate(measurement);
-        iteration++;
-    }
+	public Calculations getCurrentSystemValues() {
+		return calculations;
+	}
 
-    Calculations recalculate(double measurement) {
-        if (calculations.kalmanGain() < 0.1) {
-            return new Calculations(
-                calculations.kalmanGain(), 
-                calculations.estimate(), 
-                calculations.processError()
-            );
-        }
+	public Calculations initialize(Vector initialEstimate, Vector initialErrorEstimate) {
+		throw new UnsupportedOperationException(
+			"Initialization is not implemented yet"
+		);
+	}
 
-        // Step 1: Calculate predicted state
-        predictState();
+	private Matrix stateTransition() {
+		return new Matrix(new double[][] { { 1, timeOfOneCycle }, { 0, 1 } });
+	}
 
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
+	/**
+	 * Step 1 of the Kalman Filter
+	 *
+	 * @return
+	 */
+	Dataset predictState() {
+		Vector previousState = calculations.estimate();
 
-    private Matrix stateTransition() {
-        return new Matrix(new double[][] {
-            { 1, timeOfOneCycle },
-            { 0, 1 }
-        });
-    }
+		Vector adaptiveControl = Vector.column(
+			new double[] { 0.5 * Math.pow(timeOfOneCycle, 2), timeOfOneCycle }
+		);
 
-    /**
-     * Step 1 of the Kalman Filter
-     * @return
-     */
-    Dataset predictState() {
-        Vector previousState = calculations.estimate();
-        
-        Vector adaptiveControl = Vector.column(new double[] {
-            0.5 * Math.pow(timeOfOneCycle, 2), 
-            timeOfOneCycle
-        });
+		Matrix controlVariable = new Matrix(2);
 
-        Matrix controlVariable = new Matrix(2);
-        
-        return stateTransition()
-            .times(previousState)
-            .plus(
-                adaptiveControl.times(controlVariable)
-            );
-    }
+		return stateTransition().times(previousState).plus(
+			adaptiveControl.times(controlVariable)
+		);
+	}
 
-    /**
-     * Equation: Observation Matrix (C) * State Matrix (X) + Measurement Input Vector (z)
-     * @param Vector measurementInput 
-     * @param boolean velocity
-     * @return
-     */
-    Dataset calculateMeasurement(Vector measurementInput, boolean velocity) {
-        Vector previousState = new Vector(new double[] { 20, 0 });
-        if (!velocity) {
-            Matrix observation = new Matrix(new double[][] {{ 1, 0}});
-            return observation.times(previousState);
-        } else {
-            Matrix observation = new Matrix(new double[][] {{ 1, 0}, { 0, 1 }});
-            return observation.times(previousState);
-        }
-    }
+	Dataset initialProcessCovariance() {
+		Matrix processCovariance = new Matrix(2, 2);
 
-    Dataset initialProcessCovariance() {
-        Matrix processCovariance = new Matrix(2, 2);
+		double firstVariableProcessError = calculations.processError().get(0);
+		double secondVariableProcessError = calculations.processError().get(1);
 
-        double firstVariableProcessError = calculations.processError().get(0);
-        double secondVariableProcessError = calculations.processError().get(1);
+		processCovariance.set(0, 0, Math.pow(firstVariableProcessError, 2));
+		processCovariance.set(
+			0, 1, firstVariableProcessError * secondVariableProcessError
+		);
+		processCovariance.set(
+			1, 0, firstVariableProcessError * secondVariableProcessError
+		);
+		processCovariance.set(1, 1, Math.pow(secondVariableProcessError, 2));
 
-        processCovariance.set(0, 0, Math.pow(firstVariableProcessError, 2));
-        processCovariance.set(0, 1, firstVariableProcessError * secondVariableProcessError);
-        processCovariance.set(1, 0, firstVariableProcessError * secondVariableProcessError);
-        processCovariance.set(1, 1, Math.pow(secondVariableProcessError, 2));
+		return processCovariance.zeroOutMinorDiagonal();
+	}
 
-        return processCovariance.zeroOutMinorDiagonal();
-    }
+	Dataset predictProcessCovariance(Matrix initialProcessCovariance, Matrix noise) {
+		Matrix result = (Matrix) stateTransition().times(
+			initialProcessCovariance
+		).times(stateTransition().transpose()).plus(noise);
 
-    Dataset predictProcessCovariance(Matrix noise) {
-        Matrix processCovarianceMatrix = (Matrix) initialProcessCovariance();
+		return result.zeroOutMinorDiagonal();
+	}
 
-        Matrix result = (Matrix) stateTransition().times(processCovarianceMatrix).times(stateTransition().transpose()).plus(noise);
-        
-        return result.zeroOutMinorDiagonal();
-    }
+	Dataset predictProcessCovariance(Matrix initialProcessCovariance) {
+		Matrix result = (Matrix) stateTransition().times(
+			initialProcessCovariance
+		).times(stateTransition().transpose());
 
-    Dataset predictProcessCovariance() {
-        Matrix processCovarianceMatrix = (Matrix) initialProcessCovariance();
+		return result.zeroOutMinorDiagonal();
+	}
 
-        Matrix result = (Matrix) stateTransition().times(processCovarianceMatrix).times(stateTransition().transpose());
+	Dataset calculateKalmanGain(Matrix processCovariancePrediction) {
+		Matrix observationMatrix = Matrix.createIdentityMatrix(2);
 
-        return result.zeroOutMinorDiagonal();
-    }
+		Matrix numerator = (Matrix) processCovariancePrediction.times(
+			observationMatrix.transpose()
+		);
 
-    Dataset calculateKalmanGain() {
-        Matrix processCovarianceMatrix = (Matrix) predictProcessCovariance();
-        Matrix observationMatrix = Matrix.createIdentityMatrix(2);
+		Matrix denominator = (Matrix) observationMatrix.times(numerator).plus(
+			getMeasurementCovariance()
+		);
 
-        Matrix numerator = (Matrix) processCovarianceMatrix.times(observationMatrix.transpose());
+		try {
+			return numerator.divide(denominator);
+		} catch (MatrixNotInvertibleException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
-        Matrix denominator = (Matrix) observationMatrix.times(numerator).plus(getMeasurementCovariance());
+	/**
+	 * Step 5 of the Kalman Filter
+	 *
+	 * @description Calculates measurement of the state
+	 * @returnc     Measurement of the state
+	 */
+	Dataset calculateNewObservation(Vector measuredObservation, Vector noise) {
+		// TODO (Primary) Reflect size of state vector
+		// TODO (Secondary) Change this to reflect which variables in the state
+		// vector are getting observed
+		Matrix observation = Matrix.createIdentityMatrix(2);
 
-        try {
-            return numerator.divide(denominator);
-        } catch (MatrixNotInvertibleException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+		return (Dataset) observation.times(measuredObservation).plus(noise);
+	}
 
-    /**
-     * Step 5 of the Kalman Filter
-     * @description Calculates measurement of the state
-     * @returnc Measurement of the state 
-     */
-    Dataset calculateNewObservation(Vector measuredObservation, Vector noise) {
-        // TODO (Primary) Reflect size of state vector
-        // TODO (Secondary) Change this to reflect which variables in the state vector are getting observed
-        Matrix observation = Matrix.createIdentityMatrix(2); 
+	Dataset calculateNewObservation(Vector measuredObservation) {
+		return Matrix.createIdentityMatrix(2).times(measuredObservation);
+	}
 
-        return (Dataset) observation.times(measuredObservation).plus(noise);        
-    }
+	Dataset updateState(Vector predictedState, Vector measurementState, Matrix kalmanGain) {
+		Matrix observation = Matrix.createIdentityMatrix(2);
 
-    Dataset calculateNewObservation(Vector measuredObservation) {
-        return Matrix.createIdentityMatrix(2).times(measuredObservation);
-    }
+		Dataset adaptedPrediction = observation.times(predictedState);
 
-    Dataset updateState(Vector predictedState, Vector measurementState) {
-        Matrix kalmanGain = (Matrix) calculateKalmanGain();
-        Matrix observation = Matrix.createIdentityMatrix(2);
-        
-        Dataset adaptedPrediction = observation.times(predictedState);
-        
-        return predictedState.plus(kalmanGain.times(measurementState.minus(adaptedPrediction)));
-    }
+		return predictedState.plus(
+			kalmanGain.times(measurementState.minus(adaptedPrediction))
+		);
+	}
 
-	Dataset updateProcesCovariance(Matrix predictedProcessCovariance) {
+	Dataset updateProcesCovariance(Matrix predictedProcessCovariance, Matrix kalmanGain) {
 		Dataset identity = Matrix.createIdentityMatrix(2);
-        Dataset observation = Matrix.createIdentityMatrix(2);
-        Dataset kalmanGain = calculateKalmanGain();
-        
-        return identity.minus(kalmanGain.times(observation)).times(predictedProcessCovariance);
+		Dataset observation = Matrix.createIdentityMatrix(2);
+
+		return identity.minus(kalmanGain.times(observation)).times(
+			predictedProcessCovariance
+		);
 	}
 }
