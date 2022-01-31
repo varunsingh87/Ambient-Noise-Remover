@@ -96,6 +96,6 @@ public class KalmanFilterTest {
 
 	@Test
 	public void testNextIteration() {
-
+		assertEquals(1, algorithm.nextIteration());
 	}
 }

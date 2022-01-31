@@ -181,4 +181,8 @@ public class KalmanFilter {
 			predictedProcessCovariance
 		);
 	}
+
+	int nextIteration() {
+		return iteration + 1;
+	}
 }
