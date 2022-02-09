@@ -15,20 +15,22 @@ public class KalmanFilterTest {
 
 	@Before
 	public void initialize() {
-		algorithm = new KalmanFilter(
-			Vector.column(4000, 280), Vector.column(25, 6), Vector.column(20, 5)
-		);
+		algorithm = new KalmanFilter(Vector.column(25, 6));
 	}
 
 	@Test
 	public void testPredictState() {
-		Dataset predictedState = algorithm.predictState();
+		Dataset predictedState = algorithm.predictState(
+			Vector.column(4000, 280)
+		);
 		assertEquals(Vector.column(4281, 282), predictedState);
 	}
 
 	@Test
 	public void testInitialProcessCovariance() {
-		Dataset initialProcessCovariance = algorithm.initialProcessCovariance();
+		Dataset initialProcessCovariance = algorithm.initialProcessCovariance(
+			Vector.column(20, 5)
+		);
 		Matrix expected = new Matrix(new double[][] { { 400, 0 }, { 0, 25 } });
 		assertEquals(expected, initialProcessCovariance);
 	}
@@ -97,5 +99,50 @@ public class KalmanFilterTest {
 	@Test
 	public void testNextIteration() {
 		assertEquals(1, algorithm.nextIteration());
+	}
+
+	@Test
+	public void testExecution() {
+		Calculations firstIteration = algorithm.execute(
+			new Calculations(
+				Vector.column(4000, 280), // initial state
+				(Matrix) algorithm.initialProcessCovariance(
+					Vector.column(20, 5)
+				)
+			), Vector.column(4260, 282) // observation
+		);
+
+		var expectedPreviousCalculations = new Calculations(
+			Vector.column(4272.5, 282.0), // predicted state
+			new Matrix(new double[][] { { 252.977, 0 }, { 0, 14.754 } })
+		);
+
+		assertEquals(expectedPreviousCalculations, firstIteration.round());
+
+		Calculations secondIteration = algorithm.execute(
+			firstIteration, Vector.column(4550, 285) // observation
+		);
+
+		Calculations expectedSecondIterationCalculation = new Calculations(
+			Vector.column(4553.851, 284.291), new Matrix(
+				new double[][] { { 187.438, 0 }, { 0, 10.465 } }
+			)
+		);
+
+		assertEquals(
+			expectedSecondIterationCalculation, secondIteration.round()
+		);
+
+		Calculations thirdIteration = algorithm.execute(
+			secondIteration, Vector.column(4860, 286) // observation
+		);
+
+		Calculations expectedThirdIterationCalculation = new Calculations(
+			Vector.column(4844.158, 286.225), new Matrix(
+				new double[][] { { 150.31, 0 }, { 0, 8.108 } }
+			)
+		);
+
+		assertEquals(expectedThirdIterationCalculation, thirdIteration.round());
 	}
 }

@@ -5,26 +5,12 @@ import com.varunsingh.linearalgebra.Matrix;
 import com.varunsingh.linearalgebra.Matrix.MatrixNotInvertibleException;
 import com.varunsingh.linearalgebra.Vector;
 
-/**
- * Step 1: Predict state
- * Step 2: Initial Process Covariance
- * Step 3: Predicted
- * Process Covariance
- * Step 4: Calculating the Kalman Gain
- * Step 5: The New
- * Observation (Update Measurement)
- * Step 6: Calculating the Current State
- * Step 7: Updating the Process Covariance
- * Step 8: Change to next iteration
- */
 public class KalmanFilter {
 	/**
 	 * Error in the measurement/observation Each element corresponds to the
 	 * error in the corresponding position in X, the state vector
 	 */
 	private Vector observationError;
-
-	private Calculations calculations;
 	private int iteration;
 
 	/**
@@ -34,14 +20,11 @@ public class KalmanFilter {
 
 	/**
 	 * Constructor for the Kalman Filter
-	 *
-	 * @param initEst     The initial estimate of the system
-	 * @param obErr       The error in the observation/measurement
-	 * @param initProcErr The error in the process/estimate
+	 * 
+	 * @param obErr The error in the observation/measurement
 	 */
-	KalmanFilter(Vector initEst, Vector obErr, Vector initProcErr) {
+	KalmanFilter(Vector obErr) {
 		observationError = obErr;
-		calculations = new Calculations(initEst, initProcErr);
 	}
 
 	/**
@@ -58,28 +41,17 @@ public class KalmanFilter {
 		);
 	}
 
-	public Calculations getCurrentSystemValues() {
-		return calculations;
-	}
-
-	public Calculations initialize(Vector initialEstimate, Vector initialErrorEstimate) {
-		throw new UnsupportedOperationException(
-			"Initialization is not implemented yet"
-		);
-	}
-
 	private Matrix stateTransition() {
 		return new Matrix(new double[][] { { 1, timeOfOneCycle }, { 0, 1 } });
 	}
 
 	/**
 	 * Step 1 of the Kalman Filter
-	 *
-	 * @return
+	 * 
+	 * @param  previousState The previous state of the system
+	 * @return               The state prediction
 	 */
-	Dataset predictState() {
-		Vector previousState = calculations.estimate();
-
+	Dataset predictState(Vector previousState) {
 		Vector adaptiveControl = Vector.column(
 			new double[] { 0.5 * Math.pow(timeOfOneCycle, 2), timeOfOneCycle }
 		);
@@ -91,11 +63,11 @@ public class KalmanFilter {
 		);
 	}
 
-	Dataset initialProcessCovariance() {
+	Dataset initialProcessCovariance(Vector processError) {
 		Matrix processCovariance = new Matrix(2, 2);
 
-		double firstVariableProcessError = calculations.processError().get(0);
-		double secondVariableProcessError = calculations.processError().get(1);
+		double firstVariableProcessError = processError.get(0);
+		double secondVariableProcessError = processError.get(1);
 
 		processCovariance.set(0, 0, Math.pow(firstVariableProcessError, 2));
 		processCovariance.set(
@@ -148,7 +120,7 @@ public class KalmanFilter {
 	 * Step 5 of the Kalman Filter
 	 *
 	 * @description Calculates measurement of the state
-	 * @returnc     Measurement of the state
+	 * @return      Measurement of the state
 	 */
 	Dataset calculateNewObservation(Vector measuredObservation, Vector noise) {
 		// TODO (Primary) Reflect size of state vector
@@ -184,5 +156,47 @@ public class KalmanFilter {
 
 	int nextIteration() {
 		return iteration + 1;
+	}
+
+	/**
+	 * Step 1: Predict state
+	 * Step 2: Initial Process Covariance
+	 * Step 3: Predicted Process Covariance
+	 * Step 4: Calculating the Kalman Gain
+	 * Step 5: The New Observation (Update Measurement)
+	 * Step 6: Calculating the Current State
+	 * Step 7: Updating the Process Covariance
+	 * Step 8: Change to next iteration
+	 * 
+	 * @param  previousCalculation The previous calculation (state, process)
+	 * @param  measuredObservation The measurement of the state
+	 * @return                     Calculation with updated state and process
+	 *                             covariance
+	 */
+	public Calculations execute(Calculations previousCalculations, Vector measuredObservation) {
+		Vector predictedState = (Vector) predictState(
+			previousCalculations.stateEstimate()
+		);
+
+		Matrix predictedProcessCovariance = (Matrix) predictProcessCovariance(
+			previousCalculations.processCovariance()
+		);
+
+		Matrix kalmanGain = (Matrix) calculateKalmanGain(
+			predictedProcessCovariance
+		);
+		Vector newObservation = (Vector) calculateNewObservation(
+			measuredObservation
+		);
+
+		Vector updatedState = (Vector) updateState(
+			predictedState, newObservation, kalmanGain
+		);
+
+		Matrix updatedProcessCovariance = (Matrix) updateProcesCovariance(
+			predictedProcessCovariance, kalmanGain
+		);
+
+		return new Calculations(updatedState, updatedProcessCovariance);
 	}
 }
