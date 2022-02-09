@@ -1,35 +1,49 @@
 package com.varunsingh.linearalgebra;
 
-public class MatrixCovarianceOperation implements MatrixOperation {
-    Vector vector1;
-    Vector vector2;
+import java.util.Arrays;
 
-    public MatrixCovarianceOperation(Vector v1, Vector v2) {
-        vector1 = v1;
-        vector2 = v2;
+public class MatrixCovarianceOperation implements MatrixOperation {
+    private Matrix datasets;
+
+    /**
+     * Matrix returned when {@link #compute()} is called has dimensions nxn where n
+     * is {@code dimensionsOfComputedMatrix}
+     */
+    private int dimensionsOfComputedMatrix;
+
+    public MatrixCovarianceOperation(Vector... d) {
+        datasets = new Matrix(d);
+        dimensionsOfComputedMatrix = datasets.getRows();
+    }
+
+    @Override
+    public int getComputedMatrixDimensions() {
+        return dimensionsOfComputedMatrix;
     }
 
     @Override
     public Matrix compute() {
-        return new Matrix(new double[][] {
-            { calcVectorCovariance(vector1, vector1), calcVectorCovariance(vector1, vector2) },
-            { calcVectorCovariance(vector2, vector1), calcVectorCovariance(vector2, vector2) }
-        });
+        Matrix unity = getUnityMatrix();
+        Dataset sums = unity.times(datasets);
+            
+        Dataset averages = sums.scale((double) 1 / (double) datasets.getRows());
+
+        Matrix deviationMatrix = (Matrix) datasets.minus(averages);
+
+        return (Matrix) deviationMatrix
+            .transpose()
+            .times(deviationMatrix)
+            .scale(Math.pow(datasets.getRows(), -1));
     }
 
-    protected double calcVectorCovariance(Vector v1, Vector v2) {
-        double expectedValueOfATimesB = calcVectorProductExpectedValue(v1, v2);
-        double productOfExpectedValues_Of_A_And_B = v1.calcExpectedValue() * v2.calcExpectedValue();
-        return expectedValueOfATimesB - productOfExpectedValues_Of_A_And_B;
-    }
+    private Matrix getUnityMatrix() {
+        double[][] unityMatrixValues = new double[datasets.getRows()][datasets.getRows()];
 
-    protected double calcVectorProductExpectedValue(Vector v1, Vector v2) {
-        double sum = 0;
-        
-        for (int i = 0; i < Math.min(v1.getRows(), v2.getRows()); i++) {
-            sum += v1.get(i) * v2.get(i);
+        for (int i = 0; i < datasets.getRows(); i++) {
+            Arrays.fill(unityMatrixValues[i], 1.0);
         }
 
-        return sum / Math.min(v1.getRows(), v2.getRows());
+        return new Matrix(unityMatrixValues);
     }
+
 }

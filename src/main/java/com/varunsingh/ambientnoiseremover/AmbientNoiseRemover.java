@@ -2,22 +2,13 @@ package com.varunsingh.ambientnoiseremover;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import com.varunsingh.kalmanfilter.CovarianceMatrixSet;
-import com.varunsingh.kalmanfilter.MultiDimensionalKalmanFilter;
-import com.varunsingh.kalmanfilter.SystemCycleVector;
-import com.varunsingh.linearalgebra.Matrix;
-import com.varunsingh.linearalgebra.Vector;
-import com.varunsingh.soundmanipulation.AudioByteSet;
-import com.varunsingh.soundmanipulation.AudioFileManager;
 import com.varunsingh.soundmanipulation.AudioSampleSet;
 
 /* 
@@ -52,8 +43,7 @@ import com.varunsingh.soundmanipulation.AudioSampleSet;
 public class AmbientNoiseRemover {
     private File sourceFile;
     private AudioSampleSet waveForm;
-    private AudioFormat format;
-
+    
     public AmbientNoiseRemover(String src, String dest) throws UnsupportedAudioFileException, IOException {
         sourceFile = new File(src);
         waveForm = AudioSampleSet.createSampleBufferFromByteBuffer(loadSourceFileData());
@@ -81,7 +71,7 @@ public class AmbientNoiseRemover {
 
     byte[] loadSourceFileData() throws UnsupportedAudioFileException {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(sourceFile)) {
-            format = in.getFormat();
+            in.getFormat();
             return in.readAllBytes();
         } catch (IOException e) {
             e.printStackTrace();
@@ -98,80 +88,7 @@ public class AmbientNoiseRemover {
     }
 
     void removeNoise(int index) {
-        NoiseDistinguisher noisePositionFinder = new NoiseDistinguisher(waveForm);
-        List<Float> noisePositions = noisePositionFinder.findSamplesBelowNoiseThreshold();
         
-        int measurementVectorSize = format.getFrameSize();
-
-        Vector initialState = new Vector(new double[] { 0.01, 0.001, 0.04 });
-        Matrix initialUncertainty = new Matrix(new double[][] { { 0.068, 0.0043, 0.03 }, { 0.02, 0.03, 0.1 }, { 0.3, 0.1, 0.2 } });
-        MultiDimensionalKalmanFilter filter = new MultiDimensionalKalmanFilter(3, measurementVectorSize);
-
-        CovarianceMatrixSet kalmanFilterCovarianceMatrices = new CovarianceMatrixSet();
-        kalmanFilterCovarianceMatrices.setStateTransition(
-            new Matrix(
-                new double[][] { 
-                    { 1, MultiDimensionalKalmanFilter.TIME_INTERVAL, 0 }, 
-                    { 0, 1, MultiDimensionalKalmanFilter.TIME_INTERVAL }, 
-                    { 0, 0, 1, }
-                }
-            )
-        );
-
-        kalmanFilterCovarianceMatrices.setControl(Matrix.createIdentityMatrix(3));
-
-        kalmanFilterCovarianceMatrices.setObservation(new Matrix(new double[][] {
-            { 0.004, 0.005, 0.003 },
-            { 0.017, 0.324, 0.145 },
-            { 0.364, 0.879, 0.128 }, 
-            { 0.356, 0.112, 0.040 }
-        }));
-
-        filter.initialize(
-            new SystemCycleVector(initialState, initialUncertainty), 
-            kalmanFilterCovarianceMatrices,
-            new Matrix(
-                new double[][] { 
-                    { 0.005, 0.003, 0.007 }, 
-                    { 0.003, 0.067, 0.042 }, 
-                    { 0.004, 0.015, 0.1   }
-                }
-            ),
-            new Matrix(
-                new double[][] { 
-                    { 0.012, 0.605, 0.003, 0.554 }, 
-                    { 0.017, 0.324, 0.145, 0.382 },
-                    { 0.364, 0.879, 0.128, 0.003 }, 
-                    { 0.356, 0.112, 0.040, 0.103 } 
-                }
-            )
-        );
-        
-        int estimatedWaveLength = format.getFrameSize();
-
-        for (int i = 0; i < noisePositions.size() / estimatedWaveLength; i++) {
-            double[] frame = new double[estimatedWaveLength];
-
-            for (int j = 0; j < estimatedWaveLength; j++) {
-                frame[j] = noisePositions.get(i * estimatedWaveLength + j);
-            }
-
-            filter.measure(new Vector(frame));
-        }
-
-        Vector noise = filter.getCurrentCycleInfo().getStateEstimate();
-        AudioSampleSet noiseRemovedWaveForm = waveForm.muteNoise(noise.getVectorElements());
-
-        AudioByteSet outputByteData = AudioByteSet.createByteBufferFromSampleBuffer(waveForm.getSampleBuffer());
-
-        AudioFileManager.writeToOutputFile(
-            format, 
-            outputByteData.getByteBuffer(), 
-            noiseRemovedWaveForm.getBufferSize(),
-            new File("data/noiseremoval/output/output" + index + ".wav")
-        );
-
-        System.out.println(String.format("File %s has been written!", String.valueOf(index)));
     }
 
     void playAudio() {

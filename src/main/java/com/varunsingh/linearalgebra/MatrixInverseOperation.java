@@ -1,7 +1,5 @@
 package com.varunsingh.linearalgebra;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Arrays;
 
 /**
@@ -41,10 +39,12 @@ public class MatrixInverseOperation implements MatrixOperation {
         return matrixElsToInvert;
     }
 
-    public Matrix compute() {
-        
-        int dimensions = matrixToInvert.getRows();        
-
+    /**
+     * Computes the inverse of the matrix
+     * @param round The number of decimal places to round to
+     * @return The inverse of the matrix
+     */
+    public Matrix compute(int round) {
         for (int k = 0; k < dimensions; k++) {
             startRowWith1(k); 
 
@@ -52,7 +52,18 @@ public class MatrixInverseOperation implements MatrixOperation {
                 if (i != k) startRowWith0(k, i);
         }
 
-        return roundMatrixToNearestThousandth(augmentedMatrix);
+        return MatrixRound.roundMatrix(augmentedMatrix, round);
+    }
+
+    public Matrix compute() {
+        for (int k = 0; k < dimensions; k++) {
+            startRowWith1(k); 
+
+            for (int i = 0; i < dimensions; i++)
+                if (i != k) startRowWith0(k, i);
+        }
+
+        return augmentedMatrix;
     }
 
     private void startRowWith1(int diagonalIndexFromTopLeft) {
@@ -87,23 +98,9 @@ public class MatrixInverseOperation implements MatrixOperation {
         }
     }
 
-    private Matrix roundMatrixToNearestThousandth(Matrix augmentedMatrix) {
-        Matrix roundedMatrix = new Matrix(new double[dimensions][dimensions]);
-        
-        for (int i = 0; i < dimensions; i++) {
-            for (int j = 0; j < dimensions; j++) {
-                roundedMatrix.set(i, j, roundDouble(augmentedMatrix.get(i, j), 3));
-            }
-        }
-
-        return roundedMatrix;
-    }
-
-    private double roundDouble(double d, int places) {
-        BigDecimal bigDecimal = new BigDecimal(Double.toString(d));
-        bigDecimal = bigDecimal.setScale(places, RoundingMode.HALF_UP);
-        
-        return bigDecimal.doubleValue();
+    @Override
+    public int getComputedMatrixDimensions() {
+        return dimensions;
     }
 
 }

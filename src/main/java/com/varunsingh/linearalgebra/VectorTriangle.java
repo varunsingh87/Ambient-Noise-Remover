@@ -3,19 +3,17 @@ package com.varunsingh.linearalgebra;
 public class VectorTriangle {
     private Vector sideA;
     private Vector sideB;
-    private Vector sideC;
     private double sideCLength;
 
     public VectorTriangle(Vector a, Vector b) {
         sideA = a;
         sideB = b;
-        sideCLength = sideA.minus(sideB).asColumnVector().calcLength();
+        sideCLength = sideA.minus(sideB).calcLength();
     }
 
     public VectorTriangle(Vector a, Vector b, Vector c) {
         sideA = a;
         sideB = b;
-        sideC = c;
         sideCLength = c.calcLength();
     }
 

@@ -21,6 +21,9 @@ buildNumber.properties
 .project
 .vscode/
 
+# Java
+.class
+
 # Project Specific
 data/
 nextcommitmessage.txt
