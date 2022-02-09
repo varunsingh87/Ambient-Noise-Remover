@@ -4,11 +4,33 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
+
 import com.varunsingh.linearalgebra.Vector.VectorType;
 
 import org.junit.Test;
 
 public class VectorTest {
+    @Test
+    public void testColumnByRowMultiplication() {
+        Vector v1 = Vector.column(0.5, 1);
+        Vector v2 = Vector.row(2);
+        Vector v3 = Vector.valueOf(v1.times(v2));
+        System.out.println(Arrays.toString(v3.getValues()));
+        assertEquals(new Vector(new double[] { 1, 2 }), v3);
+    }
+
+    @Test
+    public void testRowByColumnMultiplication() {
+        Vector v1 = Vector.row(0.5, 1);
+        Vector v2 = Vector.column(2, 4);
+        
+        Vector actualProduct = Vector.valueOf(v1.times(v2));
+        Vector expectedProduct = Vector.scalar(5);
+
+        assertEquals(expectedProduct, actualProduct);
+    }
+
     @Test
     public void testTranspose() {
         assertEquals(new Vector(new double[] { 5, 7, 6 }), new Vector(new double[] { 5, 7, 6 }, VectorType.COLUMN));
@@ -28,7 +50,7 @@ public class VectorTest {
         Vector x = new Vector(new double[] { 4, 5, 6 });
         Vector y = new Vector(new double[] { 6, -2, -3 });
 
-        double lengthOfSum = x.plus(y).calcLength();
+        double lengthOfSum = ((Vector) x.plus(y)).calcLength();
         double sumOfLengths = x.calcLength() + y.calcLength();
 
         assertTrue(lengthOfSum <= sumOfLengths);
@@ -44,7 +66,7 @@ public class VectorTest {
         Vector x = new Vector(new double[] { 4, 5, 6 });
         Vector y = x.scale(6);
 
-        double lengthOfSum = x.plus(y).calcLength();
+        double lengthOfSum = ((Vector) x.plus(y)).calcLength();
         double sumOfLengths = x.calcLength() + y.calcLength();
 
         assertEquals(lengthOfSum, sumOfLengths, 0.0);

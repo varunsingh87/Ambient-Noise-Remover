@@ -31,19 +31,6 @@ public class MatrixTest {
     }
 
     @Test
-    public void testMatrixByVectorMultiplication() {
-        Matrix m = new Matrix(new double[][] { { 5.0, 5.0, 5.0 } });
-        Vector v = new Vector(new double[] { 5, 5, 5 });
-
-        Matrix result = (Matrix) v.times(m);
-
-        assertEquals(3, result.getRows());
-        assertEquals(3, result.getColumns());
-        assertEquals(new Matrix(new double[][] { { 25.0, 25.0, 25.0 }, { 25.0, 25.0, 25.0 }, { 25.0, 25.0, 25.0 } }),
-                result);
-    }
-
-    @Test
     public void testImpossibleMatrixMultiplication() {
         try {
             Matrix m = new Matrix(new double[][] { { 5, 10 }, { 10, 40 } });
@@ -78,6 +65,14 @@ public class MatrixTest {
     }
 
     @Test
+    public void testZeroOutMinorDiagonal() {
+        Matrix m = new Matrix(new double[][] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } });
+        m.zeroOutMinorDiagonal();
+
+        assertArrayEquals(new double[][] { { 1, 2, 0 }, { 4, 0, 6 }, { 0, 8, 9 } }, m.getMatrixElements());
+    }
+
+    @Test
     public void testIsSquareMatrix() {
         Matrix nonSquare = new Matrix(new double[][] { { 10, 20 }, { 20, 21 }, { 7, 6 } });
         Matrix square = new Matrix(new double[][] { { 10, 20 }, { 30, 40 } });
@@ -101,50 +96,6 @@ public class MatrixTest {
         Matrix transposedMatrix = origMatrix.transpose();
         double[][] expectedElements = new double[][] { { 1, 3, 1 }, { 2, 4, 2 } };
         assertArrayEquals(expectedElements, transposedMatrix.getMatrixElements());
-    }
-
-    @Test
-    public void testInverseWith3x3() {
-        Matrix origMatrix = new Matrix(new double[][] { 
-            { 1, -1, 3 },
-            { 2, 1,  2 },
-            { -2, -2, 1 }
-        });
-
-        try {
-            Matrix invertedMatrix = origMatrix.invert();
-            assertArrayEquals(new double[][] {
-                { 1, -1, -1 },
-                { -1.2, 1.4, 0.8 },
-                { -0.4, 0.8, 0.6 }
-            }, invertedMatrix.getMatrixElements());
-        } catch (MatrixNotInvertibleException e) {
-            e.printStackTrace();
-            fail();
-        }
-    }
-
-    @Test
-    public void testInverseWith5x5() {
-        Matrix origMatrix = new Matrix(new double[][] {
-            { 9, 6, 13, 7, 3  },
-            { 14, 2, 8, 4, 10  },
-            { 5, 11, 12, 15, 16 },
-            { 17, 18, 19, 20, 21 },
-            { 22, 23, 24, 25, 26 }
-        });
-        try {
-            assertArrayEquals(new double[][] {
-                { 0, -0.143, -0.714, 5.6, -4.029 },
-                { -0.091, 0.221, 1.013, -10.418, 7.717 },
-                { 0.091, 0.279, 0.987, -8.182, 5.883 },
-                { 0.091, -0.649, -2.156, 20.018, -14.603 },
-                { -0.091, 0.292, 0.870, -7.218, 5.231 }
-            }, origMatrix.invert().getMatrixElements());
-        } catch (MatrixNotInvertibleException e) {
-            e.printStackTrace();
-            fail("Incorrectly threw a MatrixNotInvertibleException");
-        }
     }
 
     @Test

@@ -39,6 +39,22 @@ public class MatrixInverseOperation implements MatrixOperation {
         return matrixElsToInvert;
     }
 
+    /**
+     * Computes the inverse of the matrix
+     * @param round The number of decimal places to round to
+     * @return The inverse of the matrix
+     */
+    public Matrix compute(int round) {
+        for (int k = 0; k < dimensions; k++) {
+            startRowWith1(k); 
+
+            for (int i = 0; i < dimensions; i++)
+                if (i != k) startRowWith0(k, i);
+        }
+
+        return MatrixRound.roundMatrix(augmentedMatrix, round);
+    }
+
     public Matrix compute() {
         for (int k = 0; k < dimensions; k++) {
             startRowWith1(k); 
@@ -47,7 +63,7 @@ public class MatrixInverseOperation implements MatrixOperation {
                 if (i != k) startRowWith0(k, i);
         }
 
-        return MatrixRound.roundMatrix(augmentedMatrix, 3);
+        return augmentedMatrix;
     }
 
     private void startRowWith1(int diagonalIndexFromTopLeft) {

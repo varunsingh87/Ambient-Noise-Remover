@@ -12,7 +12,12 @@ public class Vector implements Dataset {
 
     private VectorType vectorType;
 
-    public Vector(double[] v) {
+    public Vector(int size, VectorType t) {
+        vectorElements = new double[size];
+        vectorType = t;
+    }
+
+    public Vector(double... v) {
         vectorElements = v;
         vectorType = VectorType.COLUMN;
         average = calcAverage();
@@ -24,9 +29,18 @@ public class Vector implements Dataset {
         average = calcAverage();
     }
 
+    public VectorType getOrientation() {
+        return vectorType;
+    }
+
     @Override
     public boolean equals(Object o) {
         return Arrays.equals(getValues(), ((Vector) o).getValues());
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(getValues());
     }
 
     public double getAverage() {
@@ -47,14 +61,34 @@ public class Vector implements Dataset {
     /**
      * Converts column vector in matrix form to a column vector
      */
-    public static Vector valueOf(Matrix m) {
+    public static Vector valueOf(Dataset m) {
+        if (m.getRows() == 1 && m.getColumns() > 1 && m instanceof Matrix) {
+            return Vector.row((Matrix) m);
+        }
+
         Vector columnVector = new Vector(new double[m.getRows()]);
 
         for (int i = 0; i < m.getRows(); i++) {
-            columnVector.set(i, m.get(i, 0));
+            columnVector.set(i, m instanceof Matrix ? ((Matrix) m).get(i, 0) : ((Vector) m).get(i));
         }
 
         return columnVector;
+    }
+
+    public static Vector row(double... els) {
+        return new Vector(els, VectorType.ROW);
+    }
+
+    public static Vector row(Matrix m) {
+        return m.getRow(0);
+    }
+
+    public static Vector column(double... els) {
+        return new Vector(els, VectorType.COLUMN);
+    }
+
+    public static Vector scalar(double s) {
+        return new Vector(new double[] { s }, VectorType.COLUMN);
     }
 
     /**
@@ -78,59 +112,73 @@ public class Vector implements Dataset {
         vectorElements[rowIndex] = newValue;
     }
 
-    @Override
     public Dataset times(Dataset factor) {
-        if (getColumns() != factor.getRows())
-            throw new IllegalArgumentException();
+        if (getColumns() != factor.getRows()) {
+            throw new IllegalArgumentException("Vector column count does not match dataset row count");
+        }
 
-        switch (vectorType) {
-            case ROW: {
-                Vector product = new Vector(new double[getColumns()], VectorType.ROW);
-                Matrix mFactor = factor instanceof Matrix ? (Matrix) factor : new Matrix(new double[][] { ((Vector) factor).getValues() });
-                
-                for (int j = 0; j < factor.getColumns(); j++) {
-                    double sum = 0;
-
-                    for (int k = 0; k < getColumns(); k++) {
-
-                        double firstFactor = vectorElements[k];
-                        double secondFactor = mFactor.get(k, j);
-
-                        sum += firstFactor * secondFactor;
-                    }
-
-                    product.set(j, sum);
-                }
-
-                return product;
+        // Row vector
+        if (vectorType == VectorType.ROW) {
+            if (factor.getColumns() == 1) { // Row vector by getRows() x 1 column vector --> 1x1 matrix
+                return new Vector(dot(Vector.valueOf(factor)));
+            } else { // Row vector by getColumns() x n matrix --> 1 x factor.getColumns() row vector
+                return multiplyRowByMatrix((Matrix) factor);
             }
-            case COLUMN:
-            default: {
-                Matrix product = new Matrix(new double[getRows()][factor.getColumns()]);
-                Vector vFactor = factor instanceof Vector ? (Vector) factor : ((Matrix) factor).getRow(0);
-
-                for (int i = 0; i < getRows(); i++) {
-                    for (int j = 0; j < factor.getColumns(); j++) {
-                        product.set(i, j, get(i) * vFactor.get(j));
-                    }
-                }
-
-                return product;
-            }
+        } else { // this is a column vector
+            // This=Column vector
+            // Factor= 1 x n row vector
+            // Product: m x n matrix
+            return multiplyColumnByRow(Vector.valueOf(factor));
         }
     }
 
+    private Matrix multiplyColumnByRow(Vector factor) {
+        Matrix product = new Matrix(getRows(), factor.getColumns());
+        for (int i = 0; i < getRows(); i++) {
+            for (int j = 0; j < factor.getColumns(); j++) {
+                product.set(i, j, get(i) * factor.get(j));
+            }
+        }
+        return product;
+    }
+
+    private Vector multiplyRowByMatrix(Matrix factor) {
+        Vector product = new Vector(factor.getColumns(), VectorType.ROW);
+
+        for (int i = 0; i < factor.getColumns(); i++) {
+            double sum = 0;
+
+            for (int j = 0; j < factor.getRows(); j++) {
+                sum += get(j) * factor.get(j, i);
+            }
+
+            product.set(i, sum);
+        }
+
+        return product;
+    }
+    
     @Override
     public Vector scale(double scalar) {
         return new Vector(Arrays.stream(vectorElements).map(v -> v * scalar).toArray());
     }
 
     @Override
-    public Vector plus(Dataset addend) {
+    public Dataset plus(Dataset addend) {
+        if (addend instanceof Matrix && ((Matrix) addend).isConventionalMatrix()) {
+            throw new IllegalArgumentException("Cannot add non-vector to vector");
+        }
+
+        Vector vAddend = Vector.valueOf(addend);
+
+        if (getSize() != vAddend.getSize() || getOrientation() != vAddend.getOrientation()) {
+            throw new IllegalArgumentException("Vectors must be of equal size and the same orientation");
+        }
+
         Vector sum = new Vector(new double[getSize()]);
 
         for (int i = 0; i < vectorElements.length; i++) {
-            sum.set(i, get(i) + ((Vector) addend).get(i));
+            sum.set(i, get(i) + (Vector.valueOf(addend)).get(i));
         }
 
         return sum;
@@ -138,7 +186,7 @@ public class Vector implements Dataset {
 
     @Override
     public Vector minus(Dataset subtrahend) {
-        return plus(subtrahend.scale(-1));
+        return (Vector) plus(subtrahend.scale(-1));
     }
 
     public double calcInnerProduct() {
@@ -188,10 +236,6 @@ public class Vector implements Dataset {
     @Override
     public int getColumns() {
         return vectorType == VectorType.COLUMN ? 1 : vectorElements.length;
-    }
-
-    public double calcCovarianceIn2x2Matrix(Vector v2) {
-        throw new UnsupportedOperationException();
     }
 
     /**
@@ -256,11 +300,11 @@ public class Vector implements Dataset {
             throw new IllegalArgumentException("Vector must have 3 elements to be crossable");
 
         Vector crossProduct = new Vector(new double[] {
-            get(1) * y.get(2) - get(2) * y.get(1),
-            get(2) * y.get(0) - get(0) * y.get(2),
-            get(0) * y.get(1) - get(1) * y.get(0)
+                get(1) * y.get(2) - get(2) * y.get(1),
+                get(2) * y.get(0) - get(0) * y.get(2),
+                get(0) * y.get(1) - get(1) * y.get(0)
         });
-        
+
         return crossProduct;
     }
 
