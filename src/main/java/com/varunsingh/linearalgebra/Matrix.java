@@ -10,8 +10,8 @@ public class Matrix implements Dataset {
     protected Vector[] vectorColumns;
 
     /**
-     * An exception that is thrown when a matrix is attempted to be inverted when it
-     * is not an invertible matrix
+     * An exception that is thrown when a matrix is attempted to be inverted
+     * when it is not an invertible matrix
      */
     public final static class MatrixNotInvertibleException extends Exception {
         private static final long serialVersionUID = -5031211581058588672L;
@@ -21,8 +21,7 @@ public class Matrix implements Dataset {
         }
     }
 
-    public Matrix() {
-    }
+    public Matrix() {}
 
     public Matrix(int rows, int columns) {
         setMatrixElements(new double[rows][columns]);
@@ -34,6 +33,7 @@ public class Matrix implements Dataset {
 
     /**
      * Constructs a Matrix using a two-dimensional array
+     * 
      * @param m The two-dimensional array containing all the matrix elements
      */
     public Matrix(double[][] m) {
@@ -44,12 +44,14 @@ public class Matrix implements Dataset {
 
     /**
      * Constructs a matrix by row vectors
-     * @param rows The set of vectors that are merged together to create a matrix
-     * @return A, the Matrix object
+     * 
+     * @param  rows The set of vectors that are merged together to create a
+     *              matrix
+     * @return      A, the Matrix object
      */
     public Matrix(Vector[] rows) {
         matrixElements = new double[rows.length][rows[0].getSize()];
-        
+
         for (int i = 0; i < rows.length; i++) {
             matrixElements[i] = rows[i].getValues();
         }
@@ -60,7 +62,7 @@ public class Matrix implements Dataset {
 
     public Matrix(Vector v) {
         if (v.getOrientation() == VectorType.ROW) {
-            matrixElements = new double[][] { v.getValues()};
+            matrixElements = new double[][] { v.getValues() };
             vectorRows = new Vector[] { v };
             vectorColumns = computeVectorColumns(matrixElements);
         } else {
@@ -77,7 +79,8 @@ public class Matrix implements Dataset {
     }
 
     public void setMatrixElements(double[][] matrixElements) throws IllegalArgumentException {
-        if (!validateMatrix(matrixElements)) throw new IllegalArgumentException();
+        if (!validateMatrix(matrixElements))
+            throw new IllegalArgumentException();
 
         this.vectorRows = computeVectorRows(matrixElements);
         this.vectorColumns = computeVectorColumns(matrixElements);
@@ -86,7 +89,7 @@ public class Matrix implements Dataset {
 
     private Vector[] computeVectorRows(double[][] matrixElements) {
         Vector[] vectorRows = new Vector[matrixElements.length];
-        
+
         for (int i = 0; i < matrixElements.length; i++) {
             vectorRows[i] = Vector.row(matrixElements[i]);
         }
@@ -97,7 +100,9 @@ public class Matrix implements Dataset {
     private Vector[] computeVectorColumns(double[][] matrixElements) {
         Vector[] vectorColumns = new Vector[matrixElements[0].length];
         for (int i = 0; i < vectorColumns.length; i++) {
-            Vector column = new Vector(matrixElements.length, VectorType.COLUMN);
+            Vector column = new Vector(
+                matrixElements.length, VectorType.COLUMN
+            );
             for (int j = 0; j < matrixElements.length; j++) {
                 column.set(j, matrixElements[j][i]);
             }
@@ -108,8 +113,9 @@ public class Matrix implements Dataset {
     }
 
     public static boolean validateMatrix(double[][] elsToValidate) {
-        if (elsToValidate.length < 1) return true;
-        
+        if (elsToValidate.length < 1)
+            return true;
+
         int columns = elsToValidate[0].length;
         for (int i = 0; i < elsToValidate.length; i++) {
             if (columns != elsToValidate[i].length)
@@ -133,11 +139,11 @@ public class Matrix implements Dataset {
 
     public void set(int firstLvlIndex, int secondLvlIndex, double newValue) {
         matrixElements[firstLvlIndex][secondLvlIndex] = newValue;
-        
+
         if (vectorRows[firstLvlIndex] != null) {
             vectorRows[firstLvlIndex].set(secondLvlIndex, newValue);
         }
-        
+
         if (vectorColumns[secondLvlIndex] != null) {
             vectorColumns[secondLvlIndex].set(firstLvlIndex, newValue);
         }
@@ -153,7 +159,9 @@ public class Matrix implements Dataset {
 
     @Override
     public boolean equals(Object matrix) {
-        return Arrays.deepEquals(getMatrixElements(), ((Matrix) matrix).getMatrixElements());
+        return Arrays.deepEquals(
+            getMatrixElements(), ((Matrix) matrix).getMatrixElements()
+        );
     }
 
     public String toString() {
@@ -166,7 +174,9 @@ public class Matrix implements Dataset {
         } else if (d instanceof Matrix) {
             return timesMatrix((Matrix) d);
         } else {
-            throw new IllegalArgumentException("The argument must be a Vector or Matrix");
+            throw new IllegalArgumentException(
+                "The argument must be a Vector or Matrix"
+            );
         }
     }
 
@@ -186,15 +196,19 @@ public class Matrix implements Dataset {
 
     /**
      * Multiply a matrix by a column vector
-     * @param d The vector by which the matrix is multiplied
-     * @return The product of the matrix and the vector (getRows() x 1 column vector)
+     * 
+     * @param  d The vector by which the matrix is multiplied
+     * @return   The product of the matrix and the vector (getRows() x 1 column
+     *           vector)
      */
     public Dataset timesVector(Vector d) {
         if (getColumns() != d.getSize())
-            throw new IllegalArgumentException("The number of columns in the matrix must equal the number of elements in the vector");
+            throw new IllegalArgumentException(
+                "The number of columns in the matrix must equal the number of elements in the vector"
+            );
 
         Vector result = new Vector(getRows(), VectorType.COLUMN);
-        
+
         for (int i = 0; i < getRows(); i++) {
             result.set(i, vectorRows[i].dot(d));
         }
@@ -205,24 +219,23 @@ public class Matrix implements Dataset {
     /**
      * Adds two matrices together
      * 
-     * @param addend The matrix to add to the current matrix
-     * @return The sum of the two matrices
+     * @param  addend                   The matrix to add to the current matrix
+     * @return                          The sum of the two matrices
      * @throws IllegalArgumentException When the matrices cannot be added
      */
     public Matrix plus(Dataset addend) {
-        if (!(getRows() == addend.getRows() && getColumns() == addend.getColumns()))
-            throw new IllegalArgumentException("Cannot add matrices of different dimensions");
+        if (!(getRows() == addend.getRows() && getColumns() == addend
+            .getColumns()))
+            throw new IllegalArgumentException(
+                "Cannot add matrices of different dimensions"
+            );
 
         Matrix mAddend = (Matrix) addend;
         Matrix toReturn = new Matrix(new double[getRows()][getColumns()]);
 
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getColumns(); j++) {
-                toReturn.set(
-                    i, 
-                    j, 
-                    matrixElements[i][j] + mAddend.get(i, j)
-                );
+                toReturn.set(i, j, matrixElements[i][j] + mAddend.get(i, j));
             }
         }
 
@@ -232,8 +245,8 @@ public class Matrix implements Dataset {
     /**
      * Convenience method for adding to scalar -1 times a matrix
      * 
-     * @param minuend The matrix being subtracted
-     * @return The difference matrix
+     * @param  minuend The matrix being subtracted
+     * @return         The difference matrix
      */
     public Dataset minus(Dataset minuend) {
         return this.plus(minuend.scale(-1));
@@ -249,7 +262,9 @@ public class Matrix implements Dataset {
 
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getColumns(); j++) {
-                toReturn.set(i, j, MatrixRound.roundDouble(scalar * matrixElements[i][j], 5));
+                // toReturn.set(i, j, MatrixRound.roundDouble(scalar *
+                // matrixElements[i][j], 5));
+                toReturn.set(i, j, scalar * matrixElements[i][j]);
             }
         }
 
@@ -272,7 +287,7 @@ public class Matrix implements Dataset {
     /**
      * Inverts the matrix using Gauss-Jordan elimination
      * 
-     * @return The inverted matrix
+     * @return                              The inverted matrix
      * @throws MatrixNotInvertibleException
      */
     public Matrix invert() throws MatrixNotInvertibleException {
@@ -295,10 +310,12 @@ public class Matrix implements Dataset {
         double[][] toReturn = new double[dimens][dimens];
 
         for (int i = 0; i < dimens; i++) {
-            
+
             for (int j = 0; j < dimens; j++) {
-                if (i == j) toReturn[i][i] = value;
-                else toReturn[i][j] = 0;
+                if (i == j)
+                    toReturn[i][i] = value;
+                else
+                    toReturn[i][j] = 0;
             }
         }
 
@@ -329,7 +346,7 @@ public class Matrix implements Dataset {
             return 0;
         }
     }
-    
+
     public boolean isSquare() {
         return matrixElements.length == matrixElements[0].length;
     }
@@ -360,12 +377,12 @@ public class Matrix implements Dataset {
                 }
             }
         }
-        
+
         return true;
     }
 
     public boolean isInverse(Matrix inverse) {
-        return ((Matrix) this.times(inverse)).isIdentityMatrix() 
+        return ((Matrix) this.times(inverse)).isIdentityMatrix()
             && ((Matrix) inverse.times(this)).isIdentityMatrix();
     }
 

@@ -11,7 +11,6 @@ public class KalmanFilter {
 	 * error in the corresponding position in X, the state vector
 	 */
 	private Vector observationError;
-	private int iteration;
 
 	/**
 	 * The change in time between consecutive iterations
@@ -23,7 +22,7 @@ public class KalmanFilter {
 	 * 
 	 * @param obErr The error in the observation/measurement
 	 */
-	KalmanFilter(Vector obErr) {
+	public KalmanFilter(Vector obErr) {
 		observationError = obErr;
 	}
 
@@ -63,7 +62,7 @@ public class KalmanFilter {
 		);
 	}
 
-	Dataset initialProcessCovariance(Vector processError) {
+	public Matrix initialProcessCovariance(Vector processError) {
 		Matrix processCovariance = new Matrix(2, 2);
 
 		double firstVariableProcessError = processError.get(0);
@@ -152,10 +151,6 @@ public class KalmanFilter {
 		return identity.minus(kalmanGain.times(observation)).times(
 			predictedProcessCovariance
 		);
-	}
-
-	int nextIteration() {
-		return iteration + 1;
 	}
 
 	/**

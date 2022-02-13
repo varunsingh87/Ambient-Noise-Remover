@@ -1,4 +1,4 @@
-package com.varunsingh.soundmanipulation;
+package com.varunsingh.ambientnoiseremover;
 
 public class SimpleWave {
     private double frequency;
@@ -54,9 +54,6 @@ public class SimpleWave {
     }
 
     public SimpleWave invert() {
-        return new SimpleWave(
-            frequency,
-            -amplitude
-        );
+        return new SimpleWave(frequency, -amplitude);
     }
 }

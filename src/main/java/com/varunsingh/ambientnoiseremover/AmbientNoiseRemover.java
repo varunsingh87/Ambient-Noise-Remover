@@ -3,14 +3,10 @@ package com.varunsingh.ambientnoiseremover;
 import java.io.File;
 import java.io.IOException;
 
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
-
-import com.varunsingh.soundmanipulation.AudioSampleSet;
 
 /*
  * Ambient Noise Remover: A program that removes background noise from an audio
@@ -39,15 +35,17 @@ import com.varunsingh.soundmanipulation.AudioSampleSet;
  *          once
  */
 public class AmbientNoiseRemover {
-    private File sourceFile;
-    private AudioSampleSet waveForm;
+    private SoundManager sm;
 
-    public AmbientNoiseRemover(String src, String dest)
+    public AmbientNoiseRemover(File src, File dest)
         throws UnsupportedAudioFileException, IOException {
-        sourceFile = new File(src);
-        waveForm = AudioSampleSet.createSampleBufferFromByteBuffer(
-            loadSourceFileData()
-        );
+        sm = new SoundManager(AudioSystem.getAudioInputStream(src));
+
+        float[] sampleBuffer = sm.loadSamplesFromWav();
+        byte[] binaryBuffer = sm.fromBufferToAudioBytes(sampleBuffer);
+
+        sm.writeToOutputFile(binaryBuffer, sampleBuffer.length, dest);
+        playAudio(dest);
     }
 
     public static void main(String[] args) {
@@ -56,80 +54,26 @@ public class AmbientNoiseRemover {
 
     protected static void removeAmbientNoiseFromFiles() {
         try {
-            // for (int i = 1; i <= 7; i++) {
-            String fileName = "sample" + 1 + ".wav";
-            String sourcePath = "data/noiseremoval/samples/".concat(fileName);
-            String destPath = "data/noiseremoval/output/".concat(fileName);
+            for (int i = 1; i <= 7; i++) {
+                String fileName = "sample" + 1 + ".wav";
+                String sourcePath = "data/noiseremoval/samples/".concat(
+                    fileName
+                );
+                String destPath = "data/noiseremoval/output/".concat(fileName);
 
-            AmbientNoiseRemover anr = new AmbientNoiseRemover(
-                sourcePath, destPath
-            );
-            anr.removeNoise(1);
-
-            // }
+                new AmbientNoiseRemover(
+                    new File(sourcePath), new File(destPath)
+                );
+            }
         } catch (UnsupportedAudioFileException | IOException e) {
             e.printStackTrace();
         }
     }
 
-    byte[] loadSourceFileData() throws UnsupportedAudioFileException {
-        try (AudioInputStream in = AudioSystem.getAudioInputStream(
-            sourceFile
-        )) {
-            in.getFormat();
-            return in.readAllBytes();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new byte[] {};
-        }
-    }
-
-    public AudioSampleSet getWaveForm() {
-        return waveForm;
-    }
-
-    public void setWaveForm(AudioSampleSet waveForm) {
-        this.waveForm = waveForm;
-    }
-
-    void removeNoise(int index) {
-        AudioInputStream audioInputStream;
-        try {
-            audioInputStream = AudioSystem.getAudioInputStream(
-                new File("data/noiseremoval/samples/sample" + index + ".wav")
-            );
-
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioInputStream);
-            FloatControl gainControl = (FloatControl) clip.getControl(
-                FloatControl.Type.MASTER_GAIN
-            );
-            gainControl.setValue(-20.0f); // Reduce volume by 10 decibels.
-
-            clip.start();
-            while (!clip.isRunning())
-                Thread.sleep(10);
-            while (clip.isRunning())
-                Thread.sleep(10);
-
-            clip.close();
-        } catch (UnsupportedAudioFileException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (LineUnavailableException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-    }
-
-    void playAudio() {
+    void playAudio(File f) {
         try {
             Clip clip = AudioSystem.getClip();
-            clip.open(AudioSystem.getAudioInputStream(sourceFile));
+            clip.open(AudioSystem.getAudioInputStream(f));
 
             clip.start();
             while (!clip.isRunning())

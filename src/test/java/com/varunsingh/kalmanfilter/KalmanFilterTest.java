@@ -97,11 +97,6 @@ public class KalmanFilterTest {
 	}
 
 	@Test
-	public void testNextIteration() {
-		assertEquals(1, algorithm.nextIteration());
-	}
-
-	@Test
 	public void testExecution() {
 		Calculations firstIteration = algorithm.execute(
 			new Calculations(

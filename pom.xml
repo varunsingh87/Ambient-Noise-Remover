@@ -24,12 +24,6 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>com.jorensix.tarsosdsp</groupId>
-      <artifactId>tarsosDSP</artifactId>
-      <version>2.4</version>
-    </dependency>
   </dependencies>
 
   <build>
@@ -84,10 +78,5 @@
   </build>
 
   <repositories>
-    <repository>
-      <id>tarsos-dsp</id>
-      <name>tarsosDSP</name>
-      <url>file://${project.basedir}/libs</url>
-    </repository>
   </repositories>
 </project>
