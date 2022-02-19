@@ -87,7 +87,7 @@ public class KalmanFilterTest {
 		);
 
 		Dataset actual = MatrixRound.roundMatrix(
-			(Matrix) algorithm.updateProcesCovariance(
+			(Matrix) algorithm.updateProcessCovariance(
 				new Matrix(new double[][] { { 425, 0 }, { 0, 25 } }),
 				new Matrix(new double[][] { { 0.405, 0 }, { 0, 0.410 } })
 			), 1

@@ -52,10 +52,10 @@ public class KalmanFilter {
 	 */
 	Dataset predictState(Vector previousState) {
 		Vector adaptiveControl = Vector.column(
-			new double[] { 0.5 * Math.pow(timeOfOneCycle, 2), timeOfOneCycle }
+			new double[] { 0.05 * Math.pow(timeOfOneCycle, 2), timeOfOneCycle }
 		);
 
-		Matrix controlVariable = new Matrix(2);
+		Matrix controlVariable = new Matrix(0);
 
 		return stateTransition().times(previousState).plus(
 			adaptiveControl.times(controlVariable)
@@ -97,7 +97,9 @@ public class KalmanFilter {
 	}
 
 	Dataset calculateKalmanGain(Matrix processCovariancePrediction) {
-		Matrix observationMatrix = Matrix.createIdentityMatrix(2);
+		Matrix observationMatrix = Matrix.createIdentityMatrix(
+			processCovariancePrediction.getRows()
+		);
 
 		Matrix numerator = (Matrix) processCovariancePrediction.times(
 			observationMatrix.transpose()
@@ -122,20 +124,25 @@ public class KalmanFilter {
 	 * @return      Measurement of the state
 	 */
 	Dataset calculateNewObservation(Vector measuredObservation, Vector noise) {
-		// TODO (Primary) Reflect size of state vector
 		// TODO (Secondary) Change this to reflect which variables in the state
 		// vector are getting observed
-		Matrix observation = Matrix.createIdentityMatrix(2);
+		Matrix observation = Matrix.createIdentityMatrix(
+			measuredObservation.getSize()
+		);
 
 		return (Dataset) observation.times(measuredObservation).plus(noise);
 	}
 
 	Dataset calculateNewObservation(Vector measuredObservation) {
-		return Matrix.createIdentityMatrix(2).times(measuredObservation);
+		return Matrix.createIdentityMatrix(measuredObservation.getSize()).times(
+			measuredObservation
+		);
 	}
 
 	Dataset updateState(Vector predictedState, Vector measurementState, Matrix kalmanGain) {
-		Matrix observation = Matrix.createIdentityMatrix(2);
+		Matrix observation = Matrix.createIdentityMatrix(
+			measurementState.getSize()
+		);
 
 		Dataset adaptedPrediction = observation.times(predictedState);
 
@@ -144,9 +151,11 @@ public class KalmanFilter {
 		);
 	}
 
-	Dataset updateProcesCovariance(Matrix predictedProcessCovariance, Matrix kalmanGain) {
-		Dataset identity = Matrix.createIdentityMatrix(2);
-		Dataset observation = Matrix.createIdentityMatrix(2);
+	Dataset updateProcessCovariance(Matrix predictedProcessCovariance, Matrix kalmanGain) {
+		Dataset identity = Matrix.createIdentityMatrix(kalmanGain.getRows());
+		Dataset observation = Matrix.createIdentityMatrix(
+			kalmanGain.getColumns()
+		);
 
 		return identity.minus(kalmanGain.times(observation)).times(
 			predictedProcessCovariance
@@ -188,7 +197,7 @@ public class KalmanFilter {
 			predictedState, newObservation, kalmanGain
 		);
 
-		Matrix updatedProcessCovariance = (Matrix) updateProcesCovariance(
+		Matrix updatedProcessCovariance = (Matrix) updateProcessCovariance(
 			predictedProcessCovariance, kalmanGain
 		);
 

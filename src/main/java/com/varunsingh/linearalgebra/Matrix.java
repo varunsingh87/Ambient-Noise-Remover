@@ -262,9 +262,11 @@ public class Matrix implements Dataset {
 
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getColumns(); j++) {
-                // toReturn.set(i, j, MatrixRound.roundDouble(scalar *
-                // matrixElements[i][j], 5));
-                toReturn.set(i, j, scalar * matrixElements[i][j]);
+                toReturn.set(
+                    i, j, MatrixRound.roundDouble(
+                        scalar * matrixElements[i][j], 5
+                    )
+                );
             }
         }
 

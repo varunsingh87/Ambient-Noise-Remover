@@ -50,11 +50,11 @@ public class Vector implements Dataset {
     @Override
     public Vector transpose() {
         switch (vectorType) {
-            case COLUMN:
-                return new Vector(vectorElements, VectorType.COLUMN);
-            case ROW:
-            default:
-                return new Vector(vectorElements, VectorType.ROW);
+        case COLUMN:
+            return new Vector(vectorElements, VectorType.COLUMN);
+        case ROW:
+        default:
+            return new Vector(vectorElements, VectorType.ROW);
         }
     }
 
@@ -69,7 +69,10 @@ public class Vector implements Dataset {
         Vector columnVector = new Vector(new double[m.getRows()]);
 
         for (int i = 0; i < m.getRows(); i++) {
-            columnVector.set(i, m instanceof Matrix ? ((Matrix) m).get(i, 0) : ((Vector) m).get(i));
+            columnVector.set(
+                i, m instanceof Matrix ? ((Matrix) m).get(i, 0)
+                    : ((Vector) m).get(i)
+            );
         }
 
         return columnVector;
@@ -114,14 +117,18 @@ public class Vector implements Dataset {
 
     public Dataset times(Dataset factor) {
         if (getColumns() != factor.getRows()) {
-            throw new IllegalArgumentException("Vector column count does not match dataset row count");
+            throw new IllegalArgumentException(
+                "Vector column count does not match dataset row count"
+            );
         }
 
         // Row vector
         if (vectorType == VectorType.ROW) {
-            if (factor.getColumns() == 1) { // Row vector by getRows() x 1 column vector --> 1x1 matrix
+            if (factor.getColumns() == 1) { // Row vector by getRows() x 1
+                                            // column vector --> 1x1 matrix
                 return new Vector(dot(Vector.valueOf(factor)));
-            } else { // Row vector by getColumns() x n matrix --> 1 x factor.getColumns() row vector
+            } else { // Row vector by getColumns() x n matrix --> 1 x
+                     // factor.getColumns() row vector
                 return multiplyRowByMatrix((Matrix) factor);
             }
         } else { // this is a column vector
@@ -157,22 +164,30 @@ public class Vector implements Dataset {
 
         return product;
     }
-    
+
     @Override
     public Vector scale(double scalar) {
-        return new Vector(Arrays.stream(vectorElements).map(v -> v * scalar).toArray());
+        return new Vector(
+            Arrays.stream(vectorElements).map(v -> v * scalar).toArray()
+        );
     }
 
     @Override
     public Dataset plus(Dataset addend) {
-        if (addend instanceof Matrix && ((Matrix) addend).isConventionalMatrix()) {
-            throw new IllegalArgumentException("Cannot add non-vector to vector");
+        if (addend instanceof Matrix && ((Matrix) addend)
+            .isConventionalMatrix()) {
+            throw new IllegalArgumentException(
+                "Cannot add non-vector to vector"
+            );
         }
 
         Vector vAddend = Vector.valueOf(addend);
 
-        if (getSize() != vAddend.getSize() || getOrientation() != vAddend.getOrientation()) {
-            throw new IllegalArgumentException("Vectors must be of equal size and the same orientation");
+        if (getSize() != vAddend.getSize() || getOrientation() != vAddend
+            .getOrientation()) {
+            throw new IllegalArgumentException(
+                "Vectors must be of equal size and the same orientation"
+            );
         }
 
         Vector sum = new Vector(new double[getSize()]);
@@ -197,24 +212,25 @@ public class Vector implements Dataset {
      * Calculates the dot product of two real Kx1 vectors defined at
      * https://statlect.com/matrix-algebra/inner-product
      * 
-     * @param y The vector to multiply by
-     * @return The inner product
+     * @param  y The vector to multiply by
+     * @return   The inner product
      */
     public double calcInnerProduct(Vector y) {
         return dot(y);
     }
 
     /**
-     * Multiplies every element in each vector by every element in the other vector
+     * Multiplies every element in each vector by every element in the other
+     * vector
      * 
-     * @param y The vector to multiply this vector by
-     * @return A matrix of the outer product
+     * @param  y The vector to multiply this vector by
+     * @return   A matrix of the outer product
      */
     public Dataset calcOuterProduct(Vector y) {
         return this.times(y.transpose());
     }
 
-    int getSize() {
+    public int getSize() {
         return vectorElements.length;
     }
 
@@ -241,7 +257,8 @@ public class Vector implements Dataset {
     /**
      * Calculates the length of a vector
      * 
-     * @return ||this|| the square root of the sum of the squares of each component
+     * @return ||this|| the square root of the sum of the squares of each
+     *         component
      */
     public double calcLength() {
         return Math.sqrt(dot());
@@ -250,7 +267,8 @@ public class Vector implements Dataset {
     /**
      * Calculates the norm of a vector
      * 
-     * @return ||this|| the square root of the sum of the squares of each component
+     * @return ||this|| the square root of the sum of the squares of each
+     *         component
      */
     public double calcNorm() {
         return Math.sqrt(dot());
@@ -259,7 +277,8 @@ public class Vector implements Dataset {
     /**
      * Calculates the magnitude of a vector
      * 
-     * @return ||this|| the square root of the sum of the squares of each component
+     * @return ||this|| the square root of the sum of the squares of each
+     *         component
      */
     public double calcMagnitude() {
         return Math.sqrt(dot());
@@ -278,7 +297,9 @@ public class Vector implements Dataset {
 
     public double dot(Vector v) {
         if (getSize() != v.getSize())
-            throw new IllegalArgumentException("The vectors must be the same size");
+            throw new IllegalArgumentException(
+                "The vectors must be the same size"
+            );
 
         double product = 0;
 
@@ -292,18 +313,21 @@ public class Vector implements Dataset {
     /**
      * Evaluates the cross product of this and another vector
      * 
-     * @param y The second factor
-     * @return The vector cross product
+     * @param  y The second factor
+     * @return   The vector cross product
      */
     public Vector cross(Vector y) {
         if (getSize() != 3 || y.getSize() != 3)
-            throw new IllegalArgumentException("Vector must have 3 elements to be crossable");
+            throw new IllegalArgumentException(
+                "Vector must have 3 elements to be crossable"
+            );
 
-        Vector crossProduct = new Vector(new double[] {
-                get(1) * y.get(2) - get(2) * y.get(1),
-                get(2) * y.get(0) - get(0) * y.get(2),
-                get(0) * y.get(1) - get(1) * y.get(0)
-        });
+        Vector crossProduct = new Vector(
+            new double[] { get(1) * y.get(2) - get(2) * y.get(1), get(2) * y
+                .get(0) - get(0) * y.get(2), get(0) * y.get(1) - get(1) * y.get(
+                    0
+                ) }
+        );
 
         return crossProduct;
     }

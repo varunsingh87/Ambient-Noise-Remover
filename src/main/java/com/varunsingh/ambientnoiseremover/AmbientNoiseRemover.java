@@ -8,6 +8,10 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.varunsingh.kalmanfilter.Calculations;
+import com.varunsingh.kalmanfilter.KalmanFilter;
+import com.varunsingh.linearalgebra.Vector;
+
 /*
  * Ambient Noise Remover: A program that removes background noise from an audio
  * file using the multidimensional Kalman Filter
@@ -36,37 +40,95 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class AmbientNoiseRemover {
     private SoundManager sm;
+    private File sourceAudio;
+    private File outputAudio;
 
     public AmbientNoiseRemover(File src, File dest)
         throws UnsupportedAudioFileException, IOException {
         sm = new SoundManager(AudioSystem.getAudioInputStream(src));
-
-        float[] sampleBuffer = sm.loadSamplesFromWav();
-        byte[] binaryBuffer = sm.fromBufferToAudioBytes(sampleBuffer);
-
-        sm.writeToOutputFile(binaryBuffer, sampleBuffer.length, dest);
-        playAudio(dest);
+        sourceAudio = src;
+        outputAudio = dest;
+        useKalmanFilter();
     }
 
     public static void main(String[] args) {
         removeAmbientNoiseFromFiles();
     }
 
-    protected static void removeAmbientNoiseFromFiles() {
+    void useKalmanFilter() {
         try {
-            for (int i = 1; i <= 7; i++) {
-                String fileName = "sample" + 1 + ".wav";
-                String sourcePath = "data/noiseremoval/samples/".concat(
-                    fileName
-                );
-                String destPath = "data/noiseremoval/output/".concat(fileName);
+            float[] sampleBuffer = sm.loadSamplesFromWav();
+            System.out.println(
+                "Removing noise from audio sample " + sourceAudio.getName()
+                    + " of length " + sampleBuffer.length + "..."
+            );
 
-                new AmbientNoiseRemover(
-                    new File(sourcePath), new File(destPath)
+            // Too high (> 1) measurement noise = Extreemely fluctuating,
+            // nearly inaudible
+            // Too low (< 0.5) square block
+            // 0.6 < optimal values < 1.0
+            KalmanFilter kf = new KalmanFilter(Vector.column(0.8, 0.999));
+
+            Calculations calc = new Calculations(
+                Vector.column(1.1, 0.8), kf.initialProcessCovariance(
+                    // Higher initial process covariance = higher amplitude
+                    Vector.column(140.972, 20.52)
+                )
+            );
+
+            for (int i = 0; i < sampleBuffer.length; i++) {
+                Vector measurement = Vector.column(
+                    sampleBuffer[i], sampleBuffer[i]
+                );
+                Calculations updatedCalc = kf.execute(calc, measurement);
+                sampleBuffer[i] = (float) updatedCalc.stateEstimate().get(0)
+                    + (float) updatedCalc.stateEstimate().get(1);
+                calc = new Calculations(
+                    updatedCalc.stateEstimate(), updatedCalc.processCovariance()
                 );
             }
-        } catch (UnsupportedAudioFileException | IOException e) {
+
+            System.out.println(
+                "Noise removal complete for sample " + sourceAudio.getName()
+                    + "! Writing to output file now..."
+            );
+
+            byte[] binaryBuffer = sm.fromBufferToAudioBytes(sampleBuffer);
+
+            sm.writeToOutputFile(
+                binaryBuffer, sampleBuffer.length, outputAudio
+            );
+
+        } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    protected static void removeAmbientNoiseFromFiles() {
+
+        for (int i = 2; i <= 2; i++) {
+            String sourcePath = "data/noiseremoval/fabricatedsamples/sample"
+                .concat(i + ".wav");
+            String destPath = "data/noiseremoval/output/output".concat(
+                i + ".wav"
+            );
+
+            Thread t = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        new AmbientNoiseRemover(
+                            new File(sourcePath), new File(destPath)
+                        );
+                    } catch (UnsupportedAudioFileException | IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }, "Sample-" + i);
+
+            t.start();
         }
     }
 
