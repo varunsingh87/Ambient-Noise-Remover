@@ -2,7 +2,7 @@
 
 Ambient Noise Remover is a Java program that removes ambient noise from an audio file. It uses the multidimensional Kalman Filter to estimate the positions of the ambient noise in an inputted audio file and the Java Sound API to remove it from the sound file. It then outputs a new file with removed ambient noise. 
 
-[Explore Ambient Noise Remover](/docs)
+[Explore Ambient Noise Remover](./docs)
 
 ## Motivation
 
