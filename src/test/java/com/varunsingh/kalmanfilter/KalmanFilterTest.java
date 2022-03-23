@@ -15,7 +15,7 @@ public class KalmanFilterTest {
 
 	@Before
 	public void initialize() {
-		algorithm = new KalmanFilter(Vector.column(25, 6));
+		algorithm = new KalmanFilter(Vector.column(25, 6), new Matrix(2));
 	}
 
 	@Test

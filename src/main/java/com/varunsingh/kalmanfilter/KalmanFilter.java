@@ -12,6 +12,8 @@ public class KalmanFilter {
 	 */
 	private Vector observationError;
 
+	private Matrix controlVariable;
+
 	/**
 	 * The change in time between consecutive iterations
 	 */
@@ -22,8 +24,9 @@ public class KalmanFilter {
 	 * 
 	 * @param obErr The error in the observation/measurement
 	 */
-	public KalmanFilter(Vector obErr) {
+	public KalmanFilter(Vector obErr, Matrix u) {
 		observationError = obErr;
+		controlVariable = u;
 	}
 
 	/**
@@ -52,10 +55,8 @@ public class KalmanFilter {
 	 */
 	Dataset predictState(Vector previousState) {
 		Vector adaptiveControl = Vector.column(
-			new double[] { 0.05 * Math.pow(timeOfOneCycle, 2), timeOfOneCycle }
+			new double[] { 0.5 * Math.pow(timeOfOneCycle, 2), timeOfOneCycle }
 		);
-
-		Matrix controlVariable = new Matrix(0);
 
 		return stateTransition().times(previousState).plus(
 			adaptiveControl.times(controlVariable)
@@ -170,7 +171,6 @@ public class KalmanFilter {
 	 * Step 5: The New Observation (Update Measurement)
 	 * Step 6: Calculating the Current State
 	 * Step 7: Updating the Process Covariance
-	 * Step 8: Change to next iteration
 	 * 
 	 * @param  previousCalculation The previous calculation (state, process)
 	 * @param  measuredObservation The measurement of the state

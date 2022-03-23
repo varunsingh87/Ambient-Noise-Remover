@@ -58,7 +58,9 @@ public class Calculator {
 	}
 
 	static String updateAnswer(double observationError, double initialEstimate, double processError, double measurement) {
-		KalmanFilter kf = new KalmanFilter(Vector.column(observationError, 20));
+		KalmanFilter kf = new KalmanFilter(
+			Vector.column(observationError, 20), new Matrix(2)
+		);
 
 		Calculations updatedState = kf.execute(
 			new Calculations(
